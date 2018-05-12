@@ -11,10 +11,11 @@ BASE_FOLDER = "data"
 
 class IamDataset(dataset.Dataset):
 
-    def __init__(self, binarize, width, height):
+    def __init__(self, binarize, width, height, padding=5):
         self._binarize = binarize
         self._width = width
         self._height = height
+        self._padding = padding
         self._basepath, self._targetpath, self._targetimagepath = get_targetpath(
             binarize, width, height)
         self.preload()
@@ -23,7 +24,10 @@ class IamDataset(dataset.Dataset):
         self._vocab = util.load(self._targetpath, "vocab")
         self._vocab_length = len(self._vocab[0])
         self._lines = util.load(self._targetpath, "lines")
-        self._maxlength = max(map(lambda x: len(x["text"]), self._lines))
+        # we need to add padding as ctc does not like if there is none or too
+        # little (< 2)
+        self._maxlength = max(
+            map(lambda x: len(x["text"]), self._lines)) + self._padding
 
     def parsetext(self, text):
         length = len(text)
@@ -34,14 +38,18 @@ class IamDataset(dataset.Dataset):
     def _loaddata(self):
         X = []
         Y = []
+        L = []
         for line in self._lines:
-            x, y = self.loadline(line)
+            x, y, l = self.loadline(line)
             X.append(x)
             Y.append(y)
+            L.append(l)
         self._raw_x = np.asarray(X)
         self._raw_y = np.asarray(Y)
+        self._raw_l = np.asarray(L)
 
     def loadline(self, line):
+        l = len(line["text"])
         y = np.asarray(self.parsetext(line["text"]))
         x = cv2.imread(os.path.join(self._targetimagepath, line[
                        "name"] + ".png"), cv2.IMREAD_GRAYSCALE)
@@ -49,7 +57,7 @@ class IamDataset(dataset.Dataset):
                           norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
         x = np.transpose(x, [1, 0])
         x = np.reshape(x, [self._width, self._height, 1])
-        return x, y
+        return x, y, l
 
     def generateBatch(self, batch_size, max_batches=0):
         total_len = len(self._lines)
@@ -59,7 +67,8 @@ class IamDataset(dataset.Dataset):
         for b in range(num_batches - 1):
             x = self._raw_x[b * batch_size:(b + 1) * batch_size]
             y = self._raw_y[b * batch_size:(b + 1) * batch_size]
-            yield x, y
+            l = self._raw_l[b * batch_size:(b + 1) * batch_size]
+            yield x, y, l
         pass
 
     def generateEpochs(self, batch_size, num_epochs, max_batches=0):
