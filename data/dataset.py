@@ -1,11 +1,10 @@
-
 import abc
 
 
-class AlgorithmBase(object):
+class Dataset(object):
 
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def build_graph():
+    def generateEpochs(self, batch_size, num_epochs):
         pass

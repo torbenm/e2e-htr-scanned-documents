@@ -5,8 +5,8 @@ from tensorflow.python.eager import context
 from tensorflow.python.util import nest
 from tensorflow.contrib.rnn import RNNCell, LSTMStateTuple
 from tensorflow.python.ops.rnn import _best_effort_input_batch_size
-from mdlstm import MDLSTMCell
 import math
+import numpy as np
 
 
 # Naive loop implementation where there is no parallelization
@@ -214,7 +214,9 @@ def rnn2d(cell, inputs, sequence_shape=(2, 2), initial_state=None,
             full_reverse_dims = [False]
             full_reverse_dims.extend(reverse_dims)
             full_reverse_dims.append(False)
-            x = tf.reverse(x, dims)
+            reverse_dense = np.where(full_reverse_dims)[0]
+            if len(reverse_dense) > 0:
+                x = tf.reverse(x, reverse_dense)
 
          # Reorder inputs to (num_steps_x, num_steps_y, batch_size, features)
         x = tf.transpose(x, [1, 2, 0, 3])
@@ -260,8 +262,8 @@ def rnn2d(cell, inputs, sequence_shape=(2, 2), initial_state=None,
         # Reorder te dimensions to match the input
         y = tf.transpose(y, [2, 0, 1, 3])
         # Reverse if selected
-        if full_reverse_dims is not None:
-            y = tf.reverse(y, full_reverse_dims)
+        if reverse_dense is not None and len(reverse_dense) > 0:
+            y = tf.reverse(y, reverse_dense)
 
         # Return the output and the inner states
         return y, states
@@ -297,16 +299,16 @@ def multidir_rnn2d(cell, inputs, sequence_shape=(2, 2), initial_state=None,
     return rnn_lt, rnn_lb, rnn_rt, rnn_rb
 
 
-def multidir_conv(inputs, activation=None, kernel_size=None, filters=None, strides=None, activation=tf.nn.relu, padding="valid"):
+def multidir_conv(inputs, kernel_size=None, filters=None, strides=None, activation=tf.nn.relu, padding="valid"):
     def build_conv(x):
         return tf.layers.conv2d(inputs=x, strides=strides, filters=filters, kernel_size=kernel_size, padding=padding, activation=activation)
-    return (build_conv(inputs[i]) for i in range(len(inputs)))
+    return [build_conv(inputs[i]) for i in range(len(inputs))]
 
 
-def multidir_fullyconnected(inputs, activation=None, units=None, activation=tf.nn.relu):
+def multidir_fullyconnected(inputs, units=None, activation=tf.nn.relu):
     def build_fc(x):
         return fully_connected(inputs=x, num_outputs=units, activation_fn=activation)
-    return (build_fc(inputs[i]) for i in range(len(inputs)))
+    return [build_fc(inputs[i]) for i in range(len(inputs))]
 
 
 def element_sum(inputs, reducer=None, axis=0):
