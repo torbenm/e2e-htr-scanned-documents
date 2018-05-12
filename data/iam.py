@@ -44,26 +44,28 @@ class IamDataset(dataset.Dataset):
     def loadline(self, line):
         y = np.asarray(self.parsetext(line["text"]))
         x = cv2.imread(os.path.join(self._targetimagepath, line[
-                       "name"] + ".png"), cv2.CV_LOAD_IMAGE_GRAYSCALE)
-        x = cv2.normalize(x, alpha=0, beta=1,
+                       "name"] + ".png"), cv2.IMREAD_GRAYSCALE)
+        x = cv2.normalize(x, x, alpha=0, beta=1,
                           norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
         x = np.transpose(x, [1, 0])
         x = np.reshape(x, [self._width, self._height, 1])
         return x, y
 
-    def generateBatch(self, batch_size):
+    def generateBatch(self, batch_size, max_batches=0):
         total_len = len(self._lines)
         num_batches = total_len // batch_size
+        num_batches = min(
+            num_batches, max_batches) if max_batches > 0 else num_batches
         for b in range(num_batches - 1):
             x = self._raw_x[b * batch_size:(b + 1) * batch_size]
             y = self._raw_y[b * batch_size:(b + 1) * batch_size]
             yield x, y
         pass
 
-    def generateEpochs(self, batch_size, num_epochs):
+    def generateEpochs(self, batch_size, num_epochs, max_batches=0):
         self._loaddata()
         for e in range(num_epochs):
-            yield self.generateBatch(batch_size)
+            yield self.generateBatch(batch_size, max_batches=max_batches)
 
 download_data = {
     "lines": {

@@ -1,6 +1,7 @@
 import tensorflow as tf
 import util
 import sys
+import numpy as np
 from time import time
 from data.iam import IamDataset
 from graves2009 import GravesSchmidhuber2009
@@ -22,7 +23,7 @@ def train(graph, dataset, num_epochs=10, batch_size=10, save=False):
                 feed_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y)}
                 training_loss_, _ = sess.run(
                     [graph['total_loss'], graph['train_step']], feed_dict)
-                training_loss += training_loss_
+                training_loss += np.mean(training_loss_)
 
             print('epoch = {0} | loss = {1:.3f} | time {2:.3f}'.format(str(idx).zfill(3),
                                                                        training_loss / steps,
@@ -41,7 +42,6 @@ if __name__ == "__main__":
         channels = 1
         dataset = IamDataset(True, 300, 30)
         algorithm = GravesSchmidhuber2009()
-        print dataset._vocab_length
         graph = algorithm.build_graph(
             batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        train(graph, dataset, num_epochs=1, batch_size=batch_size)
+        train(graph, dataset, num_epochs=10, batch_size=batch_size)

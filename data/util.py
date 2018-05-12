@@ -109,7 +109,7 @@ def load(path, name):
 
 def process_greyscale(imagepath, targetpath, threshold=None, width=None, height=None):
     import cv2
-    image = cv2.imread(imagepath, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    image = cv2.imread(imagepath, cv2.IMREAD_GRAYSCALE)
     if width is not None and height is not None:
         image = cv2.resize(image, (width, height))
     if threshold is not None:
