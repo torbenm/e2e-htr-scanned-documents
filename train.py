@@ -10,13 +10,14 @@ def train(graph, dataset, num_epochs=10, batch_size=10, save=False):
     sessionConfig = tf.ConfigProto(allow_soft_placement=True)
     with tf.Session(config=sessionConfig) as sess:
         sess.run(tf.global_variables_initializer())
+        batch_num = len(dataset._lines) // batch_size
         for idx, epoch in enumerate(dataset.generateEpochs(batch_size, num_epochs)):
             print "Epoch number", idx
             training_loss = 0
             steps = 0
             start_time = time()
-
             for X, Y in epoch:
+                print "step", steps, "of", batch_num
                 steps += 1
                 feed_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y)}
                 training_loss_, _ = sess.run(

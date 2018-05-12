@@ -115,6 +115,8 @@ def parse_args():
         "--height", help="Height of the images", type=int, default=30)
     parser.add_argument(
         "--width", help="Width of the images", type=int, default=300)
+    parser.add_argument("--user")
+    parser.add_argument("--pwd")
     return parser.parse_args()
 
 
