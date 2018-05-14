@@ -150,7 +150,7 @@ def load_ascii_lines(basepath, type):
                 break
             if line[0] != "#":
                 lsplit = line.split(" ")
-                if lsplit[1] != "ok":
+                if lsplit[1] != "err":
                     path = get_image_path(lsplit[0])
                     parsed.append({"path": path, "name": lsplit[
                                   0], "mean_grey": int(lsplit[2]), "text": lsplit[-1]})
