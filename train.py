@@ -54,15 +54,15 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
                 steps += 1
                 train_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y), graph[
                     'l']: length}
-                training_loss_, other, ler = sess.run(
-                    [graph['total_loss'], graph['train_step'], graph['ler']], train_dict)
+                training_loss_, other = sess.run(
+                    [graph['total_loss'], graph['train_step']], train_dict)
                 training_loss += np.ma.masked_invalid(
                     training_loss_).mean()
             # Evaluate training
             preds = sess.run(graph['output'], val_dict)
             print preds.shape
             print '\n'.join([compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
-            epoch_hook(idx, training_loss / steps, time() - start_time, ler)
+            epoch_hook(idx, training_loss / steps, time() - start_time, 0)
         if isinstance(save, str):
             graph['saver'].save(sess, "saves/{}".format(save))
 
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 
         batch_size = 1024
         num_epochs = 100
-        width = 200
-        height = 100
+        width = 100
+        height = 50
         channels = 1
         dataset = IamDataset(False, width, height)
         # channels = dataset._channels
@@ -82,5 +82,5 @@ if __name__ == "__main__":
         # algorithm = Puigcerver2017()
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
-            batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        # train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
+            batch_size=batch_size, learning_rate=0.005, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
+        train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
