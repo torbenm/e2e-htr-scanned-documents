@@ -70,7 +70,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         decoded, _ = tf.nn.ctc_beam_search_decoder(
             logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
-        ler = tf.reduce_mean(tf.edit_distance(decoded, y))
+        ler = tf.reduce_mean(tf.edit_distance(decoded[0], y))
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
