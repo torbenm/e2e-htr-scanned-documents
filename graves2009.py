@@ -70,7 +70,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         decoded, _ = tf.nn.ctc_beam_search_decoder(
             logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
-        ler = tf.reduce_mean(tf.edit_distance(decoded[0], tf.cast(y, tf.int64))
+        ler = tf.reduce_mean(tf.edit_distance(decoded[0], tf.cast(y, tf.int64))))
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded=tf.sparse_to_dense(
@@ -79,12 +79,12 @@ class GravesSchmidhuber2009(AlgorithmBase):
             learning_rate).minimize(total_loss)
 
         return dict(
-            x=x,
-            y=y,
-            l=l,
-            ler=ler,
-            output=decoded,
-            total_loss=total_loss,
-            train_step=train_step,
-            saver=tf.train.Saver()
+            x = x,
+            y = y,
+            l = l,
+            ler = ler,
+            output = decoded,
+            total_loss = total_loss,
+            train_step = train_step,
+            saver = tf.train.Saver()
         )
