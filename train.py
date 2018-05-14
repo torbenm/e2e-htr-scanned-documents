@@ -18,10 +18,10 @@ def batch_hook(epoch, batch, max_batches):
     sys.stdout.flush()
 
 
-def epoch_hook(epoch, loss, time):
-    msg = 'epoch = {0} | loss = {1:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
-                                                               loss,
-                                                               time)
+def epoch_hook(epoch, loss, time, ler):
+    msg = 'epoch = {0} | loss = {1:.3f} | time {2:.3f} | ler {3:.3f}'.format(str(epoch).zfill(3),
+                                                                             loss,
+                                                                             time, ler)
     sys.stdout.write('\r{:130}\n'.format(msg))
     sys.stdout.flush()
 
@@ -54,15 +54,15 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
                 steps += 1
                 train_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y), graph[
                     'l']: length}
-                training_loss_, other = sess.run(
-                    [graph['total_loss'], graph['train_step']], train_dict)
+                training_loss_, other, ler = sess.run(
+                    [graph['total_loss'], graph['train_step'], graph['ler']], train_dict)
                 training_loss += np.ma.masked_invalid(
                     training_loss_).mean()
             # Evaluate training
             preds = sess.run(graph['output'], val_dict)
             print preds.shape
             print '\n'.join([compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
-            epoch_hook(idx, training_loss / steps, time() - start_time)
+            epoch_hook(idx, training_loss / steps, time() - start_time, ler)
         if isinstance(save, str):
             graph['saver'].save(sess, "saves/{}".format(save))
 
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 
         batch_size = 1024
         num_epochs = 100
-        width = 50
-        height = 50
+        width = 200
+        height = 100
         channels = 1
         dataset = IamDataset(False, width, height)
         # channels = dataset._channels
@@ -83,4 +83,4 @@ if __name__ == "__main__":
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
+        # train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
