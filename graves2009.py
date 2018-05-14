@@ -70,15 +70,14 @@ class GravesSchmidhuber2009(AlgorithmBase):
         decoded, _ = tf.nn.ctc_beam_search_decoder(
             logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
+        ler = tf.reduce_mean(tf.edit_distance(tf.cast(decoded[0], tf.int32),
+                                              y))
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
-
-        ler = tf.reduce_mean(tf.edit_distance(tf.cast(decoded[0], tf.int32),
-                                              y))
 
         return dict(
             x=x,
