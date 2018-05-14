@@ -73,14 +73,14 @@ if __name__ == "__main__":
 
         batch_size = 256
         num_epochs = 100
-        width = 1000
-        height = 100
+        width = 50
+        height = 50
         channels = 1
-        dataset = IamDataset(True, width, height)
+        dataset = IamDataset(False, width, height)
         # channels = dataset._channels
-        # algorithm = GravesSchmidhuber2009()
+        algorithm = GravesSchmidhuber2009()
         # algorithm = Puigcerver2017()
-        algorithm = VoigtlaenderDoetschNey2016()
+        # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        # train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
+        train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
