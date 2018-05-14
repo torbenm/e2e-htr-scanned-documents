@@ -52,7 +52,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         x = wrap_1d(tf.placeholder(
             tf.float32, [batch_size, image_width, image_height, channels], name="x"))
         y = tf.sparse_placeholder(
-            tf.int32, shape=[batch_size, sequence_length], name="y")
+            tf.int64, shape=[batch_size, sequence_length], name="y")
         l = tf.placeholder(
             tf.int32, shape=[batch_size], name="y")
 
@@ -70,7 +70,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         decoded, _ = tf.nn.ctc_beam_search_decoder(
             logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
-        ler = tf.reduce_mean(tf.edit_distance(tf.cast(decoded[0], tf.int32),
+        ler = tf.reduce_mean(tf.edit_distance(tf.cast(decoded[0], tf.int64),
                                               y))
 
         # decoded = tf.cast(decoded[0], tf.int32)
