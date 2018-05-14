@@ -41,7 +41,7 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
         dataset.prepareDataset(val_size, test_size, shuffle)
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
-                    graph['l']: val_l[:batch_size]}
+                    graph['l']: [dataset._maxlength] * batch_size}
         batch_num = dataset.getBatchCount(batch_size, max_batches)
         # Training loop
         for idx, epoch in enumerate(dataset.generateEpochs(batch_size, num_epochs, max_batches=max_batches)):
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 
         batch_size = 256
         num_epochs = 100
-        width = 300
-        height = 30
+        width = 50
+        height = 50
         channels = 1
         dataset = IamDataset(False, width, height)
         # channels = dataset._channels

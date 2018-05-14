@@ -52,9 +52,10 @@ class IamDataset(dataset.Dataset):
             L = []
             for line in self._lines:
                 x, y, l = self.loadline(line)
-                X.append(x)
-                Y.append(y)
-                L.append(l)
+                if x is not None:
+                    X.append(x)
+                    Y.append(y)
+                    L.append(l)
             self._raw_x = 1 - np.asarray(X)
             self._raw_y = np.asarray(Y)
             self._raw_l = np.asarray(L)
@@ -67,7 +68,10 @@ class IamDataset(dataset.Dataset):
                        "name"] + ".png"), cv2.IMREAD_GRAYSCALE)
         x = cv2.normalize(x, x, alpha=0, beta=1,
                           norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-        x = np.transpose(x, [1, 0])
+        try:
+            x = np.transpose(x, [1, 0])
+        except ValueError:
+            return None, None, None
         x = np.reshape(x, [self._width, self._height, 1])
         return x, y, l
 
@@ -194,12 +198,15 @@ def prepare_data(args):
     parsed, fulltext = load_ascii_lines(basepath, args.type)
     vocab = util.getVocab(fulltext)
     util.dump(targetpath, "vocab", vocab)
+
+    for idx, image in enumerate(parsed):
+        try:
+            util.process_greyscale(os.path.join(basepath, args.type, image["path"]), os.path.join(targetimagepath, image["name"] + ".png"), image[
+                "mean_grey"] if args.binarize else None, args.width, args.height)
+        except cv2.error:
+            del parsed[idx]
+
     util.dump(targetpath, "lines", parsed)
-
-    for image in parsed:
-        util.process_greyscale(os.path.join(basepath, args.type, image["path"]), os.path.join(targetimagepath, image["name"] + ".png"), image[
-            "mean_grey"] if args.binarize else None, args.width, args.height)
-
 
 if __name__ == "__main__":
     args = parse_args()

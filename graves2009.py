@@ -10,7 +10,7 @@ from util import wrap_1d, wrap_4d, make_sparse
 # with multidimensional recurrent neural networks." Advances in neural
 # information processing systems. 2009.
 
-SEPARABLE = False
+SEPARABLE = True
 
 
 def lstm_conv_layer(x, lstm_size, lstm_shape, kernel_size, filter, name):
@@ -65,13 +65,14 @@ class GravesSchmidhuber2009(AlgorithmBase):
         # net = tf.nn.softmax(net)
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
+        total_loss = tf.nn.ctc_loss(y, logits, l)
+        logits = tf.nn.softmax(logits)
         decoded, _ = tf.nn.ctc_greedy_decoder(logits, l, merge_repeated=False)
         # wrap_1d(decoded[0])
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
-        total_loss = tf.nn.ctc_loss(y, logits, l)
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
 
