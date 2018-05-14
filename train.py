@@ -12,9 +12,9 @@ from Voigtlaender2016 import VoigtlaenderDoetschNey2016
 
 def batch_hook(epoch, batch, max_batches):
     percent = (float(batch) / max_batches) * 100
-    out = u'epoch = {0} [ {2:100} ] {1:02.2f}% '.format(
-        str(epoch).zfill(3), percent, u"\u2588" * int(percent))
-    sys.stdout.write(u"\r" + out)
+    out = 'epoch = {0} [ {2:100} ] {1:02.2f}% '.format(
+        str(epoch).zfill(3), percent, "|" * int(percent))
+    sys.stdout.write("\r" + out)
     sys.stdout.flush()
 
 
@@ -73,8 +73,8 @@ if __name__ == "__main__":
 
         batch_size = 256
         num_epochs = 100
-        width = 50
-        height = 50
+        width = 300
+        height = 30
         channels = 1
         dataset = IamDataset(False, width, height)
         # channels = dataset._channels
