@@ -299,13 +299,13 @@ def multidir_rnn2d(cell, inputs, sequence_shape=(2, 2), initial_state=None,
     return rnn_lt, rnn_lb, rnn_rt, rnn_rb
 
 
-def multidir_conv(inputs, kernel_size=None, filters=None, strides=None, activation=tf.nn.relu, padding="valid"):
+def multidir_conv(inputs, kernel_size=None, filters=None, strides=None, activation=tf.tanh, padding="valid"):
     def build_conv(x):
         return tf.layers.conv2d(inputs=x, strides=strides, filters=filters, kernel_size=kernel_size, padding=padding, activation=activation)
     return [build_conv(inputs[i]) for i in range(len(inputs))]
 
 
-def multidir_fullyconnected(inputs, units=None, activation=tf.nn.relu):
+def multidir_fullyconnected(inputs, units=None, activation=tf.tanh):
     def build_fc(x):
         return fully_connected(inputs=x, num_outputs=units, activation_fn=activation)
     return [build_fc(inputs[i]) for i in range(len(inputs))]

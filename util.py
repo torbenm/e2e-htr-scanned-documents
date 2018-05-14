@@ -23,6 +23,6 @@ def make_sparse(var):
     return tf.SparseTensor(idx, tf.gather_nd(var, idx), var.get_shape())
 
 
-def denseNDArrayToSparseTensor(arr):
-    idx = np.where(arr != 0.0)
+def denseNDArrayToSparseTensor(arr, sparse_val=-1):
+    idx = np.where(arr != sparse_val)
     return tf.SparseTensorValue(np.vstack(idx).T, arr[idx], arr.shape)

@@ -73,6 +73,11 @@ class LSTM2D(LayerRNNCell):
         self._kernel = self.add_variable(
             _WEIGHTS_VARIABLE_NAME,
             shape=[input_depth + h_depth * 2, 5 * h_depth])
+        self._bias = self.add_variable(
+            _BIAS_VARIABLE_NAME,
+            shape=[5 * h_depth],
+            initializer=init_ops.zeros_initializer(dtype=self.dtype))
+
         self._p_i = self.add_variable(
             'input_peephole', shape=[1, h_depth])
         self._p_o = self.add_variable(
@@ -104,6 +109,8 @@ class LSTM2D(LayerRNNCell):
         c1, c2, h1, h2 = state
         gate_inputs = matmul(
             array_ops.concat([inputs, h1, h2], 1), self._kernel)
+        gate_inputs = nn_ops.bias_add(gate_inputs, self._bias)
+
         if not self._use_peephole:
             gate_inputs = self._gate_activation(gate_inputs)
 
@@ -121,8 +128,7 @@ class LSTM2D(LayerRNNCell):
                         add(multiply(c1, f1), multiply(c2, f2)))
         else:
             new_c = add(multiply(self._gate_activation(i), self._activation(j)),
-                        add(multiply(c1, self._gate_activation(f1)), multiply(c2,
-                                                                              self._gate_activation(f2))))
+                        add(multiply(c1, self._gate_activation(f1)), multiply(c2, self._gate_activation(f2))))
 
         if self._use_peephole:
             op = multiply(new_c, self._p_o)

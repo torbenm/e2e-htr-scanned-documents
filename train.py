@@ -24,23 +24,42 @@ def epoch_hook(epoch, loss, time):
     sys.stdout.flush()
 
 
-def train(graph, dataset, num_epochs=10, batch_size=10, save=False, max_batches=0):
+def compare_outputs(dataset, pred, actual):
+    pred = dataset.decompile(pred)
+    actual = dataset.decompile(actual)
+    out = '{:' + str(dataset._maxlength) + '}  {}'
+    return out.format(pred, actual)
+
+
+def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save=False, max_batches=0):
     sessionConfig = tf.ConfigProto(allow_soft_placement=True)
     with tf.Session(config=sessionConfig) as sess:
+        # Prepare data
         sess.run(tf.global_variables_initializer())
-        batch_num = len(dataset._lines) // batch_size
+        dataset.prepareDataset(val_size, test_size, shuffle)
+        val_x, val_y, val_l = dataset.getValidationSet()
+        val_dict = {graph['x']: val_x[:batch_size],
+                    graph['l']: val_l[:batch_size]}
+        batch_num = dataset.getBatchCount(batch_size, max_batches)
+        # Training loop
         for idx, epoch in enumerate(dataset.generateEpochs(batch_size, num_epochs, max_batches=max_batches)):
             training_loss = 0
             steps = 0
             start_time = time()
+            # Batch loop
             for X, Y, length in epoch:
                 batch_hook(idx, steps, batch_num - 1)
                 steps += 1
-                feed_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y)}
+                train_dict = {graph['x']: X, graph['y']: util.denseNDArrayToSparseTensor(Y), graph[
+                    'l']: length}
                 training_loss_, other = sess.run(
-                    [graph['total_loss'], graph['train_step']], feed_dict)
+                    [graph['total_loss'], graph['train_step']], train_dict)
                 training_loss += np.ma.masked_invalid(
                     training_loss_).mean()
+            # Evaluate training
+            preds = sess.run(graph['output'], val_dict)
+            print preds.shape
+            print '\n'.join([compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
             epoch_hook(idx, training_loss / steps, time() - start_time)
         if isinstance(save, str):
             graph['saver'].save(sess, "saves/{}".format(save))
@@ -50,12 +69,13 @@ if __name__ == "__main__":
     # TODO: Probably better to use some sort of library for argument handling
     with tf.device(util.evaluate_device(sys.argv[1])):
 
-        batch_size = 128
-        num_epochs = 10
-        width = 300
-        height = 30
+        batch_size = 256
+        num_epochs = 100
+        width = 50
+        height = 50
         channels = 1
-        dataset = IamDataset(True, 300, 30)
+        dataset = IamDataset(False, width, height)
+        print dataset._maxlength
         algorithm = GravesSchmidhuber2009()
         graph = algorithm.build_graph(
             batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
