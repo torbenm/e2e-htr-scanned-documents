@@ -6,6 +6,8 @@ import numpy as np
 from time import time
 from data.iam import IamDataset
 from graves2009 import GravesSchmidhuber2009
+from puigcerver2017 import Puigcerver2017
+from Voigtlaender2016 import VoigtlaenderDoetschNey2016
 
 
 def batch_hook(epoch, batch, max_batches):
@@ -71,12 +73,14 @@ if __name__ == "__main__":
 
         batch_size = 256
         num_epochs = 100
-        width = 50
-        height = 50
+        width = 1000
+        height = 100
         channels = 1
-        dataset = IamDataset(False, width, height)
-        print dataset._maxlength
-        algorithm = GravesSchmidhuber2009()
+        dataset = IamDataset(True, width, height)
+        # channels = dataset._channels
+        # algorithm = GravesSchmidhuber2009()
+        # algorithm = Puigcerver2017()
+        algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=batch_size, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
+        # train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
