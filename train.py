@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # TODO: Probably better to use some sort of library for argument handling
     with tf.device(util.evaluate_device(sys.argv[1])):
 
-        batch_size = 256
+        batch_size = 1024
         num_epochs = 100
         width = 50
         height = 50
