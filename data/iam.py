@@ -21,20 +21,20 @@ class IamDataset(dataset.Dataset):
             binarize, width, height)
         self.preload()
 
+    def maxLength(self):
+        return self._maxlength
+
     def preload(self):
         self._vocab = util.load(self._targetpath, "vocab")
         self._vocab_length = len(self._vocab[0])
         self._lines = util.load(self._targetpath, "lines")
         self._maxlength = max(
             map(lambda x: len(x["text"]), self._lines))
-        self._compiled_max_length = self._maxlength * 2 + 1
 
     def compile(self, text):
         length = len(text)
-        parsed = [self._vocab_length - 1]
-        for c in text:
-            parsed.extend([self._vocab[1][c], self._vocab_length - 1])
-        parsed.extend([-1] * (self._compiled_max_length - len(parsed)))
+        parsed = [self._vocab[1][c] for c in text]
+        parsed.extend([-1] * (self.maxLength - length))
         return parsed
 
     def decompile(self, values):

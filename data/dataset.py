@@ -26,5 +26,9 @@ class Dataset(object):
         pass
 
     @abc.abstractmethod
+    def maxLength(self):
+        pass
+
+    @abc.abstractmethod
     def getBatchCount(self):
         pass

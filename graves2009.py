@@ -67,7 +67,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
         total_loss = tf.nn.ctc_loss(y, logits, l)
         logits = tf.nn.softmax(logits)
-        decoded, _ = tf.nn.ctc_beam_search_decoder(
+        decoded, _ = tf.nn.ctc_greedy_decoder(
             logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
         # ler = tf.reduce_mean(tf.edit_distance(
@@ -75,7 +75,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
-            decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
+            decoded[0].indices, decoded[0].dense_shape, decoded[0].values, tf.constant(vocab_length - 1))
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
 

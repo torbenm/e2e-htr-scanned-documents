@@ -42,7 +42,7 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
         dataset.prepareDataset(val_size, test_size, shuffle)
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
-                    graph['l']: [dataset._compiled_max_length] * batch_size}
+                    graph['l']: [dataset.maxLength()] * batch_size}
         batch_num = dataset.getBatchCount(batch_size, max_batches)
         # Training loop
         for idx, epoch in enumerate(dataset.generateEpochs(batch_size, num_epochs, max_batches=max_batches)):
@@ -96,5 +96,5 @@ if __name__ == "__main__":
         # algorithm = Puigcerver2017()
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
-            batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset._compiled_max_length, image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
+            batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(), image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
         train(graph, dataset, num_epochs=args.epochs, batch_size=args.batch)
