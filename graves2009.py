@@ -10,7 +10,7 @@ from util import wrap_1d, wrap_4d, make_sparse
 # with multidimensional recurrent neural networks." Advances in neural
 # information processing systems. 2009.
 
-SEPARABLE = True
+SEPARABLE = False
 
 
 def lstm_conv_layer(x, lstm_size, lstm_shape, kernel_size, filter, name):
