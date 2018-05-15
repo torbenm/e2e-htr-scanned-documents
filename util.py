@@ -2,8 +2,8 @@ import numpy as np
 import tensorflow as tf
 
 
-def evaluate_device(device):
-    return "/device:CPU:0" if device == "cpu" else "/device:GPU:0"
+def evaluate_device(useGpu):
+    return "/device:CPU:0" if not useGpu else "/device:GPU:0"
 
 
 def wrap_4d(cell):

@@ -11,12 +11,12 @@ BASE_FOLDER = "data"
 
 class IamDataset(dataset.Dataset):
 
-    def __init__(self, binarize, width, height, padding=5):
+    def __init__(self, binarize, width, height):
         self._binarize = binarize
         self._width = width
         self._height = height
-        self._padding = padding
         self._loaded = False
+        self._channels = 1
         self._basepath, self._targetpath, self._targetimagepath = get_targetpath(
             binarize, width, height)
         self.preload()
@@ -25,16 +25,16 @@ class IamDataset(dataset.Dataset):
         self._vocab = util.load(self._targetpath, "vocab")
         self._vocab_length = len(self._vocab[0])
         self._lines = util.load(self._targetpath, "lines")
-        # we need to add padding as ctc does not like if there is none or too
-        # little (< 2)
         self._maxlength = max(
-            map(lambda x: len(x["text"]), self._lines)) + self._padding
+            map(lambda x: len(x["text"]), self._lines))
+        self._compiled_max_length = self._maxlength * 2 + 1
 
     def compile(self, text):
         length = len(text)
-        parsed = [self._vocab[1][c] for c in text]
-        parsed.extend([self._vocab_length - 1] * self._padding)
-        parsed.extend([-1] * (self._maxlength - length - self._padding))
+        parsed = [self._vocab_length - 1]
+        for c in text:
+            parsed.extend([self._vocab[1][c], self._vocab_length - 1])
+        parsed.extend([-1] * (self._maxlength - length))
         return parsed
 
     def decompile(self, values):
@@ -42,7 +42,7 @@ class IamDataset(dataset.Dataset):
             try:
                 return self._vocab[0][str(c)]
             except KeyError:
-                return '='
+                return ''
         return ''.join([getKey(c) for c in values])
 
     def _loaddata(self):
@@ -62,7 +62,7 @@ class IamDataset(dataset.Dataset):
             self._loaded = True
 
     def loadline(self, line):
-        l = len(line["text"]) + self._padding
+        l = len(line["text"]) * 2 + 1
         y = np.asarray(self.compile(line["text"]))
         x = cv2.imread(os.path.join(self._targetimagepath, line[
                        "name"] + ".png"), cv2.IMREAD_GRAYSCALE)

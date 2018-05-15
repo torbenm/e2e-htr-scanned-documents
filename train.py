@@ -3,6 +3,7 @@ import tensorflow as tf
 import util
 import sys
 import numpy as np
+import argparse
 from time import time
 from data.iam import IamDataset
 from graves2009 import GravesSchmidhuber2009
@@ -41,7 +42,7 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
         dataset.prepareDataset(val_size, test_size, shuffle)
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
-                    graph['l']: [dataset._maxlength] * batch_size}
+                    graph['l']: [dataset._compiled_max_length] * batch_size}
         batch_num = dataset.getBatchCount(batch_size, max_batches)
         # Training loop
         for idx, epoch in enumerate(dataset.generateEpochs(batch_size, num_epochs, max_batches=max_batches)):
@@ -69,18 +70,31 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
 
 if __name__ == "__main__":
     # TODO: Probably better to use some sort of library for argument handling
-    with tf.device(util.evaluate_device(sys.argv[1])):
+    parser = argparse.ArgumentParser()
 
-        batch_size = 1024
-        num_epochs = 100
-        width = 100
-        height = 50
-        channels = 1
-        dataset = IamDataset(False, width, height)
+    parser.add_argument('--binarize', help='Whether dataset should be binarized',
+                        action='store_true', default=False)
+    parser.add_argument('--width', help='Width of image',
+                        default=100, type=int)
+    parser.add_argument('--height', help='Height of image',
+                        default=50, type=int)
+    parser.add_argument('--epochs', help='Number of epochs',
+                        default=100, type=int)
+    parser.add_argument('--batch', help='Batch size', default=1024, type=int)
+    parser.add_argument('--learning-rate',
+                        help='Learning Rate', default=5, type=float)
+    parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
+                        action='store_true', default=False)
+
+    args = parser.parse_args()
+
+    with tf.device(util.evaluate_device(args.gpu)):
+
+        dataset = IamDataset(args.binarize, args.width, args.height)
         # channels = dataset._channels
         algorithm = GravesSchmidhuber2009()
         # algorithm = Puigcerver2017()
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
-            batch_size=batch_size, learning_rate=0.005, sequence_length=dataset._maxlength, image_height=height, image_width=width, vocab_length=dataset._vocab_length, channels=1)
-        train(graph, dataset, num_epochs=num_epochs, batch_size=batch_size)
+            batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset._compiled_max_length, image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
+        train(graph, dataset, num_epochs=args.epochs, batch_size=args.batch)
