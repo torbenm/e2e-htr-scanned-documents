@@ -35,8 +35,9 @@ def compare_outputs(dataset, pred, actual):
 
 
 def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save=False, max_batches=0):
-    sessionConfig = tf.ConfigProto(allow_soft_placement=True)
-    with tf.Session() as sess:  # config=sessionConfig) as sess:
+    sessionConfig = tf.ConfigProto(
+        allow_soft_placement=True, log_placement=True)
+    with tf.Session(config=sessionConfig) as sess:
         # Prepare data
         sess.run(tf.global_variables_initializer())
         dataset.prepareDataset(val_size, test_size, shuffle)
