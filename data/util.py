@@ -90,7 +90,7 @@ def do_untar(idx, file, folder):
 
 def getVocab(text):
     vocab = list(set(text))
-    vocab.append("")  # for padding
+    vocab.append("")  # ctc blank label
     vocab_size = len(vocab)
     idx_to_vocab = dict(enumerate(vocab))
     vocab_to_idx = dict(zip(idx_to_vocab.values(), idx_to_vocab.keys()))

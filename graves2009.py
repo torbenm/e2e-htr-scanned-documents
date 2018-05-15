@@ -54,7 +54,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
         y = tf.sparse_placeholder(
             tf.int32, shape=[batch_size, sequence_length], name="y")
         l = tf.placeholder(
-            tf.int32, shape=[batch_size], name="y")
+            tf.int32, shape=[batch_size], name="l")
 
         # MDLSTM Layer 1
         net = lstm_conv_layer(x, 2, (1, 2), (2, 1), 6, 'lstm-1')

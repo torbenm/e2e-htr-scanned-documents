@@ -34,7 +34,7 @@ class IamDataset(dataset.Dataset):
         parsed = [self._vocab_length - 1]
         for c in text:
             parsed.extend([self._vocab[1][c], self._vocab_length - 1])
-        parsed.extend([-1] * (self._maxlength - length))
+        parsed.extend([-1] * (self._compiled_max_length - len(parsed)))
         return parsed
 
     def decompile(self, values):
