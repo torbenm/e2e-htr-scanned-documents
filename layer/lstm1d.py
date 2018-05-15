@@ -29,7 +29,6 @@ from tensorflow.python.ops import nn_ops
 from tensorflow.python.ops import random_ops
 from tensorflow.python.ops import rnn
 from tensorflow.python.ops import variable_scope
-import tensorflow as tf
 
 
 def _shape(tensor):
@@ -54,8 +53,9 @@ def ndlstm_base_unrolled(inputs, noutput, scope=None, reverse=False):
     """
     with variable_scope.variable_scope(scope, "SeqLstmUnrolled", [inputs]):
         length, batch_size, _ = _shape(inputs)
-        lstm_cell = BasicLSTMCell(noutput)
-        state = lstm_cell.zero_state(batch_size, tf.float32)
+        lstm_cell = BasicLSTMCell(
+            noutput, state_is_tuple=False)
+        state = array_ops.zeros([batch_size, lstm_cell.state_size])
         output_u = []
         inputs_u = array_ops.unstack(inputs)
         if reverse:
@@ -90,8 +90,9 @@ def ndlstm_base_dynamic(inputs, noutput, scope=None, reverse=False):
         # TODO(tmb) make batch size, sequence_length dynamic
         # example: sequence_length = tf.shape(inputs)[0]
         _, batch_size, _ = _shape(inputs)
-        lstm_cell = BasicLSTMCell(noutput)
-        state = lstm_cell.zero_state(batch_size, tf.float32)
+        lstm_cell = BasicLSTMCell(
+            noutput, state_is_tuple=False)
+        state = array_ops.zeros([batch_size, lstm_cell.state_size])
         sequence_length = int(inputs.get_shape()[0])
         sequence_lengths = math_ops.to_int64(
             array_ops.fill([batch_size], sequence_length))
@@ -147,7 +148,7 @@ def sequence_to_final(inputs, noutput, scope=None, name=None, reverse=False):
     """
     with variable_scope.variable_scope(scope, "SequenceToFinal", [inputs]):
         length, batch_size, _ = _shape(inputs)
-        lstm = BasicLSTMCell(noutput)
+        lstm = BasicLSTMCell(noutput, state_is_tuple=False)
         state = array_ops.zeros([batch_size, lstm.state_size])
         inputs_u = array_ops.unstack(inputs)
         if reverse:
