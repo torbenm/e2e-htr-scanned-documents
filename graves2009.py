@@ -75,7 +75,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
-            decoded[0].indices, decoded[0].dense_shape, decoded[0].values, tf.constant(vocab_length - 1))
+            decoded[0].indices, decoded[0].dense_shape, decoded[0].values, tf.constant(vocab_length - 1, dtype=tf.int64))
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
 
