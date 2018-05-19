@@ -10,13 +10,13 @@ def conv_block(net, index):
     num_filters = (index + 1) * 16
     net = wrap_1d(tf.layers.conv2d(
         net, num_filters, (3, 3), strides=(1, 1), activation=tf.nn.leaky_relu))
-    if index > 2:
+    if index > 1:
         net = wrap_1d(tf.nn.dropout(net, 0.8))
     # missing: dropout for layer 3,4,5 (0.2 prob)
     net = wrap_1d(tf.layers.batch_normalization(net))
 
     # maxpool or dropout first?
-    if index < 4:
+    if index < 3:
         net = wrap_1d(tf.layers.max_pooling2d(net, (2, 2), (2, 2)))
     return net
 
