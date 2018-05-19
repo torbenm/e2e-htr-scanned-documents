@@ -18,7 +18,7 @@ class IamDataset(dataset.Dataset):
         self._loaded = False
         self._channels = 1
         self._basepath, self._targetpath, self._targetimagepath = get_targetpath(
-            binarize, max_width, max_height)
+            binarize, width, height)
         self.preload()
 
     def maxLength(self):
