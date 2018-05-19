@@ -107,11 +107,26 @@ def load(path, name):
         return json.load(f)
 
 
-def process_greyscale(imagepath, targetpath, threshold=None, width=None, height=None):
+def process_greyscale(imagepath, targetpath, threshold=None, width=None, height=None, scale=1.0):
     import cv2
     image = cv2.imread(imagepath, cv2.IMREAD_GRAYSCALE)
     if width is not None and height is not None:
-        image = cv2.resize(image, (width, height))
+        h, w = image.shape
+        ws = int(w / scale)
+        hs = int(h / scale)
+        image = cv2.resize(image, (ws, hs))
+        image = cv2.copyMakeBorder(
+            image, 0, height - hs, 0, width - ws, cv2.BORDER_CONSTANT, value=[255])
     if threshold is not None:
         image = cv2.threshold(image, threshold, 255, cv2.THRESH_BINARY)[1]
     cv2.imwrite(targetpath, image)
+
+
+def getscalefactor(imagepaths, target_width, target_height):
+    import cv2
+    sc = 0
+    for ipath in imagepaths:
+        image = cv2.imread(ipath)
+        h, w, _ = image.shape
+        sc = max(float(h) / target_height, float(w) / target_width, sc)
+    return sc

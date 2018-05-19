@@ -11,14 +11,14 @@ BASE_FOLDER = "data"
 
 class IamDataset(dataset.Dataset):
 
-    def __init__(self, binarize, width, height):
+    def __init__(self, binarize, max_width, max_height):
         self._binarize = binarize
-        self._width = width
-        self._height = height
+        self._max_width = max_width
+        self._max_height = max_height
         self._loaded = False
         self._channels = 1
         self._basepath, self._targetpath, self._targetimagepath = get_targetpath(
-            binarize, width, height)
+            binarize, max_width, max_height)
         self.preload()
 
     def maxLength(self):
@@ -144,16 +144,18 @@ def get_image_path(identifier):
     return os.path.join(idsplit[0], "-".join(idsplit[0:2]), identifier + ".png")
 
 
-def load_ascii_lines(basepath, type):
+def load_ascii_lines(basepath, type, limit=-1):
     with open(os.path.join(basepath, "ascii/{}.txt".format(type)), "r") as lines:
         parsed = []
         fulltext = ""
-        while True:
+        i = 0
+        while limit == -1 or i < limit:
             line = lines.readline().strip()
             if not line:
                 break
             if line[0] != "#":
                 lsplit = line.split(" ")
+                i = i + 1
                 if lsplit[1] != "err":
                     path = get_image_path(lsplit[0])
                     parsed.append({"path": path, "name": lsplit[
@@ -175,6 +177,8 @@ def parse_args():
         "--height", help="Height of the images", type=int, default=30)
     parser.add_argument(
         "--width", help="Width of the images", type=int, default=300)
+    parser.add_argument(
+        "--limit", help="Limit number of Images", type=int, default=-1)
     parser.add_argument("--user")
     parser.add_argument("--pwd")
     return parser.parse_args()
@@ -195,14 +199,18 @@ def prepare_data(args):
         args.binarize, args.width, args.height)
     util.rmkdir(targetpath)
     os.makedirs(targetimagepath)
-    parsed, fulltext = load_ascii_lines(basepath, args.type)
+    parsed, fulltext = load_ascii_lines(basepath, args.type, args.limit)
     vocab = util.getVocab(fulltext)
     util.dump(targetpath, "vocab", vocab)
+
+    imagepaths = map(lambda x: os.path.join(
+        basepath, args.type, x["path"]), parsed)
+    scale = util.getscalefactor(imagepaths, args.width, args.height)
 
     for idx, image in enumerate(parsed):
         try:
             util.process_greyscale(os.path.join(basepath, args.type, image["path"]), os.path.join(targetimagepath, image["name"] + ".png"), image[
-                "mean_grey"] if args.binarize else None, args.width, args.height)
+                "mean_grey"] if args.binarize else None, args.width, args.height, scale)
         except cv2.error:
             del parsed[idx]
 
