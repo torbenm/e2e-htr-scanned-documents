@@ -65,7 +65,9 @@ class GravesSchmidhuber2009(AlgorithmBase):
         # net = tf.nn.softmax(net)
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
+
         total_loss = tf.nn.ctc_loss(y, logits, l)
+
         logits = tf.nn.softmax(logits)
         decoded, _ = tf.nn.ctc_greedy_decoder(
             logits, l, merge_repeated=True)

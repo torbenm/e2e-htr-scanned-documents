@@ -17,7 +17,6 @@ def conv_block(net, index):
 
     # maxpool or dropout first?
     if index < 4:
-        # is this non-overlapping?
         net = wrap_1d(tf.layers.max_pooling2d(net, (2, 2), (2, 2)))
     return net
 
@@ -42,13 +41,15 @@ class Puigcerver2017(AlgorithmBase):
         l = tf.placeholder(
             tf.int32, shape=[batch_size], name="y")
 
-        num_conv = 2
-        num_lstm = 3
+        num_conv = 5
+        num_lstm = 5
 
         net = x
         for i in range(num_conv):
             net = conv_block(net, i)
-        net = wrap_1d(tf.reshape(net, [batch_size, -1, num_conv * 16]))
+
+        net = wrap_1d(tf.reshape(net, [batch_size, net.shape[1], -1]))
+
         for i in range(num_lstm):
             net = rec_block(net, i, 'lstm-{}'.format(i))
 
@@ -56,13 +57,15 @@ class Puigcerver2017(AlgorithmBase):
         net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
-        decoded, _ = tf.nn.ctc_greedy_decoder(logits, l, merge_repeated=False)
+        total_loss = tf.nn.ctc_loss(y, logits, l)
+
+        logits = tf.nn.softmax(logits)
+        decoded, _ = tf.nn.ctc_greedy_decoder(logits, l, merge_repeated=True)
         # wrap_1d(decoded[0])
 
         # decoded = tf.cast(decoded[0], tf.int32)
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
-        total_loss = tf.nn.ctc_loss(y, logits, l)
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
 
