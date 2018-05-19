@@ -34,14 +34,13 @@ def compare_outputs(dataset, pred, actual):
     return out.format(pred, actual)
 
 
-def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save='', max_batches=0, softplacement=True, logplacement=False):
+def train(graph, dataset, num_epochs=10, batch_size=10, val_size=1, shuffle=False, test_size=0, save='', max_batches=0, softplacement=True, logplacement=False):
     sessionConfig = tf.ConfigProto(
         allow_soft_placement=softplacement, log_device_placement=logplacement)
     with tf.Session(config=sessionConfig) as sess:
         # Prepare data
         sess.run(tf.global_variables_initializer())
-        dataset.prepareDataset(
-            float(batch_size) / dataset.maxLength(), test_size, shuffle)
+        dataset.prepareDataset(val_size, test_size, batch_size, shuffle)
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
                     graph['l']: [dataset.maxLength()] * batch_size}

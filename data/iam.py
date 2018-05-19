@@ -84,7 +84,7 @@ class IamDataset(dataset.Dataset):
             yield x, y, l
         pass
 
-    def prepareDataset(self, validation_size=0, test_size=0, shuffle=False):
+    def prepareDataset(self, validation_batches=0, test_batches=0, batch_size=0, shuffle=False):
         self._loaddata()
         length = len(self._raw_x)
         if shuffle:
@@ -92,9 +92,9 @@ class IamDataset(dataset.Dataset):
             self._raw_x = self._raw_x[perm]
             self._raw_y = self._raw_y[perm]
             self._raw_l = self._raw_l[perm]
-        val_length = int(length * validation_size)
+        val_length = validation_batches * batch_size
         print "Length of validation set:", val_length
-        test_length = int(length * test_size)
+        test_length = test_batches * batch_size
         self._val_x = self._raw_x[0:val_length]
         self._val_y = self._raw_y[0:val_length]
         self._val_l = self._raw_l[0:val_length]
