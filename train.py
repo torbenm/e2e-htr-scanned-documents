@@ -83,7 +83,7 @@ if __name__ == "__main__":
                         default=100, type=int)
     parser.add_argument('--batch', help='Batch size', default=1024, type=int)
     parser.add_argument('--learning-rate',
-                        help='Learning Rate', default=5, type=float)
+                        help='Learning Rate', default=0.0005, type=float)
     parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
                         action='store_true', default=False)
     parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
         dataset = IamDataset(args.binarize, args.width, args.height)
         # channels = dataset._channels
-        # algorithm = GravesSchmidhuber2009()
+        algorithm = GravesSchmidhuber2009()
         # algorithm = Puigcerver2017()
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
