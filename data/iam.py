@@ -93,6 +93,7 @@ class IamDataset(dataset.Dataset):
             self._raw_y = self._raw_y[perm]
             self._raw_l = self._raw_l[perm]
         val_length = int(length * validation_size)
+        print "Length of validation set:", val_length
         test_length = int(length * test_size)
         self._val_x = self._raw_x[0:val_length]
         self._val_y = self._raw_y[0:val_length]
@@ -100,9 +101,11 @@ class IamDataset(dataset.Dataset):
         self._test_x = self._raw_x[val_length:test_length + val_length]
         self._test_y = self._raw_y[val_length:test_length + val_length]
         self._test_l = self._raw_l[val_length:test_length + val_length]
+
         self._raw_x = self._raw_x[test_length + val_length:]
         self._raw_y = self._raw_y[test_length + val_length:]
         self._raw_l = self._raw_l[test_length + val_length:]
+        print "Length of data set:", len(self._raw_x)
 
     def getValidationSet(self):
         return self._val_x, self._val_y, self._val_l
