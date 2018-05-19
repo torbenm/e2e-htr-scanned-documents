@@ -97,8 +97,8 @@ if __name__ == "__main__":
 
         dataset = IamDataset(args.binarize, args.width, args.height)
         # channels = dataset._channels
-        algorithm = GravesSchmidhuber2009()
-        # algorithm = Puigcerver2017()
+        # algorithm = GravesSchmidhuber2009()
+        algorithm = Puigcerver2017()
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(), image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
