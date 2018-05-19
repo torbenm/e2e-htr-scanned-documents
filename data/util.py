@@ -127,6 +127,7 @@ def getscalefactor(imagepaths, target_width, target_height):
     sc = 0
     for ipath in imagepaths:
         image = cv2.imread(ipath)
-        h, w, _ = image.shape
-        sc = max(float(h) / target_height, float(w) / target_width, sc)
+        if image is not None:
+            h, w, _ = image.shape
+            sc = max(float(h) / target_height, float(w) / target_width, sc)
     return sc
