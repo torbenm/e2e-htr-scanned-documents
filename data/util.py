@@ -110,7 +110,7 @@ def load(path, name):
 def process_greyscale(imagepath, targetpath, threshold=None, width=None, height=None, scale=1.0):
     import cv2
     image = cv2.imread(imagepath, cv2.IMREAD_GRAYSCALE)
-    if width is not None and height is not None:
+    if width is not None and height is not None and image is not None:
         h, w = image.shape
         ws = max(int(w / scale), 1)
         hs = max(int(h / scale), 1)
