@@ -34,7 +34,7 @@ def compare_outputs(dataset, pred, actual):
     return out.format(pred, actual)
 
 
-def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save=False, max_batches=0, softplacement=True, logplacement=False):
+def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save='', max_batches=0, softplacement=True, logplacement=False):
     sessionConfig = tf.ConfigProto(
         allow_soft_placement=softplacement, log_device_placement=logplacement)
     with tf.Session(config=sessionConfig) as sess:
@@ -66,7 +66,7 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
             print preds.shape
             print '\n'.join([compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
             epoch_hook(idx, training_loss / steps, time() - start_time, 0)
-        if isinstance(save, str):
+        if save != '':
             graph['saver'].save(sess, "saves/{}".format(save))
 
 
@@ -91,6 +91,7 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
+    parser.add_argument('--save', help='save', default='')
 
     args = parser.parse_args()
 
