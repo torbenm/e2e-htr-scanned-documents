@@ -112,8 +112,8 @@ def process_greyscale(imagepath, targetpath, threshold=None, width=None, height=
     image = cv2.imread(imagepath, cv2.IMREAD_GRAYSCALE)
     if width is not None and height is not None:
         h, w = image.shape
-        ws = int(w / scale)
-        hs = int(h / scale)
+        ws = max(int(w / scale), 1)
+        hs = max(int(h / scale), 1)
         image = cv2.resize(image, (ws, hs))
         image = cv2.copyMakeBorder(
             image, 0, height - hs, 0, width - ws, cv2.BORDER_CONSTANT, value=[255])
