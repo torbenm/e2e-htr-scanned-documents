@@ -34,9 +34,9 @@ def compare_outputs(dataset, pred, actual):
     return out.format(pred, actual)
 
 
-def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save=False, max_batches=0):
+def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=False, test_size=0, save=False, max_batches=0, softplacement=True, logplacement=False):
     sessionConfig = tf.ConfigProto(
-        allow_soft_placement=True, log_placement=True)
+        allow_soft_placement=softplacement, log_device_placement=logplacement)
     with tf.Session(config=sessionConfig) as sess:
         # Prepare data
         sess.run(tf.global_variables_initializer())
@@ -86,6 +86,10 @@ if __name__ == "__main__":
                         help='Learning Rate', default=5, type=float)
     parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
                         action='store_true', default=False)
+    parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
+                        action='store_true', default=True)
+    parser.add_argument('--logplacement', help='Log Device placement',
+                        action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -98,4 +102,5 @@ if __name__ == "__main__":
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(), image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
-        train(graph, dataset, num_epochs=args.epochs, batch_size=args.batch)
+        train(graph, dataset, num_epochs=args.epochs,
+              batch_size=args.batch, softplacement=args.softplacement, logplacement=args.logplacement)
