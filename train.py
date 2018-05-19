@@ -40,7 +40,8 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=0.2, shuffle=Fa
     with tf.Session(config=sessionConfig) as sess:
         # Prepare data
         sess.run(tf.global_variables_initializer())
-        dataset.prepareDataset(val_size, test_size, shuffle)
+        dataset.prepareDataset(
+            float(batch_size) / dataset.maxLength(), test_size, shuffle)
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
                     graph['l']: [dataset.maxLength()] * batch_size}
@@ -85,7 +86,7 @@ if __name__ == "__main__":
     parser.add_argument('--learning-rate',
                         help='Learning Rate', default=0.0005, type=float)
     parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
-                        action='store_true', default=False)
+                        action='store_true', default=-1, type=int)
     parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',

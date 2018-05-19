@@ -100,9 +100,9 @@ class IamDataset(dataset.Dataset):
         self._test_x = self._raw_x[val_length:test_length + val_length]
         self._test_y = self._raw_y[val_length:test_length + val_length]
         self._test_l = self._raw_l[val_length:test_length + val_length]
-        #self._raw_x = self._raw_x[test_length + val_length:]
-        #self._raw_y = self._raw_y[test_length + val_length:]
-        #self._raw_l = self._raw_l[test_length + val_length:]
+        self._raw_x = self._raw_x[test_length + val_length:]
+        self._raw_y = self._raw_y[test_length + val_length:]
+        self._raw_l = self._raw_l[test_length + val_length:]
 
     def getValidationSet(self):
         return self._val_x, self._val_y, self._val_l
