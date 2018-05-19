@@ -103,5 +103,5 @@ if __name__ == "__main__":
         # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
             batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(), image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
-        train(graph, dataset, num_epochs=args.epochs,
+        train(graph, dataset, num_epochs=args.epochs, save=args.save,
               batch_size=args.batch, softplacement=args.softplacement, logplacement=args.logplacement)
