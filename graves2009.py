@@ -57,11 +57,11 @@ class GravesSchmidhuber2009(AlgorithmBase):
             tf.int32, shape=[batch_size], name="l")
 
         # MDLSTM Layer 1
-        net = lstm_conv_layer(x, 2, (1, 2), (2, 1), 6, 'lstm-1')
-        net = lstm_conv_layer(net, 10, (1, 2), (1, 2), 20, 'lstm-2')
+        net = lstm_conv_layer(x, 2, (1, 1), (2, 2), 6, 'lstm-1')
+        net = lstm_conv_layer(net, 10, (1, 1), (2, 2), 20, 'lstm-2')
 
         # MDLSTM layer 3
-        net = lstm_fc_layer(net, 50, (1, 2), vocab_length, 'lstm-3')
+        net = lstm_fc_layer(net, 50, (1, 1), vocab_length, 'lstm-3')
         # net = tf.nn.softmax(net)
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
