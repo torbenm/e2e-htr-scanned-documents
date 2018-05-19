@@ -85,8 +85,8 @@ if __name__ == "__main__":
     parser.add_argument('--batch', help='Batch size', default=1024, type=int)
     parser.add_argument('--learning-rate',
                         help='Learning Rate', default=0.0005, type=float)
-    parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
-                        action='store_true', default=-1, type=int)
+    parser.add_argument(
+        '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
