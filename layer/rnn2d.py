@@ -231,7 +231,8 @@ def rnn2d(cell, inputs, sequence_shape=(2, 2), initial_state=None,
         inputs_ta = tf.TensorArray(
             dtype=tf.float32, size=total_steps, name='input_ta', colocate_with_first_write_call=False)
         # Unestack the input X in the tensor array
-        inputs_ta = inputs_ta.unstack(x)
+        # TODO: is this tensorarray even necessary?!
+        inputs_ta = inputs_ta.write(0, tf.unstack(x))
         # Create an input tensor array for the states
         states_ta = tf.TensorArray(
             dtype=tf.float32, size=total_steps + 1, name='state_ta', clear_after_read=False, colocate_with_first_write_call=False)
