@@ -11,10 +11,10 @@ BASE_FOLDER = "data"
 
 class IamDataset(dataset.Dataset):
 
-    def __init__(self, binarize, max_width, max_height):
+    def __init__(self, binarize, width, height):
         self._binarize = binarize
-        self._max_width = max_width
-        self._max_height = max_height
+        self._width = width
+        self._height = height
         self._loaded = False
         self._channels = 1
         self._basepath, self._targetpath, self._targetimagepath = get_targetpath(
