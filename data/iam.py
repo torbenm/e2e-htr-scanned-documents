@@ -66,8 +66,8 @@ class IamDataset(dataset.Dataset):
         y = np.asarray(self.compile(line["text"]))
         x = cv2.imread(os.path.join(self._targetimagepath, line[
                        "name"] + ".png"), cv2.IMREAD_GRAYSCALE)
-        x = cv2.normalize(x, x, alpha=0, beta=1,
-                          norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        # x = cv2.normalize(x, x, alpha=0, beta=1,
+        #                  norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
         try:
             x = np.transpose(x, [1, 0])
         except ValueError:
