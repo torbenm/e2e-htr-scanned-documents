@@ -8,13 +8,13 @@ from util import wrap_1d, wrap_4d, make_sparse
 
 def conv_mdlstm_block(net, idx, width=5, dropout=True):
     real_idx = (idx * 2) + 1
-    # if dropout:
-    #     net = wrap_1d(tf.nn.dropout(net, 0.75))
+    if dropout:
+        net = wrap_1d(tf.nn.dropout(net, 0.75))
     net = wrap_1d(tf.layers.conv2d(
-        net, width * real_idx, (3, 3), activation=tf.tanh))
+        net, width * real_idx, (3, 3), activation=None))
     net = wrap_1d(tf.layers.max_pooling2d(net, (2, 2), (2, 2)))
     net = wrap_1d(tf.tanh(net))
-    # net = wrap_1d(tf.nn.dropout(net, 0.75))
+    net = wrap_1d(tf.nn.dropout(net, 0.75))
     lstm = LSTM2D((real_idx + 1) * width)
     net = wrap_4d(multidir_rnn2d(lstm, net, (1, 1),
                                  dtype=tf.float32, scope='lstm-{}'.format(idx)))
