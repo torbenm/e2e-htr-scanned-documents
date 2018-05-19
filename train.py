@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument('--gpu', help='Runs scripts on gpu. Default is cpu.',
                         action='store_true', default=False)
     parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
-                        action='store_true', default=True)
+                        action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
 
