@@ -29,10 +29,9 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
 
-        preds = sess.run(graph['output'], val_dict)
+        preds = sess.run(decoded, val_dict)
         print preds.shape
         print '\n'.join([util.compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
-        epoch_hook(idx, training_loss / steps, time() - start_time, 0)
 
 
 if __name__ == "__main__":
