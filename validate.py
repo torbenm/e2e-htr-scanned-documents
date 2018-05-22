@@ -29,8 +29,7 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
 
         print graph['y'].dense_shape, decoded[0].dense_shape
 
-        ler = tf.reduce_mean(tf.edit_distance(
-            tf.cast(decoded[0], tf.int32), graph['y']))
+        ler = tf.reduce_mean(tf.edit_distance(decoded[0], graph['y']))
 
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
