@@ -17,6 +17,7 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
 
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
+                    graph['y']: graph['y']: util.denseNDArrayToSparseTensor(val_y[:batch_size])
                     graph['l']: [dataset.maxLength()] * batch_size}
 
         if decoder == "greedy":
@@ -29,10 +30,13 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
         decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
 
-        preds = sess.run(decoded, val_dict)
+        ler = tf.reduce_mean(tf.edit_distance(
+            tf.cast(decoded[0], tf.int32), graph['y']))
+
+        preds, ler = sess.run([decoded, ler], val_dict)
         print preds.shape
         print '\n'.join([util.compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
-
+        print 'Edit Distance:', ler
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
