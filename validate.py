@@ -19,10 +19,10 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
         val_dict = {graph['x']: val_x[:batch_size],
                     graph['l']: [dataset.maxLength()] * batch_size}
 
-        if decoderName == "greedy":
+        if decoder == "greedy":
             decoded, _ = tf.nn.ctc_greedy_decoder(
                 graph['logits'], graph['l'], merge_repeated=True)
-        elif decoderName == "beam":
+        elif decoder == "beam":
             decoded, _ = tf.nn.ctc_beam_search_decoder(
                 graph['logits'], graph['l'], merge_repeated=True)
 
