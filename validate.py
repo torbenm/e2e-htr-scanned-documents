@@ -27,11 +27,11 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
             decoded, _ = tf.nn.ctc_beam_search_decoder(
                 graph['logits'], graph['l'], merge_repeated=True)
 
-        decoded = tf.sparse_to_dense(
-            decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
-
         ler = tf.reduce_mean(tf.edit_distance(
             tf.cast(decoded[0], tf.int32), graph['y']))
+
+        decoded = tf.sparse_to_dense(
+            decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
 
         preds, ler = sess.run([decoded, ler], val_dict)
         print preds.shape
