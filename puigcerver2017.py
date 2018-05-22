@@ -73,6 +73,7 @@ class Puigcerver2017(AlgorithmBase):
             x=x,
             y=y,
             l=l,
+            logits=logits,
             output=decoded,
             total_loss=total_loss,
             train_step=train_step,

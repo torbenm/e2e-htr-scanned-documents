@@ -162,6 +162,7 @@ def load_ascii_lines(basepath, type, limit=-1):
                 if lsplit[1] != "err":
                     path = get_image_path(lsplit[0])
                     text = ' '.join(lsplit[8:])
+                    print text
                     parsed.append({"path": path, "name": lsplit[
                                   0], "mean_grey": int(lsplit[2]), "text": text})
                     fulltext = fulltext + text

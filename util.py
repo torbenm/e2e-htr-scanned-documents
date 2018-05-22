@@ -1,5 +1,8 @@
 import numpy as np
 import tensorflow as tf
+from puigcerver2017 import Puigcerver2017
+from Voigtlaender2016 import VoigtlaenderDoetschNey2016
+from graves2009 import GravesSchmidhuber2009
 
 
 def evaluate_device(gpuNumber):
@@ -26,3 +29,19 @@ def make_sparse(var):
 def denseNDArrayToSparseTensor(arr, sparse_val=-1):
     idx = np.where(arr != sparse_val)
     return tf.SparseTensorValue(np.vstack(idx).T, arr[idx], arr.shape)
+
+
+def getAlgorithm(name):
+    if name == "puigcerver":
+        return Puigcerver2017()
+    elif name == "voigtlaender":
+        return VoigtlaenderDoetschNey2016()
+    elif name == "graves":
+        return GravesSchmidhuber2009()
+
+
+def compare_outputs(dataset, pred, actual):
+    pred = dataset.decompile(pred)
+    actual = dataset.decompile(actual)
+    out = '{:' + str(dataset._maxlength) + '}  {}'
+    return out.format(pred, actual)

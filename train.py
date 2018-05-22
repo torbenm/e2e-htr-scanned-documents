@@ -27,13 +27,6 @@ def epoch_hook(epoch, loss, time, ler):
     sys.stdout.flush()
 
 
-def compare_outputs(dataset, pred, actual):
-    pred = dataset.decompile(pred)
-    actual = dataset.decompile(actual)
-    out = '{:' + str(dataset._maxlength) + '}  {}'
-    return out.format(pred, actual)
-
-
 def train(graph, dataset, num_epochs=10, batch_size=10, val_size=1, shuffle=False, test_size=0, save='', max_batches=0, softplacement=True, logplacement=False):
     sessionConfig = tf.ConfigProto(
         allow_soft_placement=softplacement, log_device_placement=logplacement)
@@ -63,14 +56,13 @@ def train(graph, dataset, num_epochs=10, batch_size=10, val_size=1, shuffle=Fals
             # Evaluate training
             preds = sess.run(graph['output'], val_dict)
             print preds.shape
-            print '\n'.join([compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
+            print '\n'.join([util.compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
             epoch_hook(idx, training_loss / steps, time() - start_time, 0)
         if save != '':
             graph['saver'].save(sess, "saves/{}".format(save))
 
 
 if __name__ == "__main__":
-    # TODO: Probably better to use some sort of library for argument handling
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--binarize', help='Whether dataset should be binarized',
@@ -91,17 +83,17 @@ if __name__ == "__main__":
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
     parser.add_argument('--save', help='save', default='')
+    parser.add_argument('--algorithm', help='Algorithm', default='puigcerver')
 
     args = parser.parse_args()
 
     with tf.device(util.evaluate_device(args.gpu)):
 
         dataset = IamDataset(args.binarize, args.width, args.height)
-        # channels = dataset._channels
-        # algorithm = GravesSchmidhuber2009()
+        algorithm = util.getAlgorithm(args.algorithm)
         algorithm = Puigcerver2017()
-        # algorithm = VoigtlaenderDoetschNey2016()
         graph = algorithm.build_graph(
-            batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(), image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
+            batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(),
+            image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
         train(graph, dataset, num_epochs=args.epochs, save=args.save,
               batch_size=args.batch, softplacement=args.softplacement, logplacement=args.logplacement)

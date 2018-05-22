@@ -86,6 +86,7 @@ class GravesSchmidhuber2009(AlgorithmBase):
             y=y,
             l=l,
             # ler=ler,
+            logits=logits,
             output=decoded,
             total_loss=total_loss,
             train_step=train_step,
