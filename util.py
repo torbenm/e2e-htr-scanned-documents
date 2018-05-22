@@ -1,8 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from puigcerver2017 import Puigcerver2017
-from Voigtlaender2016 import VoigtlaenderDoetschNey2016
-from graves2009 import GravesSchmidhuber2009
 
 
 def evaluate_device(gpuNumber):
@@ -32,6 +29,9 @@ def denseNDArrayToSparseTensor(arr, sparse_val=-1):
 
 
 def getAlgorithm(name):
+    from puigcerver2017 import Puigcerver2017
+    from Voigtlaender2016 import VoigtlaenderDoetschNey2016
+    from graves2009 import GravesSchmidhuber2009
     if name == "puigcerver":
         return Puigcerver2017()
     elif name == "voigtlaender":

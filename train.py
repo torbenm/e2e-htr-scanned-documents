@@ -6,9 +6,6 @@ import numpy as np
 import argparse
 from time import time
 from data.iam import IamDataset
-from graves2009 import GravesSchmidhuber2009
-from puigcerver2017 import Puigcerver2017
-from Voigtlaender2016 import VoigtlaenderDoetschNey2016
 
 
 def batch_hook(epoch, batch, max_batches):
@@ -91,7 +88,6 @@ if __name__ == "__main__":
 
         dataset = IamDataset(args.binarize, args.width, args.height)
         algorithm = util.getAlgorithm(args.algorithm)
-        algorithm = Puigcerver2017()
         graph = algorithm.build_graph(
             batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(),
             image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)

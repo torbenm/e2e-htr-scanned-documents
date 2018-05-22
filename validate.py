@@ -23,51 +23,49 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
             decoded, _ = tf.nn.ctc_greedy_decoder(
                 graph['logits'], graph['l'], merge_repeated=True)
         elif decoderName == "beam":
-            decoded, _ = tf.nn.ctc_beam_search_decoder(graph['logits'], graph['l'], merge_repeated=True))
+            decoded, _ = tf.nn.ctc_beam_search_decoder(
+                graph['logits'], graph['l'], merge_repeated=True)
 
-        decoded=tf.sparse_to_dense(
+        decoded = tf.sparse_to_dense(
             decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
 
-
-        preds=sess.run(graph['output'], val_dict)
+        preds = sess.run(graph['output'], val_dict)
         print preds.shape
         print '\n'.join([util.compare_outputs(dataset, preds[c], val_y[c]) for c in range(batch_size)])
         epoch_hook(idx, training_loss / steps, time() - start_time, 0)
 
 
-
 if __name__ == "__main__":
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
-    parser.add_argument('--binarize', help = 'Whether dataset should be binarized',
-                        action = 'store_true', default = False)
-    parser.add_argument('--width', help = 'Width of image',
-                        default = 100, type = int)
-    parser.add_argument('--height', help = 'Height of image',
-                        default = 50, type = int)
-    parser.add_argument('--batch', help = 'Batch size',
-                        default = 1024, type = int)
+    parser.add_argument('--binarize', help='Whether dataset should be binarized',
+                        action='store_true', default=False)
+    parser.add_argument('--width', help='Width of image',
+                        default=100, type=int)
+    parser.add_argument('--height', help='Height of image',
+                        default=50, type=int)
+    parser.add_argument('--batch', help='Batch size',
+                        default=1024, type=int)
     parser.add_argument('--learning-rate',
-                        help = 'Learning Rate', default = 0.0005, type = float)
+                        help='Learning Rate', default=0.0005, type=float)
     parser.add_argument(
-        '--gpu', help = 'Runs scripts on gpu. Default is cpu.', default = -1, type = int)
-    parser.add_argument('--softplacement', help = 'Allow Softplacement, default is True',
-                        action = 'store_true', default = False)
-    parser.add_argument('--logplacement', help = 'Log Device placement',
-                        action = 'store_true', default = False)
-    parser.add_argument('--model', help = 'Model', default = '')
-    parser.add_argument('--algorithm', help = 'Algorithm',
-                        default = 'puigcerver')
-    parser.add_argument('--decoder', help = 'Decoder', default = 'beam')
+        '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
+    parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
+                        action='store_true', default=False)
+    parser.add_argument('--logplacement', help='Log Device placement',
+                        action='store_true', default=False)
+    parser.add_argument('--model', help='Model', default='')
+    parser.add_argument('--algorithm', help='Algorithm',
+                        default='puigcerver')
+    parser.add_argument('--decoder', help='Decoder', default='beam')
 
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     with tf.device(util.evaluate_device(args.gpu)):
 
-        dataset=IamDataset(args.binarize, args.width, args.height)
-        algorithm=util.getAlgorithm(args.algorithm)
-        algorithm=Puigcerver2017()
-        graph=algorithm.build_graph(
+        dataset = IamDataset(args.binarize, args.width, args.height)
+        algorithm = util.getAlgorithm(args.algorithm)
+        graph = algorithm.build_graph(
             batch_size=args.batch, learning_rate=args.learning_rate, sequence_length=dataset.maxLength(),
             image_height=args.height, image_width=args.width, vocab_length=dataset._vocab_length, channels=dataset._channels)
         validate(graph, dataset, model=args.model, decoder=args.decoder,
