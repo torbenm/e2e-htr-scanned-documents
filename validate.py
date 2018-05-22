@@ -17,7 +17,7 @@ def validate(graph, data, model, decoder, batch_size, softplacement, logplacemen
 
         val_x, val_y, val_l = dataset.getValidationSet()
         val_dict = {graph['x']: val_x[:batch_size],
-                    graph['y']: graph['y']: util.denseNDArrayToSparseTensor(val_y[:batch_size])
+                    graph['y']: util.denseNDArrayToSparseTensor(val_y[:batch_size]),
                     graph['l']: [dataset.maxLength()] * batch_size}
 
         if decoder == "greedy":
