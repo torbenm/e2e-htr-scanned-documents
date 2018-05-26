@@ -10,6 +10,7 @@ from data.iam import IamDataset
 def validate(graph, data, model, decoder, batch_size, softplacement, logplacement, val_size=1, shuffle=False, test_size=0):
     sessionConfig = tf.ConfigProto(
         allow_soft_placement=softplacement, log_device_placement=logplacement)
+    sessionConfig.gpu_options.allow_growth = True
     with tf.Session(config=sessionConfig) as sess:
         graph['saver'].restore(sess, "saves/{}".format(model))
 

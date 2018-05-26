@@ -27,6 +27,7 @@ def epoch_hook(epoch, loss, time, ler):
 def train(graph, dataset, num_epochs=10, batch_size=10, val_size=1, shuffle=False, test_size=0, save='', max_batches=0, softplacement=True, logplacement=False):
     sessionConfig = tf.ConfigProto(
         allow_soft_placement=softplacement, log_device_placement=logplacement)
+    sessionConfig.gpu_options.allow_growth = True
     with tf.Session(config=sessionConfig) as sess:
         # Prepare data
         sess.run(tf.global_variables_initializer())
