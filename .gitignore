@@ -2,3 +2,6 @@
 *.pyc
 data/iam
 data/iam2
+!raw/.gitkeep
+data/raw/
+data/output/
