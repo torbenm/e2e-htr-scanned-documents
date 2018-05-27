@@ -5,13 +5,39 @@ from urllib import urlretrieve
 import argparse
 import json
 
-BASE_FOLDER = "data"
+
+def getFullPath(base, folder_name):
+    cwd = os.getcwd()
+    if cwd[-len(base):] != base:
+        cwd = os.path.join(cwd, base)
+    return os.path.join(cwd, folder_name)
+
+BASE_PATH = "data"
+CONFIG_PATH = getFullPath(BASE_PATH, "config")
+RAW_PATH = getFullPath(BASE_PATH, "raw")
+OUTPUT_PATH = getFullPath(BASE_PATH, "output")
+
+
+def printDone(name, hadProgressBar=False):
+    line = "\r" if hadProgressBar else ""
+    line = line + "{:45} DONE \n".format(name)
+    sys.stdout.write(line)
+    sys.stdout.flush()
+
+
+def printPercentage(name):
+    def _printPercentage(step, total):
+        percent = int(step / float(total) * 100.0)
+        sys.stdout.write("\r{:45} {:2} %".format(name, percent))
+        sys.stdout.flush()
+    return _printPercentage
 
 
 def get_data_path(folder_name):
+    # DEPRECATED
     cwd = os.getcwd()
-    if cwd[-len(BASE_FOLDER):] != BASE_FOLDER:
-        cwd = os.path.join(cwd, BASE_FOLDER)
+    if cwd[-len(BASE_PATH):] != BASE_PATH:
+        cwd = os.path.join(cwd, BASE_PATH)
     return os.path.join(cwd, folder_name)
 
 
@@ -52,6 +78,15 @@ def download_instance(idx, config, basepath):
             os.path.basename(download_file))[0])
         if not os.path.exists(untarfolder):
             do_untar(idx, download_file, untarfolder)
+
+
+def progressbar(prefix):
+    def _progressbar(step, total):
+        percent = int(step / float(total) * 100.0)
+        sys.stdout.write("\r{:25} [ {:100} ] {} %".format(
+            prefix, "|" * percent, percent))
+        sys.stdout.flush()
+    return _progressbar
 
 
 def reporthook(count, block_size, total_size):
@@ -98,11 +133,23 @@ def getVocab(text):
 
 
 def dump(path, name, vocab):
+    # DEPRECATED
     with open(os.path.join(path, "{}.json".format(name)), 'w+') as f:
         json.dump(vocab, f)
 
 
+def dumpJson(path, name, data):
+    with open(os.path.join(path, "{}.json".format(name)), 'w+') as f:
+        json.dump(data, f)
+
+
 def load(path, name):
+    # DEPRECATED
+    with open(os.path.join(path, "{}.json".format(name)), 'r') as f:
+        return json.load(f)
+
+
+def loadJson(path, name):
     with open(os.path.join(path, "{}.json".format(name)), 'r') as f:
         return json.load(f)
 
