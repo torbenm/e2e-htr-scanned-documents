@@ -4,7 +4,7 @@ import os
 
 class IamDataset(dataset.Dataset):
 
-    identifier = "iam2"
+    identifier = "iam"
 
     def getFilesAndTruth(self, basepath, subset, limit=-1):
         return self._load_ascii_lines(basepath, subset, limit)

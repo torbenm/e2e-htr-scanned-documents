@@ -33,7 +33,7 @@ def rec_block(net, index, scope):
 
 class Puigcerver2017(AlgorithmBase):
 
-    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
+    def build_graph_withbatchsize(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
         x = wrap_1d(tf.placeholder(
             tf.float32, [batch_size, image_width, image_height, channels], name="x"))
         y = tf.sparse_placeholder(
@@ -49,6 +49,54 @@ class Puigcerver2017(AlgorithmBase):
             net = conv_block(net, i)
 
         net = wrap_1d(tf.reshape(net, [batch_size, net.shape[1], -1]))
+
+        for i in range(num_lstm):
+            net = rec_block(net, i, 'lstm-{}'.format(i))
+
+        net = wrap_1d(tf.nn.dropout(net, 0.5))
+        net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
+
+        logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
+        total_loss = tf.nn.ctc_loss(y, logits, l)
+
+        logits = tf.nn.softmax(logits)
+        decoded, _ = tf.nn.ctc_greedy_decoder(logits, l, merge_repeated=True)
+        # wrap_1d(decoded[0])
+
+        # decoded = tf.cast(decoded[0], tf.int32)
+        decoded = tf.sparse_to_dense(
+            decoded[0].indices, decoded[0].dense_shape, decoded[0].values)
+        train_step = tf.train.AdamOptimizer(
+            learning_rate).minimize(total_loss)
+
+        return dict(
+            x=x,
+            y=y,
+            l=l,
+            logits=logits,
+            output=decoded,
+            total_loss=total_loss,
+            train_step=train_step,
+            saver=tf.train.Saver()
+        )
+
+    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
+        x = wrap_1d(tf.placeholder(
+            tf.float32, [None, image_width, image_height, channels], name="x"))
+        y = tf.sparse_placeholder(
+            tf.int32, shape=[None, sequence_length], name="y")
+        l = tf.placeholder(
+            tf.int32, shape=[None], name="y")
+
+        num_conv = 5
+        num_lstm = 5
+
+        net = x
+        for i in range(num_conv):
+            net = conv_block(net, i)
+
+        net = wrap_1d(tf.reshape(
+            net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
 
         for i in range(num_lstm):
             net = rec_block(net, i, 'lstm-{}'.format(i))

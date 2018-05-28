@@ -10,7 +10,7 @@ from scale import scale
 from save import save
 
 
-def applyPipeline(sourcepath, truth, context):
+def applyPipeline(sourcepath, truth, context, train):
     bgColor = (255, 255, 255)
     # The pipe works with list, so load the image into a list
     images = [Image.open(sourcepath)]
@@ -24,7 +24,7 @@ def applyPipeline(sourcepath, truth, context):
         bgColor = (0, 0, 0)
 
     # Step 3: Create warped variants
-    if 'warp' in context and 'num' in context['warp'] and context['warp']['num'] > 0:
+    if train and 'warp' in context and 'num' in context['warp'] and context['warp']['num'] > 0:
         images = RandomWarpGridDistortion(
             images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
     # The following steps are implemented using cv2 - therefore we need

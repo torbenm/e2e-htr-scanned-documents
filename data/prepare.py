@@ -41,20 +41,35 @@ def prepareDataset(name, context):
 
             util.printDone("Extracting Scale Factor", True)
 
-        # Step 3: Apply image pipeline
-        fullset = pipeline.applyFullPipeline(
-            files, context, util.printPercentage("Processing Images"))
-        util.printDone("Processing Images", True)
-
-        # Step 4: Shuffle images
+        # Step 4: Shuffle dataset
         if 'shuffle' in context and context['shuffle']:
-            shuffle(fullset)
-        util.printDone("Shuffling data")
+            shuffle(files)
+        util.printDone("Shuffling all data")
 
         # Step 5: Split datasets
         train, dev, test = split.split(
-            fullset, context['dev_frac'], context['test_frac'])
+            files, context['dev_frac'], context['test_frac'])
         util.printDone("Splitting data")
+
+        # Step 6: Apply image pipeline to training
+        train = pipeline.applyFullPipeline(
+            train, context, util.printPercentage("Processing Training Images"), True)
+        util.printDone("Processing Training Images", True)
+
+        # Step 7: Apply image pipeline to dev
+        dev = pipeline.applyFullPipeline(
+            dev, context, util.printPercentage("Processing Validation Images"), False)
+        util.printDone("Processing Validation Images", True)
+
+        # Step 7: Apply image pipeline to train
+        test = pipeline.applyFullPipeline(
+            test, context, util.printPercentage("Processing Test Images"), False)
+        util.printDone("Processing Test Images", True)
+
+        # Step 4: Shuffle training images
+        if 'shuffle' in context and context['shuffle']:
+            shuffle(train)
+        util.printDone("Shuffling Training data")
 
         # Step 6: Write datasets
         util.dumpJson(basepath, "train", train)

@@ -43,5 +43,5 @@ def getAlgorithm(name):
 def compare_outputs(dataset, pred, actual):
     pred = dataset.decompile(pred)
     actual = dataset.decompile(actual)
-    out = '{:' + str(dataset._maxlength) + '}  {}'
+    out = '{:' + str(dataset.max_length) + '}  {}'
     return out.format(pred, actual)
