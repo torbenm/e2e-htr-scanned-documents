@@ -1,0 +1,12 @@
+{
+  "name": "puigcerver-iam-lines_short",
+  "dataset": "iam-lines_short",
+  "algorithm": "puigcerver",
+  "save": true,
+  "batch": 3,
+  "epochs": 1,
+  "max_batches": 0,
+  "learning_rate": 0.0003,
+  "ctc": "greedy",
+  "algo_config": {}
+}
