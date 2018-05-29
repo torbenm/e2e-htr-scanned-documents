@@ -50,9 +50,9 @@ class Executor(object):
             self.config['batch'], self.config['max_batches'])
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(graph, sess, idx, epoch, batch_num, hooks)
-        if 'save' in self.config and self.config['save']:
-            tf.train.Saver().save(sess, os.path.join(
-                MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model'))
+            if 'save' in self.config and self.config['save'] and (idx % 10 == 0 or idx == self.config['epochs'] - 1):
+                tf.train.Saver().save(sess, os.path.join(
+                    MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model'), global_step=idx)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks):
         training_loss = 0

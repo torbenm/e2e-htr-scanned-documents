@@ -4,7 +4,7 @@
   "algorithm": "puigcerver",
   "save": true,
   "batch": 50,
-  "epochs": 200,
+  "epochs": 300,
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",
