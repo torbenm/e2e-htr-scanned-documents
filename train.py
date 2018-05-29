@@ -25,12 +25,12 @@ if __name__ == "__main__":
     parser.add_argument(
         '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     parser.add_argument('--softplacement', help='Allow Softplacement, default is True',
-                        action='store_true', default=False)
+                        action='store_true', default=True)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
     args = parser.parse_args()
 
-    exc = Executor("puigcerver-iam-lines_short")
+    exc = Executor(args.config)
     exc.configure(args.gpu, args.softplacement, args.logplacement)
     exc.train({
         'batch': batch_hook,
