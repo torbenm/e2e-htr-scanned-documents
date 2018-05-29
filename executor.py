@@ -92,8 +92,8 @@ class Executor(object):
                 graph['y']: denseNDArrayToSparseTensor(Y),
                 graph['l']: [self.dataset.max_length] * len(X)
             }
-            ler = sess.run(ler, val_dict)
-            ler_total.append(ler)
+            ler_ = sess.run(ler, val_dict)
+            ler_total.append(ler_)
         return {
             'ler': np.mean(ler_total)
         }
