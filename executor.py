@@ -17,6 +17,8 @@ class Executor(object):
         self.algorithm = getAlgorithm(self.config['algorithm'])
         self.dataset = dataset.Dataset(self.config['dataset'])
         self.sessionConfig = None
+        self._decoder = None
+        self._ler = None
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         self.sessionConfig = tf.ConfigProto(
@@ -81,10 +83,7 @@ class Executor(object):
     def _validate(self, graph, sess, hooks=None):
         ler_total = []
 
-        decoded = self._decode(graph)
-
-        ler = tf.reduce_mean(tf.edit_distance(
-            tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
+        ler = self._build_ler(graph)
 
         for X, Y, L in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], "dev"):
             val_dict = {
@@ -99,14 +98,21 @@ class Executor(object):
         }
 
     def _decode(self, graph):
-        decoded = None
-        if self.config['ctc'] == "greedy":
-            decoded, _ = tf.nn.ctc_greedy_decoder(
-                graph['logits'], graph['l'], merge_repeated=True)
-        elif self.config['ctc']:
-            decoded, _ = tf.nn.ctc_beam_search_decoder(
-                graph['logits'], graph['l'], merge_repeated=True)
-        return decoded
+        if self._decoder is None:
+            if self.config['ctc'] == "greedy":
+                self._decoder, _ = tf.nn.ctc_greedy_decoder(
+                    graph['logits'], graph['l'], merge_repeated=True)
+            elif self.config['ctc']:
+                self._decoder, _ = tf.nn.ctc_beam_search_decoder(
+                    graph['logits'], graph['l'], merge_repeated=True)
+        return self._decoder
+
+    def _build_ler(self, graph):
+        decoded = self._decode(graph)
+        if self._ler is None:
+            self._ler = tf.reduce_mean(tf.edit_distance(
+                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
+        return self.ler
 
     def _build_graph(self):
         return self.algorithm.build_graph(
