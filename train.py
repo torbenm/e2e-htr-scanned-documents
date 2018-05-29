@@ -1,6 +1,8 @@
 import sys
 import argparse
 from executor import Executor
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def batch_hook(epoch, batch, max_batches):
