@@ -9,11 +9,11 @@
   "test_frac": 0.0,
   "dev_frac": 0.2,
   "warp": {
-    "num": 5,
+    "num": 10,
     "gridsize": [30, 30],
     "deviation": 2.7
   },
   "scale": {
-    "size": [1500, 124]
+    "size": [1751, 124]
   }
 }
