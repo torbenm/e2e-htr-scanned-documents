@@ -2,7 +2,7 @@
   "name": "puigcerver-iam-lines",
   "dataset": "iam-lines",
   "algorithm": "puigcerver",
-  "save": true,
+  "save": 2,
   "batch": 50,
   "epochs": 300,
   "max_batches": 0,

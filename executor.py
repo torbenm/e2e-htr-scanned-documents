@@ -52,7 +52,7 @@ class Executor(object):
             self.config['batch'], self.config['max_batches'])
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(graph, sess, idx, epoch, batch_num, hooks)
-            if 'save' in self.config and self.config['save'] and (idx % 10 == 0 or idx == self.config['epochs'] - 1):
+            if 'save' in self.config and self.config['save'] != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 tf.train.Saver().save(sess, os.path.join(
                     MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model'), global_step=idx)
 
@@ -75,7 +75,7 @@ class Executor(object):
                 [graph['total_loss'], graph['train_step']], train_dict)
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
-        val_stats = self._validate(graph, sess)
+        val_stats = self._validate(graph, sess, hooks)
         if hooks is not None and 'epoch' in hooks:
             hooks['epoch'](idx, training_loss / steps,
                            time.time() - start_time, val_stats)
@@ -84,8 +84,11 @@ class Executor(object):
         ler_total = []
 
         ler = self._build_ler(graph)
-
+        steps = 0
+        total_steps = self.dataset.getBatchCount(
+            self.config['batch'], self.config['max_batches'], "dev")
         for X, Y, L in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], "dev"):
+            steps += 1
             val_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
@@ -93,6 +96,8 @@ class Executor(object):
             }
             ler_ = sess.run(ler, val_dict)
             ler_total.append(ler_)
+            if hooks is not None and 'val_batch' in hooks:
+                hooks['val_batch'](steps, total_steps, ler_)
         return {
             'ler': np.mean(ler_total)
         }
@@ -112,7 +117,7 @@ class Executor(object):
         if self._ler is None:
             self._ler = tf.reduce_mean(tf.edit_distance(
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
-        return self.ler
+        return self._ler
 
     def _build_graph(self):
         return self.algorithm.build_graph(
