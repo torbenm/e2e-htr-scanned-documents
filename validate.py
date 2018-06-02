@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     parser.add_argument('--hardplacement', help='Allow Softplacement, default is True',
-                        action='store_true', default=True)
+                        action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
     parser.add_argument(
@@ -36,6 +36,7 @@ if __name__ == "__main__":
 
     exc = Executor(args.config)
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
+    print args.hardplacement
     results = exc.validate(args.model_date if args.model_date !=
                            "" else None, args.model_epoch, {
                                'val_batch': val_batch_hook
