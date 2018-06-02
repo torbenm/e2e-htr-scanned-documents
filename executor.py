@@ -19,6 +19,7 @@ class Executor(object):
         self.sessionConfig = None
         self._decoder = None
         self._ler = None
+        self._decoded_dense = None
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         self.sessionConfig = tf.ConfigProto(
@@ -33,28 +34,37 @@ class Executor(object):
     def train(self, hooks=None):
         return self._exec(self._train, hooks)
 
-    def validate(self, hooks=None):
-        return self._exec(self._validate, hooks)
+    def validate(self, date=None, epoch=0, hooks=None, dataset="dev"):
+        options = {
+            "dataset": dataset
+        }
+        return self._exec(self._validate, hooks, date, epoch, options)
 
     def test(self):
         pass
 
-    def _exec(self, callback, hooks):
+    def _exec(self, callback, hooks, date=None, epoch=0, options={}):
         graph = self._build_graph()
         config = self.sessionConfig or self.configure()
         with tf.device(self.device):
             with tf.Session(config=config) as sess:
-                return callback(graph, sess, hooks)
+                if date is None:
+                    sess.run(tf.global_variables_initializer())
+                else:
+                    self._restore(sess, date, epoch)
+                return callback(graph, sess, hooks, options)
 
-    def _train(self, graph, sess, hooks):
-        sess.run(tf.global_variables_initializer())
+    def _train(self, graph, sess, hooks, options={}):
         batch_num = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'])
+        foldername = os.path.join(
+            MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model')
+        saver = tf.train.Saver()
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
-            self._train_epoch(graph, sess, idx, epoch, batch_num, hooks)
+            self._train_epoch(
+                graph, sess, idx, epoch, batch_num, hooks)
             if 'save' in self.config and self.config['save'] != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
-                tf.train.Saver().save(sess, os.path.join(
-                    MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model'), global_step=idx)
+                saver.save(sess, foldername, global_step=idx)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks):
         training_loss = 0
@@ -80,27 +90,47 @@ class Executor(object):
             hooks['epoch'](idx, training_loss / steps,
                            time.time() - start_time, val_stats)
 
-    def _validate(self, graph, sess, hooks=None):
-        ler_total = []
+    def _validate(self, graph, sess, hooks=None, options={}):
+        # OPTIONS
+        dataset = options['dataset'] if 'dataset' in options else 'dev'
 
+        # ADDITIONAL GRAPHs
         ler = self._build_ler(graph)
+        results = self._build_decoded_dense(graph)
+        # VARIABLES
         steps = 0
         total_steps = self.dataset.getBatchCount(
-            self.config['batch'], self.config['max_batches'], "dev")
-        for X, Y, L in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], "dev"):
+            self.config['batch'], self.config['max_batches'], dataset)
+        ler_total = []
+        examples = {
+            'Y': [],
+            'trans': []
+        }
+        for X, Y, L in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset):
             steps += 1
             val_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
                 graph['l']: [self.dataset.max_length] * len(X)
             }
-            ler_ = sess.run(ler, val_dict)
+            results_, ler_ = sess.run([results, ler], val_dict)
             ler_total.append(ler_)
+            examples['Y'].extend(Y)
+            examples['trans'].extend(results_)
+
             if hooks is not None and 'val_batch' in hooks:
                 hooks['val_batch'](steps, total_steps, ler_)
         return {
+            'examples': examples,
             'ler': np.mean(ler_total)
         }
+
+    def _build_decoded_dense(self, graph):
+        if self._decoded_dense is None:
+            decoded = self._decode(graph)
+            self._decoded_dense = tf.sparse_to_dense(
+                decoded[0].indices, decoded[0].dense_shape, decoded[0].values, tf.constant(-1, tf.int64))
+        return self._decoded_dense
 
     def _decode(self, graph):
         if self._decoder is None:
@@ -113,8 +143,8 @@ class Executor(object):
         return self._decoder
 
     def _build_ler(self, graph):
-        decoded = self._decode(graph)
         if self._ler is None:
+            decoded = self._decode(graph)
             self._ler = tf.reduce_mean(tf.edit_distance(
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
         return self._ler
@@ -124,6 +154,11 @@ class Executor(object):
             batch_size=self.config['batch'], learning_rate=self.config[
                 'learning_rate'], sequence_length=self.dataset.max_length,
             image_height=self.dataset.meta["height"], image_width=self.dataset.meta["width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels)
+
+    def _restore(self, sess, date="", epoch=0):
+        filename = os.path.join(
+            MODELS_PATH, '{}-{}'.format(self.config['name'], date), 'model-{}'.format(epoch))
+        tf.train.Saver().restore(sess, filename)
 
 
 def evaluate_device(gpuNumber):

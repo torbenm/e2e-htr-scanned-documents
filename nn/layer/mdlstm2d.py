@@ -14,10 +14,10 @@ from rnn2d import _patch_padding
 """
 Multidirectional 2D LSTM
 """
-TOP_RIGHT = "TR"
-TOP_LEFT = "TL"
-BOTTOM_RIGHT = "BR"
-BOTTOM_LEFT = "BL"
+TOP_RIGHT = 0
+TOP_LEFT = 1
+BOTTOM_RIGHT = 2
+BOTTOM_LEFT = 3
 
 
 def pos_to_time(x, y, w, h, direction=TOP_LEFT):
