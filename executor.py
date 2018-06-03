@@ -22,6 +22,7 @@ class Executor(object):
         self._decoded_dense = None
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
+        print "Configuring. Softplacement: ", softplacement, "Logplacement:", logplacement, "Allow growth:", allow_growth
         self.sessionConfig = tf.ConfigProto(
             allow_soft_placement=softplacement, log_device_placement=logplacement)
         self.sessionConfig.gpu_options.allow_growth = allow_growth

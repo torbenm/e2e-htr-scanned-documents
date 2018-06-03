@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('--config')
     parser.add_argument(
         '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
-    parser.add_argument('--hardplacement', help='Allow Softplacement, default is True',
+    parser.add_argument('--hardplacement', help='Disallow Softplacement, default is False',
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
