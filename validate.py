@@ -40,7 +40,7 @@ if __name__ == "__main__":
                            "" else None, args.model_epoch, {
                                'val_batch': val_batch_hook
                            })
-    print "\nLER for Validation dataset was:", round(results['ler'] * 100, 2)
+    print "\nCER for Validation dataset was:", round(results['cer'] * 100, 2)
     len_results = len(results['examples']['trans'])
     ex_length = len_results if args.examples == - \
         1 else min(args.examples, len_results)

@@ -21,9 +21,9 @@ def val_batch_hook(step, max_steps, val_stats):
 
 
 def epoch_hook(epoch, loss, time, val_stats):
-    msg = 'epoch = {0} | loss = {1:.3f} | time {2:.3f} | ler {3:.3f}'.format(str(epoch).zfill(3),
+    msg = 'epoch = {0} | loss = {1:.3f} | time {2:.3f} | cer {3:.3f}'.format(str(epoch).zfill(3),
                                                                              loss,
-                                                                             time, val_stats['ler'])
+                                                                             time, val_stats['cer'])
     sys.stdout.write('\r{:130}\n'.format(msg))
     sys.stdout.flush()
 
@@ -37,6 +37,9 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
+    parser.add_argument('--skip-validation', help='Skip validation',
+                        action='store_true', default=False)
+    parser.add_argument('--timeline', default='')
     args = parser.parse_args()
 
     exc = Executor(args.config)
@@ -45,4 +48,7 @@ if __name__ == "__main__":
         'batch': batch_hook,
         'val_batch': val_batch_hook,
         'epoch': epoch_hook
+    }, {
+        'skip_validation': args.skip_validation,
+        'timeline': args.timeline
     })

@@ -4,6 +4,7 @@ from data import util, dataset
 from nn import getAlgorithm
 import time
 import numpy as np
+from tensorflow.python.client import timeline
 
 
 MODELS_PATH = "./models"
@@ -18,7 +19,7 @@ class Executor(object):
         self.dataset = dataset.Dataset(useDataset or self.config['dataset'])
         self.sessionConfig = None
         self._decoder = None
-        self._ler = None
+        self._cer = None
         self._decoded_dense = None
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
@@ -35,8 +36,8 @@ class Executor(object):
         }
         return self._exec(self._transcribe, hooks, date, epoch, options)
 
-    def train(self, hooks=None):
-        return self._exec(self._train, hooks)
+    def train(self, hooks=None, options={}):
+        return self._exec(self._train, hooks, options=options)
 
     def validate(self, date=None, epoch=0, hooks=None, dataset="dev"):
         options = {
@@ -67,14 +68,19 @@ class Executor(object):
             saver = tf.train.Saver()
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
-                graph, sess, idx, epoch, batch_num, hooks)
+                graph, sess, idx, epoch, batch_num, hooks, options)
             if 'save' in self.config and self.config['save'] != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
 
-    def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks):
+    def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options):
         training_loss = 0
         steps = 0
         start_time = time.time()
+        runOptions = None
+        runMetadata = None
+        if 'timeline' in options and options['timeline'] != '':
+            runOptions = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+            runMetadata = tf.RunMetadata()
         # Batch loop
         for X, Y, length in epoch:
             if hooks is not None and 'batch' in hooks:
@@ -87,26 +93,36 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_, other = sess.run(
-                [graph['total_loss'], graph['train_step']], train_dict)
+                [graph['total_loss'], graph['train_step']], train_dict,
+                run_metadata=runMetadata, options=runOptions)
+
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
-        val_stats = self._validate(graph, sess, hooks)
+        if 'skip_validation' in options and options['skip_validation']:
+            val_stats = self._empty_val_stats()
+        else:
+            val_stats = self._validate(graph, sess, hooks)
         if hooks is not None and 'epoch' in hooks:
             hooks['epoch'](idx, training_loss / steps,
                            time.time() - start_time, val_stats)
+        if 'timeline' in options and options['timeline'] != '':
+            fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+            chrome_trace = fetched_timeline.generate_chrome_trace_format()
+            with open('timelines/timeline_02_epoch_%d.json' % idx, 'w') as f:
+                f.write(chrome_trace)
 
     def _validate(self, graph, sess, hooks=None, options={}):
         # OPTIONS
         dataset = options['dataset'] if 'dataset' in options else 'dev'
 
         # ADDITIONAL GRAPHs
-        ler = self._build_ler(graph)
+        cer = self._build_cer(graph)
         results = self._build_decoded_dense(graph)
         # VARIABLES
         steps = 0
         total_steps = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'], dataset)
-        ler_total = []
+        cer_total = []
         examples = {
             'Y': [],
             'trans': []
@@ -118,16 +134,25 @@ class Executor(object):
                 graph['y']: denseNDArrayToSparseTensor(Y),
                 graph['l']: [self.dataset.max_length] * len(X)
             }
-            results_, ler_ = sess.run([results, ler], val_dict)
-            ler_total.append(ler_)
+            results_, cer_ = sess.run([results, cer], val_dict)
+            cer_total.append(cer_)
             examples['Y'].extend(Y)
             examples['trans'].extend(results_)
 
             if hooks is not None and 'val_batch' in hooks:
-                hooks['val_batch'](steps, total_steps, ler_)
+                hooks['val_batch'](steps, total_steps, cer_)
         return {
             'examples': examples,
-            'ler': np.mean(ler_total)
+            'cer': np.mean(cer_total)
+        }
+
+    def _empty_val_stats(self):
+        return {
+            'examples': {
+                'Y': [],
+                'trans': []
+            },
+            'cer': -1.0
         }
 
     def _transcribe(self, graph, sess, hooks=None, options={}):
@@ -176,12 +201,12 @@ class Executor(object):
                     graph['logits'], graph['l'], merge_repeated=True)
         return self._decoder
 
-    def _build_ler(self, graph):
-        if self._ler is None:
+    def _build_cer(self, graph):
+        if self._cer is None:
             decoded = self._decode(graph)
-            self._ler = tf.reduce_mean(tf.edit_distance(
+            self._cer = tf.reduce_mean(tf.edit_distance(
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
-        return self._ler
+        return self._cer
 
     def _build_graph(self):
         return self.algorithm.build_graph(
