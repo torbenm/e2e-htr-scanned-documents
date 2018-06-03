@@ -1,7 +1,7 @@
 {
-  "name": "puigcerver-iam-lines",
+  "name": "voigtlaender-iam-lines",
   "dataset": "iam-lines",
-  "algorithm": "puigcerver",
+  "algorithm": "voigtlaender",
   "save": false,
   "batch": 50,
   "epochs": 300,
