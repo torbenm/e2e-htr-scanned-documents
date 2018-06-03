@@ -25,8 +25,8 @@ def naive_loop(cell, num_steps_x, num_steps_y, inputs_ta, parallel_iterations):
 
     total_steps = tf.constant(num_steps_x * num_steps_y)
     zero = tf.constant(0)
-    num_step_x = tf.constant(num_step_x)
-    num_step_y = tf.constant(num_step_y)
+    num_steps_x = tf.constant(num_steps_x)
+    num_steps_y = tf.constant(num_steps_y)
     # Body of the while loop operation that aplies the MD LSTM
 
     def loop(time_, outputs_ta_, states_ta_):

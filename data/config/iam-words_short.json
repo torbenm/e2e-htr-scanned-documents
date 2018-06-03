@@ -4,12 +4,12 @@
   "binarize": false,
   "invert": true,
   "padding": 5,
-  "limit": 10,
+  "limit": 3,
   "shuffle": true,
-  "test_frac": 0.2,
-  "dev_frac": 0.2,
+  "test_frac": 0.0,
+  "dev_frac": 0.0,
   "warp": {
-    "num": 2,
+    "num": 0,
     "gridsize": [30, 30],
     "deviation": 2.7
   },
