@@ -24,7 +24,7 @@ def conv_mdlstm_block(net, idx, is_train, width=5, dropout=True):
     net = wrap_1d(tf.layers.dropout(net, 0.25, training=is_train))
 
     # ---- START LSTM
-    net = mdlstm2d((real_idx + 1) * width, net)
+    net = mdlstm2d((real_idx + 1) * width, net, scope='lstm-{}'.format(idx))
     # ---- END LSTM
 
     return net
