@@ -1,4 +1,4 @@
-from datasets import identify
+from datasets import identifyDataset
 import util
 import os
 from urllib import urlretrieve
@@ -67,5 +67,5 @@ if __name__ == "__main__":
     parser.add_argument("--pwd", default="")
     args = parser.parse_args()
 
-    dataset = identify.identifyDataset(args.dataset)
+    dataset = identifyDataset(args.dataset)
     downloadDataset(dataset, args)

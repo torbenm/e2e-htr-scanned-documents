@@ -5,6 +5,10 @@ from layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum
 from layer.algorithmBase import AlgorithmBase
 from util import wrap_1d, wrap_4d, make_sparse
 
+"""
+Puigcerver, Joan. "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?."
+"""
+
 
 def conv_block(net, index, is_train):
     num_filters = (index + 1) * 16

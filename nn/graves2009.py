@@ -5,10 +5,11 @@ from layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum
 from layer.algorithmBase import AlgorithmBase
 from util import wrap_1d, wrap_4d, make_sparse
 
-# Taken from
-# Graves, Alex, and Juergen Schmidhuber. "Offline handwriting recognition
-# with multidimensional recurrent neural networks." Advances in neural
-# information processing systems. 2009.
+"""
+Graves, Alex, and Juergen Schmidhuber. "Offline handwriting recognition
+with multidimensional recurrent neural networks." Advances in neural
+information processing systems. 2009.
+"""
 
 SEPARABLE = False
 
