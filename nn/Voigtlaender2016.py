@@ -41,7 +41,7 @@ class VoigtlaenderDoetschNey2016(AlgorithmBase):
             tf.int32, shape=[batch_size], name="y")
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
-        num_layers = 1
+        num_layers = 3
         width = 5
 
         net = x
