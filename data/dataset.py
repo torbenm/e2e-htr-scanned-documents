@@ -69,29 +69,35 @@ class Dataset(object):
         except ValueError:
             return None, None, None
         x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
-        return x, y, l
+        return x, y, l, line["path"]
 
-    def _load_batch(self, index, batch_size, dataset):
+    def _load_batch(self, index, batch_size, dataset, with_filepath=False):
         X = []
         Y = []
         L = []
+        F = []
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
-            x, y, l = self._loadline(self.data[dataset][idx])
+            x, y, l, f = self._loadline(self.data[dataset][idx])
             if x is not None:
                 X.append(x)
                 Y.append(y)
                 L.append(l)
-        return np.asarray(X), np.asarray(Y), np.asarray(L)
+                F.append(f)
+        if not with_filepath:
+            return np.asarray(X), np.asarray(Y), np.asarray(L)
+        else:
+            return np.asarray(X), np.asarray(Y), np.asarray(L), F
 
-    def generateBatch(self, batch_size, max_batches=0, dataset="train"):
+    def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)
+        print "num batches", num_batches
         for b in range(num_batches):
-            yield self._load_batch(b, batch_size, dataset)
+            yield self._load_batch(b, batch_size, dataset, with_filepath)
         pass
 
-    def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train"):
+    def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False):
         for e in range(num_epochs):
-            yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset)
+            yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset, with_filepath=with_filepath)
 
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
         total_len = len(self.data[dataset])

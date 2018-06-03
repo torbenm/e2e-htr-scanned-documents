@@ -12,10 +12,10 @@ CONFIG_PATH = "./config"
 
 class Executor(object):
 
-    def __init__(self, configName):
+    def __init__(self, configName, useDataset=None):
         self.config = util.loadJson(CONFIG_PATH, configName)
         self.algorithm = getAlgorithm(self.config['algorithm'])
-        self.dataset = dataset.Dataset(self.config['dataset'])
+        self.dataset = dataset.Dataset(useDataset or self.config['dataset'])
         self.sessionConfig = None
         self._decoder = None
         self._ler = None
@@ -28,8 +28,11 @@ class Executor(object):
         self.device = evaluate_device(device)
         return self.sessionConfig
 
-    def forward(self, hooks):
-        pass
+    def transcribe(self, subset, date=None, epoch=0, hooks=None):
+        options = {
+            "dataset": subset
+        }
+        return self._exec(self._transcribe, hooks, date, epoch, options)
 
     def train(self, hooks=None):
         return self._exec(self._train, hooks)
@@ -124,6 +127,35 @@ class Executor(object):
             'examples': examples,
             'ler': np.mean(ler_total)
         }
+
+    def _transcribe(self, graph, sess, hooks=None, options={}):
+        # OPTIONS
+        dataset = options['dataset'] if 'dataset' in options else 'test'
+
+        # ADDITIONAL GRAPHs
+        results = self._build_decoded_dense(graph)
+        # VARIABLES
+        steps = 0
+        total_steps = self.dataset.getBatchCount(
+            self.config['batch'], self.config['max_batches'], dataset)
+
+        transcriptions = {
+            'files': [],
+            'trans': []
+        }
+        for X, Y, L, F in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset, True):
+            steps += 1
+            val_dict = {
+                graph['x']: X,
+                graph['l']: [graph['logits'].shape[0]] * len(X)
+            }
+            results_ = sess.run(results, val_dict)
+            transcriptions['files'].extend(F)
+            transcriptions['trans'].extend(results_)
+
+            if hooks is not None and 'trans_batch' in hooks:
+                hooks['trans_batch'](steps, total_steps)
+        return transcriptions
 
     def _build_decoded_dense(self, graph):
         if self._decoded_dense is None:

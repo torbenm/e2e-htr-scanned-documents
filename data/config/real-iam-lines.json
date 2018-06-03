@@ -1,0 +1,19 @@
+{
+  "dataset": "real",
+  "subset": "",
+  "binarize": false,
+  "threshold": true,
+  "invert": true,
+  "limit": -1,
+  "shuffle": false,
+  "test_frac": 1.0,
+  "dev_frac": 0.0,
+  "warp": {
+    "num": 0
+  },
+  "scale": {
+    "size": [1783, 156]
+  },
+  "vocab": "iam-lines",
+  "padding": 0
+}

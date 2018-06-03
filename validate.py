@@ -40,9 +40,9 @@ if __name__ == "__main__":
                            "" else None, args.model_epoch, {
                                'val_batch': val_batch_hook
                            })
-    print "LER for Validation dataset was:", results['ler']
+    print "\nLER for Validation dataset was:", round(results['ler'] * 100, 2)
     len_results = len(results['examples']['trans'])
     ex_length = len_results if args.examples == - \
         1 else min(args.examples, len_results)
     print "Going to show", ex_length, "example transcriptions"
-    print '\n'.join([compare_outputs(exc, results['examples']['trans'][c], results['examples']['Y'][c]) for c in range(ex_length - 1)])
+    print '\n'.join([compare_outputs(exc, results['examples']['trans'][c], results['examples']['Y'][c]) for c in range(ex_length)])

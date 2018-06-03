@@ -6,14 +6,15 @@
   "padding": 15,
   "limit": -1,
   "shuffle": true,
-  "test_frac": 0.0,
-  "dev_frac": 0.2,
+  "test_frac": 0.1,
+  "dev_frac": 0.1,
   "warp": {
     "num": 10,
     "gridsize": [30, 30],
     "deviation": 2.7
   },
   "scale": {
-    "size": [1751, 124]
+    "mode": "line",
+    "size": [-1, 124]
   }
 }

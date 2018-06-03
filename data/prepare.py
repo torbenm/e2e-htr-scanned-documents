@@ -1,6 +1,6 @@
 import os
 import util
-from datasets import identify
+from datasets import identifyDataset
 from steps import vocab, scalefactor, pipeline, split, index
 import sys
 import numpy as np
@@ -12,7 +12,7 @@ def loadContext(name):
 
 
 def prepareDataset(name, context):
-    dataset = identify.identifyDataset(context['dataset'])
+    dataset = identifyDataset(context['dataset'])
     if dataset is not None:
         basepath = os.path.join(util.OUTPUT_PATH, name)
         imagepath = os.path.join(basepath, "imgs")
@@ -29,7 +29,11 @@ def prepareDataset(name, context):
         util.printDone("Reading raw data")
 
         # Step 2: Extract & save vocab from fulltext
-        vocabTuple = vocab.getVocab(fulltext)
+        if "vocab" in context:
+            vocabTuple = util.loadJson(os.path.join(
+                util.OUTPUT_PATH, context['vocab']), "vocab")
+        else:
+            vocabTuple = vocab.getVocab(fulltext)
         util.dumpJson(basepath, "vocab", vocabTuple)
         util.printDone("Extracting vocabulary")
 

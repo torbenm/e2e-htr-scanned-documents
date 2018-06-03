@@ -1,3 +1,3 @@
-1.  Continue option to jump back on the train
-2.  feedforward / validate / test
-3.  MDLSTMs à la gpu
+1.  MDLSTMs à la gpu
+2.  Padding does/should not alter image size
+3.  Scaling by line heihgt and (somewhat) flexible width, which is filled with 0s
