@@ -4,7 +4,7 @@
   "algorithm": "voigtlaender",
   "save": false,
   "batch": 3,
-  "epochs": 1,
+  "epochs": 10,
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",

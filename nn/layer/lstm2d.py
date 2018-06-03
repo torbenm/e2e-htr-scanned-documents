@@ -29,7 +29,7 @@ class LSTM2D(LayerRNNCell):
     Please be aware that state_is_tuple is always true.
     """
 
-    def __init__(self, num_units, activation=None, use_peephole=False, gate_activation=None, reuse=None, name=None):
+    def __init__(self, num_units, activation=None, use_peephole=False, gate_activation=None, reuse=None, name=None, return_tuple=True):
         """Initialize the multi dimensional LSTM cell.
         Args:
           num_units: int, The number of units in the LSTM cell.
@@ -51,6 +51,7 @@ class LSTM2D(LayerRNNCell):
               self).__init__(_reuse=reuse, name=name)
         self.input_spec = base_layer.InputSpec(ndim=2)
         self._num_units = num_units
+        self.return_tuple = return_tuple
         self._use_peephole = use_peephole
         self._activation = activation or math_ops.tanh
         self._gate_activation = gate_activation or math_ops.sigmoid
@@ -116,5 +117,6 @@ class LSTM2D(LayerRNNCell):
 
         new_h = multiply(self._activation(new_c), self._gate_activation(o))
 
-        new_state = LSTMStateTuple(new_c, new_h)
+        new_state = LSTMStateTuple(
+            new_c, new_h) if self.return_tuple else new_c
         return new_h, new_state

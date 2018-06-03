@@ -2,6 +2,7 @@ import tensorflow as tf
 from layer.separable_lstm2d import separable_lstm
 from layer.lstm2d import LSTM2D
 from layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
+from layer.mdlstm2d import mdlstm2d
 from layer.algorithmBase import AlgorithmBase
 from util import wrap_1d, wrap_4d, make_sparse
 
@@ -23,10 +24,8 @@ def conv_mdlstm_block(net, idx, is_train, width=5, dropout=True):
     net = wrap_1d(tf.layers.dropout(net, 0.25, training=is_train))
 
     # ---- START LSTM
-    lstm = LSTM2D((real_idx + 1) * width)
-    net = wrap_4d(multidir_rnn2d(lstm, net, (1, 1),
-                                 dtype=tf.float32, scope='lstm-{}'.format(idx), parallel_iterations=32))
-    net = wrap_1d(element_sum(net, reducer=tf.reduce_mean))    # ---- END LSTM
+    net = mdlstm2d((real_idx + 1) * width, net)
+    # ---- END LSTM
 
     return net
 

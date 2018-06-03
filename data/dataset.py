@@ -90,7 +90,6 @@ class Dataset(object):
 
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)
-        print "num batches", num_batches
         for b in range(num_batches):
             yield self._load_batch(b, batch_size, dataset, with_filepath)
         pass
