@@ -108,7 +108,7 @@ class Executor(object):
         if 'timeline' in options and options['timeline'] != '':
             fetched_timeline = timeline.Timeline(run_metadata.step_stats)
             chrome_trace = fetched_timeline.generate_chrome_trace_format()
-            with open('timelines/timeline_02_epoch_%d.json' % idx, 'w') as f:
+            with open('timelines/%s_epoch_%d.json' % (options['timeline'], idx), 'w') as f:
                 f.write(chrome_trace)
 
     def _validate(self, graph, sess, hooks=None, options={}):
