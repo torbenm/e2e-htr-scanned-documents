@@ -76,11 +76,11 @@ class Executor(object):
         training_loss = 0
         steps = 0
         start_time = time.time()
-        runOptions = None
-        runMetadata = None
+        run_options = None
+        run_metadata = None
         if 'timeline' in options and options['timeline'] != '':
-            runOptions = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-            runMetadata = tf.RunMetadata()
+            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+            run_metadata = tf.RunMetadata()
         # Batch loop
         for X, Y, length in epoch:
             if hooks is not None and 'batch' in hooks:
@@ -94,7 +94,7 @@ class Executor(object):
             }
             training_loss_, other = sess.run(
                 [graph['total_loss'], graph['train_step']], train_dict,
-                run_metadata=runMetadata, options=runOptions)
+                run_metadata=run_metadata, options=run_options)
 
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
