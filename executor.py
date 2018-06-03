@@ -62,7 +62,8 @@ class Executor(object):
             self.config['batch'], self.config['max_batches'])
         foldername = os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model')
-        saver = tf.train.Saver()
+        if 'save' in self.config and self.config['save'] != False:
+            saver = tf.train.Saver()
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks)
