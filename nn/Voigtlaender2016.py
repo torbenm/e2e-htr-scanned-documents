@@ -25,7 +25,7 @@ def conv_mdlstm_block(net, idx, is_train, width=5, dropout=True):
     # ---- START LSTM
     lstm = LSTM2D((real_idx + 1) * width)
     net = wrap_4d(multidir_rnn2d(lstm, net, (1, 1),
-                                 dtype=tf.float32, scope='lstm-{}'.format(idx)))
+                                 dtype=tf.float32, scope='lstm-{}'.format(idx), parallel_iterations=32))
     net = wrap_1d(element_sum(net, reducer=tf.reduce_mean))    # ---- END LSTM
 
     return net
@@ -42,7 +42,7 @@ class VoigtlaenderDoetschNey2016(AlgorithmBase):
             tf.int32, shape=[batch_size], name="y")
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
-        num_layers = 3
+        num_layers = 1
         width = 5
 
         net = x

@@ -77,15 +77,6 @@ class LSTM2D(LayerRNNCell):
             _BIAS_VARIABLE_NAME,
             shape=[5 * h_depth],
             initializer=init_ops.zeros_initializer(dtype=self.dtype))
-
-        self._p_i = self.add_variable(
-            'input_peephole', shape=[1, h_depth])
-        self._p_o = self.add_variable(
-            'output_peephole', shape=[1, h_depth])
-        self._p_f_1 = self.add_variable(
-            'forget_peephole_1', shape=[1, h_depth])
-        self._p_f_2 = self.add_variable(
-            'forget_peephole_2', shape=[1, h_depth])
         self.built = True
 
     def call(self, inputs, state):
@@ -97,9 +88,7 @@ class LSTM2D(LayerRNNCell):
         Returns:
           A pair containing the new hidden state, and the new state (`LSTMStateTuple`).
         """
-        sigmoid = math_ops.sigmoid
         add = math_ops.add
-        reduce_sum = math_ops.reduce_sum
         matmul = math_ops.matmul
         multiply = math_ops.multiply
 
@@ -110,32 +99,22 @@ class LSTM2D(LayerRNNCell):
         gate_inputs = matmul(
             array_ops.concat([inputs, h1, h2], 1), self._kernel)
         gate_inputs = nn_ops.bias_add(gate_inputs, self._bias)
-
-        if not self._use_peephole:
-            gate_inputs = self._gate_activation(gate_inputs)
+        gate_inputs = self._gate_activation(gate_inputs)
 
         # i = input_gate, j = new_input, f1,f2 = forget_gates, o = output_gate
         i, j, f1, f2, o = array_ops.split(
             value=gate_inputs, num_or_size_splits=5, axis=1)
-        if self._use_peephole:
-            ip = add(multiply(c1, self._p_i), multiply(c2, self._p_i))
-            fp1 = multiply(c1, self._p_f_1)
-            fp2 = multiply(c2, self._p_f_2)
-            i = add(i, ip)
-            f1 = add(f1, fp1)
-            f2 = add(f2, fp2)
-            new_c = add(multiply(i, self._activation(j)),
-                        add(multiply(c1, f1), multiply(c2, f2)))
-        else:
-            new_c = add(multiply(self._gate_activation(i), self._activation(j)),
-                        add(multiply(c1, self._gate_activation(f1)), multiply(c2, self._gate_activation(f2))))
 
-        if self._use_peephole:
-            op = multiply(new_c, self._p_o)
-            o = add(o, op)
-            new_h = multiply(self._activation(new_c), o)
-        else:
-            new_h = multiply(self._activation(new_c), self._gate_activation(o))
+        # Here we use self._activation for j.
+        # However, there might be performance considerations to apply the (same) activation
+        # to all at once!
+        # new_c = add(multiply(self._gate_activation(i), self._activation(j)),
+        # add(multiply(c1, self._gate_activation(f1)), multiply(c2,
+        # self._gate_activation(f2))))
+        new_c = add(multiply(i, j),
+                    add(multiply(c1, f1), multiply(c2, f2)))
+
+        new_h = multiply(self._activation(new_c), self._gate_activation(o))
 
         new_state = LSTMStateTuple(new_c, new_h)
         return new_h, new_state

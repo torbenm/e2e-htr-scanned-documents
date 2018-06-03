@@ -13,17 +13,20 @@ import numpy as np
 # and row-by-row execution
 def naive_loop(cell, num_steps_x, num_steps_y, inputs_ta, parallel_iterations):
 
+    one = tf.constant(1)
+
     # Function to get the sample skipping one row
     def get_up(t_, w_):
-        return t_ - tf.constant(w_)
+        return t_ - w_
 
     # Function to get the previous sample
     def get_last(t_, w_):
-        return t_ - tf.constant(1)
+        return t_ - one
 
-    total_steps = num_steps_x * num_steps_y
+    total_steps = tf.constant(num_steps_x * num_steps_y)
     zero = tf.constant(0)
-
+    num_step_x = tf.constant(num_step_x)
+    num_step_y = tf.constant(num_step_y)
     # Body of the while loop operation that aplies the MD LSTM
 
     def loop(time_, outputs_ta_, states_ta_):
@@ -31,13 +34,13 @@ def naive_loop(cell, num_steps_x, num_steps_y, inputs_ta, parallel_iterations):
         # If the current position is less or equal than the width, we are in the first row
         # and we need to read the zero state we added in row (num_steps_x*num_steps_y).
         # If not, get the sample located at a width dstance.
-        state_up = tf.cond(tf.less_equal(time_, tf.constant(num_steps_x)),
+        state_up = tf.cond(tf.less_equal(time_, num_steps_x),
                            lambda: states_ta_.read(total_steps),
                            lambda: states_ta_.read(get_up(time_, num_steps_x)))
 
         # If it is the first step we read the zero state if not we read the
         # inmediate last
-        state_last = tf.cond(tf.less(zero, tf.mod(time_, tf.constant(num_steps_x))),
+        state_last = tf.cond(tf.less(zero, tf.mod(time_, num_steps_x)),
                              lambda: states_ta_.read(
             get_last(time_, num_steps_x)),
             lambda: states_ta_.read(total_steps))
@@ -58,7 +61,7 @@ def naive_loop(cell, num_steps_x, num_steps_y, inputs_ta, parallel_iterations):
     # Loop output condition. The index, given by the time, should be less than the
     # total number of steps defined within the image
     def condition(time_, outputs_ta_, states_ta_):
-        return tf.less(time_, tf.constant(total_steps))
+        return tf.less(time_, total_steps)
     return condition, loop
 
 # Diagional parallelization
