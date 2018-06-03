@@ -48,13 +48,13 @@ def mdlstm2d(num_units, inputs, blocks=(1, 1), activation=None,
 
         # ----------- TENSOR ARRAYS -----------
         inputs_ta = tf.TensorArray(
-            dtype=tf.float32, size=total_steps, name='input_ta', colocate_with_first_write_call=False, clear_after_read=False)
+            dtype=tf.float32, size=total_steps, name='input_ta', colocate_with_first_write_call=True, clear_after_read=False)
         # Unestack the input X in the tensor array
         inputs_ta = inputs_ta.unstack(x)
         states_ta = tf.TensorArray(
-            dtype=dtype, size=(total_steps + 1) * 4, name='state_ta', clear_after_read=False, colocate_with_first_write_call=False)
+            dtype=dtype, size=(total_steps + 1) * 4, name='state_ta', clear_after_read=False, colocate_with_first_write_call=True)
         outputs_ta = tf.TensorArray(
-            dtype=dtype, size=total_steps * 4, name='output_ta', colocate_with_first_write_call=False)
+            dtype=dtype, size=total_steps * 4, name='output_ta', colocate_with_first_write_call=True)
 
         states_ta = states_ta.write(total_steps, state)
         states_ta = states_ta.write(total_steps * 2 + 1, state)
@@ -168,14 +168,6 @@ def mdlstm2d(num_units, inputs, blocks=(1, 1), activation=None,
         y = tf.transpose(y, [2, 0, 1, 3])
 
     return y
-
-
-def _loop_condition():
-    pass
-
-
-def _loop_body():
-    pass
 
 
 def _init_state(initial_state, cell, dtype, batch_size):
