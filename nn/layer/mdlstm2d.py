@@ -1,11 +1,4 @@
 import tensorflow as tf
-# import operator
-# from tensorflow.contrib.layers import fully_connected
-# from tensorflow.python.eager import context
-# from tensorflow.python.util import nest
-# from tensorflow.contrib.rnn import RNNCell, LSTMStateTuple
-# from tensorflow.python.ops.rnn import _best_effort_input_batch_size
-# import math
 from tensorflow.python.util import nest
 import numpy as np
 from tensorflow.python.ops import array_ops

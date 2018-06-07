@@ -1,0 +1,12 @@
+{
+  "name": "reshtr-iam-lines",
+  "dataset": "iam-lines",
+  "algorithm": "reshtr",
+  "save": 5,
+  "batch": 50,
+  "epochs": 300,
+  "max_batches": 0,
+  "learning_rate": 0.0003,
+  "ctc": "greedy",
+  "algo_config": {}
+}

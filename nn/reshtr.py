@@ -3,26 +3,8 @@ from layer.separable_lstm2d import separable_lstm
 from layer.lstm2d import LSTM2D
 from layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
 from layer.algorithmBase import AlgorithmBase
+from layer import resnet
 from util import wrap_1d, wrap_4d, make_sparse
-
-"""
-Puigcerver, Joan. "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?."
-"""
-
-
-def conv_block(net, index, is_train):
-    num_filters = (index + 1) * 16
-    net = wrap_1d(tf.layers.conv2d(
-        net, num_filters, (3, 3), strides=(1, 1)))
-    if index > 1:
-        net = wrap_1d(tf.layers.dropout(net, 0.2, training=is_train))
-    # missing: dropout for layer 3,4,5 (0.2 prob)
-    net = wrap_1d(tf.layers.batch_normalization(net, training=is_train))
-
-    # maxpool or dropout first?
-    if index < 3:
-        net = wrap_1d(tf.layers.max_pooling2d(net, (2, 2), (2, 2)))
-    return net
 
 
 def rec_block(net, index, is_train, scope):
@@ -35,7 +17,7 @@ def rec_block(net, index, is_train, scope):
         return net
 
 
-class Puigcerver2017(AlgorithmBase):
+class ResHtr(AlgorithmBase):
 
     def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
         x = wrap_1d(tf.placeholder(
@@ -46,12 +28,14 @@ class Puigcerver2017(AlgorithmBase):
             tf.int32, shape=[None], name="y")
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
-        num_conv = 5
+        num_res = 3
         num_lstm = 5
 
-        net = x
-        for i in range(num_conv):
-            net = conv_block(net, i, is_train)
+        ResNet = resnet.Model(resnet_size=3, bottleneck=False, num_filters=16, kernel_size=3,
+                              conv_stride=1, first_pool_size=2, first_pool_stride=2,
+                              block_sizes=[3] * 3, block_strides=[1] * 3)
+
+        net = wrap_1d(ResNet(x, is_train))
 
         net = wrap_1d(tf.reshape(
             net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
@@ -68,7 +52,7 @@ class Puigcerver2017(AlgorithmBase):
         logits = tf.nn.softmax(logits)
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
-
+        exit()
         return dict(
             x=x,
             y=y,
