@@ -52,7 +52,6 @@ class ResHtr(AlgorithmBase):
         logits = tf.nn.softmax(logits)
         train_step = tf.train.AdamOptimizer(
             learning_rate).minimize(total_loss)
-        exit()
         return dict(
             x=x,
             y=y,
