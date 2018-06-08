@@ -31,7 +31,7 @@ class ResHtr(AlgorithmBase):
         num_res = 3
         num_lstm = 5
 
-        ResNet = resnet.Model(resnet_size=3, bottleneck=False, num_filters=8, kernel_size=3,
+        ResNet = resnet.Model(resnet_size=3, bottleneck=False, num_filters=4, kernel_size=3,
                               conv_stride=1, first_pool_size=2, first_pool_stride=2,
                               block_sizes=[1] * 5, block_strides=[1] * 5, data_format='channels_last')
 
