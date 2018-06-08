@@ -521,7 +521,6 @@ class Model(object):
 
             for i, num_blocks in enumerate(self.block_sizes):
                 num_filters = self.num_filters * (2**i)
-                print(num_filters)
                 inputs = block_layer(
                     inputs=inputs, filters=num_filters, bottleneck=self.bottleneck,
                     block_fn=self.block_fn, blocks=num_blocks,
@@ -533,9 +532,8 @@ class Model(object):
             if self.pre_activation:
                 inputs = batch_norm(inputs, training, self.data_format)
                 inputs = tf.nn.relu(inputs)
-            print(inputs.shape)
 
-            inputs = tf.layers.average_pooling2d(
+            inputs = tf.layers.max_pooling2d(
                 inputs, (2, 2), (2, 2), data_format=self.data_format)
             # The current top layer has shape
             # `batch_size x pool_size x pool_size x final_size`.
