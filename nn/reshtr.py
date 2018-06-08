@@ -33,7 +33,7 @@ class ResHtr(AlgorithmBase):
 
         ResNet = resnet.Model(resnet_size=3, bottleneck=False, num_filters=4, kernel_size=3,
                               conv_stride=1, first_pool_size=2, first_pool_stride=2,
-                              block_sizes=[1] * 5, block_strides=[1] * 5, data_format='channels_last')
+                              block_sizes=[1] * 3, block_strides=[1] * 3, data_format='channels_last')
 
         net = wrap_1d(ResNet(x, is_train))
 
