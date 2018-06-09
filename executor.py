@@ -5,7 +5,7 @@ from nn import getAlgorithm
 import time
 import numpy as np
 from tensorflow.python.client import timeline
-from util import valueOr
+from nn.util import valueOr
 
 MODELS_PATH = "./models"
 CONFIG_PATH = "./config"
