@@ -52,6 +52,7 @@ class Executor(object):
     def _exec(self, callback, hooks, date=None, epoch=0, options={}):
         graph = self._build_graph()
         config = self.sessionConfig or self.configure()
+        print "Going to run on", self.device
         with tf.device(self.device):
             with tf.Session(config=config) as sess:
                 if date is None:
