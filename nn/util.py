@@ -25,4 +25,4 @@ def denseNDArrayToSparseTensor(arr, sparse_val=-1):
 
 
 def valueOr(config, prop, default):
-    return config[prop] if prop in config and config['prop'] is not None else default
+    return config[prop] if prop in config and config[prop] is not None else default

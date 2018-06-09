@@ -45,7 +45,3 @@ def compare_outputs(dataset, pred, actual):
     actual = dataset.decompile(actual)
     out = '{:' + str(dataset.max_length) + '}  {}'
     return out.format(pred, actual)
-
-
-def valueOr(config, prop, default):
-    return config[prop] if prop in config and config['prop'] is not None else default
