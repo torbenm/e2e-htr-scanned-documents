@@ -8,5 +8,7 @@
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",
-  "algo_config": {}
+  "algo_config": {
+    "conv.num": 3
+  }
 }
