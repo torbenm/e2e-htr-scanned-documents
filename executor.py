@@ -5,7 +5,7 @@ from nn import getAlgorithm
 import time
 import numpy as np
 from tensorflow.python.client import timeline
-
+from util import valueOr
 
 MODELS_PATH = "./models"
 CONFIG_PATH = "./config"
@@ -15,7 +15,8 @@ class Executor(object):
 
     def __init__(self, configName, useDataset=None):
         self.config = util.loadJson(CONFIG_PATH, configName)
-        self.algorithm = getAlgorithm(self.config['algorithm'])
+        self.algorithm = getAlgorithm(
+            self.config['algorithm'], valueOr(self.config, 'algo_config', {}))
         self.dataset = dataset.Dataset(useDataset or self.config['dataset'])
         self.sessionConfig = None
         self._decoder = None

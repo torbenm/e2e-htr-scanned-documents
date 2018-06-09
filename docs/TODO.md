@@ -5,6 +5,7 @@
 ---
 
 1.  Attention
+    1.1 Idea: Stack Row-Wise and run through BLSTM & then mult with encoder output
 2.  Increase parameters
 3.  Resnet instead of CNN
 4.  Different datasets

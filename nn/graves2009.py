@@ -48,6 +48,9 @@ def lstm_fc_layer(net, lstm_size, lstm_shape, fc_units, name):
 
 class GravesSchmidhuber2009(AlgorithmBase):
 
+    def __init__(self, config):
+        self.config = config
+
     def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
 
         x = wrap_1d(tf.placeholder(

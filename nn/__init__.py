@@ -4,12 +4,12 @@ from graves2009 import GravesSchmidhuber2009
 from reshtr import ResHtr
 
 
-def getAlgorithm(name):
+def getAlgorithm(name, algoConfig):
     if name == "puigcerver":
-        return Puigcerver2017()
+        return Puigcerver2017(algoConfig)
     elif name == "voigtlaender":
-        return VoigtlaenderDoetschNey2016()
+        return VoigtlaenderDoetschNey2016(algoConfig)
     elif name == "graves":
-        return GravesSchmidhuber2009()
+        return GravesSchmidhuber2009(algoConfig)
     elif name == "reshtr":
-        return ResHtr()
+        return ResHtr(algoConfig)

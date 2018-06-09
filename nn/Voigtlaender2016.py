@@ -32,6 +32,9 @@ def conv_mdlstm_block(net, idx, is_train, width=5, dropout=True):
 
 class VoigtlaenderDoetschNey2016(AlgorithmBase):
 
+    def __init__(self, config):
+        self.config = config
+
     def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
         x = wrap_1d(tf.placeholder(
             tf.float32, [batch_size, image_width, image_height, channels], name="x"))
