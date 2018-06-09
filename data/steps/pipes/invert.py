@@ -1,5 +1,2 @@
-from PIL import Image, ImageOps
-
-
-def invert(imgs):
-    return [ImageOps.invert(img) for img in imgs]
+def invert(images, maxVal=255):
+    return [maxVal - image for image in images]

@@ -9,53 +9,62 @@ from binarize import binarize
 from threshold import threshold
 from scale import scale
 from save import save
-from convert impot pil2cv2
+from convert import pil2cv2, cv2pil
 from grayscale import toGrayscale
+from crop import crop
 
 
 def applyPipeline(sourcepath, truth, context, train):
+
+    def isActive(prop, ctx=context,  default=False):
+        if prop in ctx:
+            return bool(ctx[prop])
+        return default
+
     bgColor = np.asarray((255, 255, 255))
-    isInverted = False
-    # The pipe works with list, so load the image into a list
-    images = [Image.open(sourcepath)]
 
-    # Step 0.1: To Grayscale, if necessary
-    if images[0].mode != "L":
-        images = toGrayscale(images)
+    # Step 0: Read Image as Grayscale
+    images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]
 
-    # Step 1: Apply padding. If no padding is defined, none is applied.
-    images = pad(images, context['padding'], fill=bgColor)
-
-    # Step 2: Invert colors.
-    if 'invert' in context and context['invert']:
+    # Step 1: Invert Image
+    if isActive('invert'):
         images = invert(images)
         bgColor = 255 - bgColor
-        isInverted = True
 
-    # Step 3: Create warped variants
-    if train and 'warp' in context and 'num' in context['warp'] and context['warp']['num'] > 0:
+    # Step 2: Apply treshold, if wanted
+    if isActive('threshold'):
+        images = threshold(images, invert=isActive('invert'))
+
+    # Step 3: Crop Image
+    if isActive('crop'):
+        images = crop(images)
+
+    # Step 4: Scale Image
+    if isActive('scale'):
+        images = scale(images, context['scale'], bgColor)
+
+    # Step 5: Add padding
+    if isActive('padding'):
+        images = pad(images, context['padding'], fill=bgColor)
+
+    # Step 6: Extract width & height
+    h, w = images[0].shape[:2]
+
+    # Step 7: Warp Image
+    if train and isActive('warp') and isActive('num', ctx=context['warp']):
+        images = cv2pil(images)
         images = RandomWarpGridDistortion(
             images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
-    # The following steps are implemented using cv2 - therefore we need
-    # conversion
-    images = pil2cv2(images)
+        images = pil2cv2(images)
 
-    if 'threshold' in context and ['threshold']:
-        images = threshold(images, invert=isInverted)
-
-    # Step 4: Scale
-    if 'scale' in context:
-        images = scale(images, context['scale'][
-                       'factor'], context['scale']['size'], bgColor, context['padding'])
-
-    # Step 5: Binarize or threshold
-    if 'binarize' in context and context['binarize']:
+    # Step 8: Binarize Image
+    if isActive('binarize'):
         images = binarize(images)
 
-    # Step 6: Save
+    # Step 9: Save Images
     imagepaths = save(images, splitext(sourcepath), context['imagetarget'])
 
-    return [{"truth": truth, "path": imagepath} for imagepath in imagepaths]
+    return [{"truth": truth, "path": imagepath} for imagepath in imagepaths], (w, h)
 
 
 def splitext(path):

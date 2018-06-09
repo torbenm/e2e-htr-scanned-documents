@@ -67,7 +67,9 @@ class Dataset(object):
         try:
             x = np.transpose(x, [1, 0])
         except ValueError:
-            return None, None, None
+            return None, None, None, None
+        if x.shape[0] != self.meta["width"] or x.shape[1] != self.meta["height"]:
+            x = pad(x, (self.meta["width"], self.meta["height"]))
         x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
         return x, y, l, line["path"]
 
@@ -103,3 +105,21 @@ class Dataset(object):
         num_batches = int(math.ceil(float(total_len) / batch_size))
         return min(
             num_batches, max_batches) if max_batches > 0 else num_batches
+
+
+def pad(array, reference_shape, offsets=None):
+    """
+    array: Array to be padded
+    reference_shape: tuple of size of ndarray to create
+    offsets: list of offsets (number of elements must be equal to the dimension of the array)
+    will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
+    """
+    offsets = offsets if offsets is not None else [0] * len(reference_shape)
+    # Create an array of zeros with the reference shape
+    result = np.zeros(reference_shape)
+    # Create a list of slices from offset to offset + shape in each dimension
+    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
+                  for dim in range(array.ndim)]
+    # Insert the array in the result at the specified offsets
+    result[insertHere] = array
+    return result

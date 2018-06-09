@@ -1,5 +1,5 @@
-def makeIndex(context):
-    if 'scale' in context:
+def makeIndex(context, sizes=None):
+    if sizes is None and 'scale' in context:
         metaContent = {
             "width": context['scale']['size'][0],
             "height": context['scale']['size'][1]
@@ -9,6 +9,11 @@ def makeIndex(context):
                                        context['padding'] * context['scale']['factor'])
             metaContent["height"] = int(metaContent["height"] +
                                         context['padding'] * context['scale']['factor'])
+    elif sizes is not None:
+        metaContent = {
+            "width": sizes[0],
+            "height": sizes[1]
+        }
     else:
         metaContent = {}
     return metaContent

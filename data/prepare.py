@@ -38,7 +38,7 @@ def prepareDataset(name, context):
         util.printDone("Extracting vocabulary")
 
         # Step 3: Extract scale factor, if wished
-        if 'scale' in context:
+        if 'scale' in context and ('mode' not in context['scale'] or context['scale'] == 'factor'):
             imagepaths = map(lambda x: x["path"], files)
             context['scale']['factor'] = scalefactor.getScaleFactor(
                 imagepaths, context['scale']['size'], util.printPercentage("Extracting Scale Factor"))
@@ -56,17 +56,17 @@ def prepareDataset(name, context):
         util.printDone("Splitting data")
 
         # Step 6: Apply image pipeline to training
-        train = pipeline.applyFullPipeline(
+        train, train_sizes = pipeline.applyFullPipeline(
             train, context, util.printPercentage("Processing Training Images"), True)
         util.printDone("Processing Training Images", True)
 
         # Step 7: Apply image pipeline to dev
-        dev = pipeline.applyFullPipeline(
+        dev, dev_sizes = pipeline.applyFullPipeline(
             dev, context, util.printPercentage("Processing Validation Images"), False)
         util.printDone("Processing Validation Images", True)
 
         # Step 7: Apply image pipeline to train
-        test = pipeline.applyFullPipeline(
+        test, test_sizes = pipeline.applyFullPipeline(
             test, context, util.printPercentage("Processing Test Images"), False)
         util.printDone("Processing Test Images", True)
 
@@ -81,8 +81,13 @@ def prepareDataset(name, context):
         util.dumpJson(basepath, "test", test)
         util.printDone("Saving split data")
 
+        max_size = np.max([train_sizes, dev_sizes, test_sizes], axis=0)
+
+        print "Maximum Extracted size:", max_size
+
         # Step 7: Write meta file
-        util.dumpJson(basepath, "meta", index.makeIndex(context))
+        util.dumpJson(basepath, "meta", index.makeIndex(
+            context, max_size))
         util.printDone("Writing meta file")
 
 if __name__ == "__main__":
