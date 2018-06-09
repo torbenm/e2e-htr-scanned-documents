@@ -14,7 +14,7 @@
   },
   "padding": 5,
   "warp": {
-    "num": 2,
+    "num": 5,
     "gridsize": [10, 10],
     "deviation": 1.2
   },
