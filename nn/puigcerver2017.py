@@ -19,6 +19,7 @@ class Puigcerver2017(AlgorithmBase):
         self.num_lstm = valueOr(config, 'lstm.num', 5)
         self.lstm_size = valueOr(config, 'lstm.size', 256)
         self.conv_size = valueOr(config, 'conv.size', 16)
+        self.pooling_until = valueOr(config, 'conv.pooling', 3)
 
     def _conv_block(self, net, index, is_train):
         num_filters = (index + 1) * self.conv_size
@@ -30,7 +31,7 @@ class Puigcerver2017(AlgorithmBase):
         net = wrap_1d(tf.layers.batch_normalization(net, training=is_train))
 
         # maxpool or dropout first?
-        if index < 3:
+        if index < self.pooling_until:
             net = wrap_1d(tf.layers.max_pooling2d(net, (2, 2), (2, 2)))
         return net
 
