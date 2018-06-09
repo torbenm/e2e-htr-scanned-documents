@@ -22,3 +22,7 @@ def make_sparse(var):
 def denseNDArrayToSparseTensor(arr, sparse_val=-1):
     idx = np.where(arr != sparse_val)
     return tf.SparseTensorValue(np.vstack(idx).T, arr[idx], arr.shape)
+
+
+def valueOr(config, prop, default):
+    return config[prop] if prop in config and config['prop'] is not None else default
