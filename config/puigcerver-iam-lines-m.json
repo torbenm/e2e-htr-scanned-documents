@@ -1,6 +1,6 @@
 {
   "name": "puigcerver-iam-lines-s",
-  "dataset": "iam-lines-m",
+  "dataset": "iam-lines-s",
   "algorithm": "puigcerver",
   "save": 5,
   "batch": 80,
@@ -8,5 +8,8 @@
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",
-  "algo_config": {}
+  "algo_config": {
+    "conv.num": 5,
+    "conv.pooling": [[2, 2], [2, 2], [2, 1]]
+  }
 }

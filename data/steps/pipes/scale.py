@@ -43,7 +43,7 @@ def _scale_by_factor(image, config, fill=(255, 255, 255)):
 def _scale_by_height(image, config, fill=(255, 255, 255)):
     target_size = config['size']
     current_height = image.shape[0]
-    factor = current_height / target_size[1]
+    factor = current_height / float(target_size[1])
     image, _, _ = _do_scale(image, factor, target_size=target_size)
     return image
 
