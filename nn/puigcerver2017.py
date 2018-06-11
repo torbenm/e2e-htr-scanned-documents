@@ -19,7 +19,7 @@ class Puigcerver2017(AlgorithmBase):
         self.num_lstm = valueOr(config, 'lstm.num', 5)
         self.lstm_size = valueOr(config, 'lstm.size', 256)
         self.conv_size = valueOr(config, 'conv.size', 16)
-        self.pooling = valueOr(config, 'conv.pooling', [2, 2] * 3)
+        self.pooling = valueOr(config, 'conv.pooling', [[2, 2]] * 3)
 
     def _conv_block(self, net, index, is_train):
         num_filters = (index + 1) * self.conv_size

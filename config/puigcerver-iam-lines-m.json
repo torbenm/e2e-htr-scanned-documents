@@ -1,6 +1,6 @@
 {
   "name": "puigcerver-iam-lines-s",
-  "dataset": "iam-lines-s",
+  "dataset": "iam-lines-m",
   "algorithm": "puigcerver",
   "save": 5,
   "batch": 80,

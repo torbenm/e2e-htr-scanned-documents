@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 from data import util, dataset
+from config.config import Configuration
 from nn import getAlgorithm
 import time
 import numpy as np
@@ -14,16 +15,22 @@ CONFIG_PATH = "./config"
 class Executor(object):
 
     def __init__(self, configName, useDataset=None):
-        self.config = util.loadJson(CONFIG_PATH, configName)
+        self.config = Configuration(util.loadJson(CONFIG_PATH, configName))
         self.algorithm = getAlgorithm(
-            self.config['algorithm'], valueOr(self.config, 'algo_config', {}))
+            self.config['algorithm'], self.config.default('algo_config', {}))
         self.dataset = dataset.Dataset(useDataset or self.config['dataset'])
         self.sessionConfig = None
         self._decoder = None
         self._cer = None
         self._decoded_dense = None
+        self.config('Algorithm Configuration')
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        if device != -1:
+            print 'Setting cuda visible devices to', device
+            os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
+
         print "Configuring. Softplacement: ", softplacement, "Logplacement:", logplacement, "Allow growth:", allow_growth
         self.sessionConfig = tf.ConfigProto(
             allow_soft_placement=softplacement, log_device_placement=logplacement)

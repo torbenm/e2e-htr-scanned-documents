@@ -16,7 +16,7 @@
   "warp": {
     "num": 5,
     "gridsize": [20, 20],
-    "deviation": 2.7
+    "deviation": 2.0
   },
   "binarize": false
 }
