@@ -1,15 +1,18 @@
 {
-  "name": "puigcerver-iam-lines-s",
+  "name": "puigcerver-iam-lines-m",
   "dataset": "iam-lines-m",
   "algorithm": "puigcerver",
   "save": 5,
-  "batch": 80,
+  "batch": 150,
   "epochs": 300,
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",
   "algo_config": {
     "conv.num": 5,
+    "lstm.num": 3,
+    "conv.size": 16,
+    "lstm.size": 256,
     "conv.pooling": [[2, 2], [2, 2], [2, 1]]
   }
 }
