@@ -17,7 +17,7 @@ class Configuration(object):
                         segment, '{} not a valid key in {}'.format(segment, key))
             return part
         else:
-            raise TypeError(key, 'Wrong type of key')
+            raise TypeError(key, 'Wrong type of key:', type(key))
 
     def __str__(self):
         return self.config.__str__()
@@ -56,7 +56,6 @@ class Configuration(object):
         if isinstance(key, basestring):
             segments = key.split(".")
             part = self.config
-
             for segment in segments[:-1]:
                 if segment not in part:
                     part[segment] = {}

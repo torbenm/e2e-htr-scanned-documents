@@ -73,12 +73,12 @@ class Executor(object):
             self.config['batch'], self.config['max_batches'])
         foldername = os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model')
-        if 'save' in self.config and self.config['save'] != False:
+        if self.config.default('save', False) != False:
             saver = tf.train.Saver()
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks, options)
-            if 'save' in self.config and self.config['save'] != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
+            if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options):
