@@ -28,7 +28,7 @@ class Puigcerver2017(AlgorithmBase):
         if index > 1:
             net = wrap_1d(tf.layers.dropout(net, 0.2, training=is_train))
         # missing: dropout for layer 3,4,5 (0.2 prob)
-        net = wrap_1d(tf.layers.batch_normalization(net, training=is_train))
+        net = wrap_1d(tf.layers.batch_normalization(net))
 
         # maxpool or dropout first?
         if index < len(self.pooling):
