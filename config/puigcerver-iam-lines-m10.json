@@ -1,12 +1,12 @@
 {
-  "name": "puigcerver-iam-lines-m",
-  "dataset": "iam-lines-m",
+  "name": "puigcerver-iam-lines-m10",
+  "dataset": "iam-lines-m10",
   "algorithm": "puigcerver",
   "save": 5,
-  "batch": 100,
+  "batch": 112,
   "epochs": 300,
   "max_batches": 0,
-  "learning_rate": 0.0005,
+  "learning_rate": 0.0003,
   "ctc": "greedy",
   "algo_config": {
     "conv.num": 5,
