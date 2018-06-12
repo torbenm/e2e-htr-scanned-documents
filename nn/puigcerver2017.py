@@ -24,11 +24,12 @@ class Puigcerver2017(AlgorithmBase):
     def _conv_block(self, net, index, is_train):
         num_filters = (index + 1) * self.conv_size
         net = wrap_1d(tf.layers.conv2d(
-            net, num_filters, (3, 3), strides=(1, 1)))
+            net, num_filters, (3, 3), strides=(1, 1), activation=tf.nn.leaky_relu))
         if index > 1:
             net = wrap_1d(tf.layers.dropout(net, 0.2, training=is_train))
         # missing: dropout for layer 3,4,5 (0.2 prob)
-        net = wrap_1d(tf.layers.batch_normalization(net, training=is_train))
+
+        net = wrap_1d(tf.layers.batch_normalization(net))
 
         # maxpool or dropout first?
         if index < len(self.pooling):
