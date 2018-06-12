@@ -7,7 +7,7 @@ import cv2
 
 class Dataset(object):
 
-    def __init__(self, name):
+    def __init__(self, name, transpose=True):
         self.name = name
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
         self._load_vocab()
@@ -15,6 +15,7 @@ class Dataset(object):
         self._load_sets()
         self._calc_max_length()
         self._compile_sets()
+        self.transpose = transpose
         self.channels = 1
 
     def _load_meta(self):
@@ -60,17 +61,22 @@ class Dataset(object):
                 return ''
         return ''.join([getKey(c) for c in values])
 
-    def _loadline(self, line):
+    def _loadline(self, line, transpose=True):
         l = len(line["compiled"])
         y = np.asarray(line["compiled"])
         x = cv2.imread(line["path"], cv2.IMREAD_GRAYSCALE)
-        try:
-            x = np.transpose(x, [1, 0])
-        except ValueError:
-            return None, None, None, None
-        if x.shape[0] != self.meta["width"] or x.shape[1] != self.meta["height"]:
-            x = pad(x, (self.meta["width"], self.meta["height"]))
-        x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
+        if transpose:
+            try:
+                x = np.transpose(x, [1, 0])
+            except ValueError:
+                return None, None, None, None
+            if x.shape[0] != self.meta["width"] or x.shape[1] != self.meta["height"]:
+                x = pad(x, (self.meta["width"], self.meta["height"]))
+            x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
+        else:
+            if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
+                x = pad(x, (self.meta["height"], self.meta["width"]))
+            x = np.reshape(x, [self.meta["height"], self.meta["width"], 1])
         return x, y, l, line["path"]
 
     def _load_batch(self, index, batch_size, dataset, with_filepath=False):
@@ -79,7 +85,8 @@ class Dataset(object):
         L = []
         F = []
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
-            x, y, l, f = self._loadline(self.data[dataset][idx])
+            x, y, l, f = self._loadline(
+                self.data[dataset][idx], self.transpose)
             if x is not None:
                 X.append(x)
                 Y.append(y)

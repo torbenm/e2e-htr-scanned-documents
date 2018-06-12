@@ -14,11 +14,13 @@ CONFIG_PATH = "./config"
 
 class Executor(object):
 
-    def __init__(self, configName, useDataset=None):
+    def __init__(self, configName, useDataset=None, transpose=False):
         self.config = Configuration(util.loadJson(CONFIG_PATH, configName))
+        self._transpose = transpose
         self.algorithm = getAlgorithm(
-            self.config['algorithm'], self.config.default('algo_config', {}))
-        self.dataset = dataset.Dataset(useDataset or self.config['dataset'])
+            self.config['algorithm'], self.config.default('algo_config', {}), self._transpose)
+        self.dataset = dataset.Dataset(useDataset or self.config[
+                                       'dataset'], self._transpose)
         self.sessionConfig = None
         self._decoder = None
         self._cer = None

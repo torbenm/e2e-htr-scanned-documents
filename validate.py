@@ -30,11 +30,13 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
+    parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
+                        action='store_true', default=False)
     parser.add_argument(
         '--examples', help='Number of examples to display', default=10)
     args = parser.parse_args()
 
-    exc = Executor(args.config)
+    exc = Executor(args.config, transpose=args.legacy_transpose)
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
     results = exc.validate(args.model_date if args.model_date !=
                            "" else None, args.model_epoch, {

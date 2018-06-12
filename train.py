@@ -41,9 +41,11 @@ if __name__ == "__main__":
     parser.add_argument('--skip-validation', help='Skip validation',
                         action='store_true', default=False)
     parser.add_argument('--timeline', default='')
+    parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
+                        action='store_true', default=False)
     args = parser.parse_args()
 
-    exc = Executor(args.config)
+    exc = Executor(args.config, transpose=args.legacy_transpose)
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
     exc.train({
         'batch': batch_hook,

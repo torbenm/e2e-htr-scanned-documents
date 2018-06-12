@@ -24,13 +24,15 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
+    parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
+                        action='store_true', default=False)
     parser.add_argument(
         '--dataset', help='Dataset to transcribe', default='real-iam-lines')
     parser.add_argument(
         '--subset', help='Subset to transcribe', default='test')
     args = parser.parse_args()
 
-    exc = Executor(args.config, args.dataset)
+    exc = Executor(args.config, args.dataset, args.legacy_transpose)
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
     transcriptions = exc.transcribe(args.subset, args.model_date if args.model_date !=
                                     "" else None, args.model_epoch, {

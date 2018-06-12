@@ -9,9 +9,12 @@
   "learning_rate": 0.0003,
   "ctc": "greedy",
   "algo_config": {
-    "conv.num": 5,
-    "conv.size": 8,
-    "lstm.size": 128,
-    "conv.pooling": [[2, 2], [2, 2], [2, 1]]
+    "conv": {
+      "size": 8,
+      "pooling": [[2, 2], [2, 2], [2, 1]]
+    },
+    "lstm": {
+      "size": 128
+    }
   }
 }
