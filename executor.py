@@ -5,7 +5,7 @@ from config.config import Configuration
 from nn import getAlgorithm
 import time
 import numpy as np
-from tensorflow.python.client import timeline
+# from tensorflow.python.client import timeline
 from nn.util import valueOr
 
 MODELS_PATH = "./models"
@@ -89,9 +89,9 @@ class Executor(object):
         start_time = time.time()
         run_options = None
         run_metadata = None
-        if 'timeline' in options and options['timeline'] != '':
-            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-            run_metadata = tf.RunMetadata()
+        # if 'timeline' in options and options['timeline'] != '':
+        #     run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        #     run_metadata = tf.RunMetadata()
         # Batch loop
         for X, Y, length in epoch:
             if hooks is not None and 'batch' in hooks:
@@ -116,11 +116,11 @@ class Executor(object):
         if hooks is not None and 'epoch' in hooks:
             hooks['epoch'](idx, training_loss / steps,
                            time.time() - start_time, val_stats)
-        if 'timeline' in options and options['timeline'] != '':
-            fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-            chrome_trace = fetched_timeline.generate_chrome_trace_format()
-            with open('timelines/%s_epoch_%d.json' % (options['timeline'], idx), 'w') as f:
-                f.write(chrome_trace)
+        # if 'timeline' in options and options['timeline'] != '':
+        #     fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+        #     chrome_trace = fetched_timeline.generate_chrome_trace_format()
+        #     with open('timelines/%s_epoch_%d.json' % (options['timeline'], idx), 'w') as f:
+        #         f.write(chrome_trace)
 
     def _validate(self, graph, sess, hooks=None, options={}):
         # OPTIONS
