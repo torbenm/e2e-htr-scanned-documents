@@ -10,11 +10,7 @@
   "ctc": "greedy",
   "algo_config": {
     "conv": {
-      "size": 8,
       "pooling": [[2, 2], [2, 2], [2, 1]]
-    },
-    "lstm": {
-      "size": 128
     }
   }
 }
