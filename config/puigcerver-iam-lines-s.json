@@ -10,7 +10,7 @@
   "ctc": "greedy",
   "algo_config": {
     "conv": {
-      "pooling": [[2, 2], [2, 2], [2, 1]]
+      "pooling": [[2, 2], [2, 2], [1, 2]]
     }
   }
 }

@@ -83,12 +83,13 @@ def prepareDataset(name, context):
 
         max_size = np.max([train_sizes, dev_sizes, test_sizes], axis=0)
 
-        print "Maximum Extracted size:", max_size
+        print("Maximum Extracted size:", max_size)
 
         # Step 7: Write meta file
         util.dumpJson(basepath, "meta", index.makeIndex(
             context, max_size))
         util.printDone("Writing meta file")
+
 
 if __name__ == "__main__":
     import argparse

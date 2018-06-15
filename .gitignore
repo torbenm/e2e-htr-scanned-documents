@@ -8,3 +8,4 @@ data/output/
 models/
 logs/
 saves/
+__pycache__/

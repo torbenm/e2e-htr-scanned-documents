@@ -4,8 +4,8 @@ import numpy as np
 from tensorflow.python.ops import array_ops
 from tensorflow.contrib.rnn import LSTMStateTuple
 
-from lstm2d import LSTM2D
-from util import patch_padding, prod
+from .lstm2d import LSTM2D
+from .util import patch_padding, prod
 
 TOP_LEFT = 0
 TOP_RIGHT = 1

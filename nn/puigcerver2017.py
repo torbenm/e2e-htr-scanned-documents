@@ -1,9 +1,9 @@
 import tensorflow as tf
-from layer.separable_lstm2d import separable_lstm
-from layer.lstm2d import LSTM2D
-from layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
-from layer.algorithmBase import AlgorithmBase
-from util import wrap_1d, wrap_4d, make_sparse, valueOr
+from .layer.separable_lstm2d import separable_lstm
+from .layer.lstm2d import LSTM2D
+from .layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
+from .layer.algorithmBase import AlgorithmBase
+from .util import wrap_1d, wrap_4d, make_sparse, valueOr
 from config.config import Configuration
 
 """

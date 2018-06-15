@@ -38,6 +38,7 @@ if __name__ == "__main__":
                                     "" else None, args.model_epoch, {
                                         'trans_batch': transcription_hook
                                     })
-    print '\n'
+    print('\n')
     for i in range(len(transcriptions['files'])):
-        print '{:100} -> {}'.format(exc.dataset.decompile(transcriptions['trans'][i]), os.path.basename(transcriptions['files'][i]))
+        print('{:100} -> {}'.format(exc.dataset.decompile(
+            transcriptions['trans'][i]), os.path.basename(transcriptions['files'][i])))

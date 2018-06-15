@@ -1,8 +1,8 @@
-import dataset
+from .dataset import Dataset
 import os
 
 
-class IamDataset(dataset.Dataset):
+class IamDataset(Dataset):
 
     identifier = "iam"
 

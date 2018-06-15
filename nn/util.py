@@ -3,14 +3,14 @@ import tensorflow as tf
 
 
 def wrap_4d(cell):
-    print "-" * 70
-    print "{:40}{:20} x 4".format(cell[0].name, cell[0].shape)
+    print("-" * 70)
+    print("{:40}{:20} x 4".format(str(cell[0].name), str(cell[0].shape)))
     return cell
 
 
 def wrap_1d(cell):
-    print "-" * 70
-    print "{:40}{:20}".format(cell.name, cell.shape)
+    print("-" * 70)
+    print("{:40}{:20}".format(str(cell.name), str(cell.shape)))
     return cell
 
 

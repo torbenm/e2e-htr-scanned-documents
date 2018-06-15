@@ -1,4 +1,4 @@
-from pipes import apply
+from .pipes import apply
 
 
 def applyFullPipeline(images, context, hook=None, train=False):

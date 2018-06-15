@@ -30,10 +30,11 @@ class Executor(object):
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         if device != -1:
-            print 'Setting cuda visible devices to', device
+            print('Setting cuda visible devices to', device)
             os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
 
-        print "Configuring. Softplacement: ", softplacement, "Logplacement:", logplacement, "Allow growth:", allow_growth
+        print("Configuring. Softplacement: ", softplacement,
+              "Logplacement:", logplacement, "Allow growth:", allow_growth)
         self.sessionConfig = tf.ConfigProto(
             allow_soft_placement=softplacement, log_device_placement=logplacement)
         self.sessionConfig.gpu_options.allow_growth = allow_growth
@@ -59,7 +60,7 @@ class Executor(object):
         pass
 
     def _exec(self, callback, hooks, date=None, epoch=0, options={}):
-        print "Going to run on", self.device
+        print("Going to run on", self.device)
         with tf.device(self.device):
             config = self.sessionConfig or self.configure()
             graph = self._build_graph()

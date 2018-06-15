@@ -1,7 +1,7 @@
 from datasets import identifyDataset
 import util
 import os
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 import tarfile
 
 
@@ -29,11 +29,11 @@ def do_download(name, config, download_target, args):
     url = config["url"]
     if config["authenticate"]:
         if not args.user or not args.pwd:
-            print "Please specify user and password to download", name
+            print("Please specify user and password to download", name)
             exit()
-        url = "{}://{}:{}@{}".format(config['protocol'],
-                                     args.user, args.pwd, url)
-    urlretrieve(url, download_target, reporthook(name))
+        url = "{}://{}".format(config['protocol'],
+                               url)
+    util.retrieve(url, download_target, args.user, args.pwd)
     util.printDone("Downloading {}".format(name), True)
 
 
@@ -57,6 +57,7 @@ def downloadDataset(dataset, args):
     # STEP 2: Iterate through files
     for identifier in download_info:
         process_instance(identifier, download_info[identifier], raw_path, args)
+
 
 if __name__ == "__main__":
     import argparse

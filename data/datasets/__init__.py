@@ -1,5 +1,5 @@
-from iam import IamDataset
-from real import RealDataset
+from .iam import IamDataset
+from .real import RealDataset
 
 
 def identifyDataset(name):

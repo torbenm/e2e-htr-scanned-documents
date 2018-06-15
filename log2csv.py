@@ -1,7 +1,7 @@
 import sys
 
 if len(sys.argv) < 3:
-    print "Please give a logfile path and an output path"
+    print("Please give a logfile path and an output path")
     exit()
 
 logfile = sys.argv[1]

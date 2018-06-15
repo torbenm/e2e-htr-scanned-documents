@@ -1,5 +1,5 @@
 {
-  "name": "puigcerver-iam-lines-m",
+  "name": "pc-iam-m-no-bias",
   "dataset": "iam-lines-m",
   "algorithm": "puigcerver",
   "save": 5,
@@ -10,7 +10,12 @@
   "ctc": "greedy",
   "algo_config": {
     "conv": {
-      "pooling": [[2, 2], [2, 2], [1, 2]]
+      "pooling": [[2, 2], [2, 2], [1, 2]],
+      "bias": false
+    },
+    "bnorm": {
+      "active": true,
+      "train": true
     }
   }
 }

@@ -1,4 +1,4 @@
-import util
+from . import util
 import os
 import math
 import numpy as np
@@ -56,7 +56,7 @@ class Dataset(object):
     def decompile(self, values):
         def getKey(key):
             try:
-                return self.vocab[0][str(c)]
+                return self.vocab[0][str(key)]
             except KeyError:
                 return ''
         return ''.join([getKey(c) for c in values])

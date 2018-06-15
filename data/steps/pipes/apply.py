@@ -2,16 +2,16 @@ from PIL import Image
 import cv2
 import numpy as np
 import os
-from padding import pad
-from invert import invert
-from warp import RandomWarpGridDistortion
-from binarize import binarize
-from threshold import threshold
-from scale import scale
-from save import save
-from convert import pil2cv2, cv2pil
-from grayscale import toGrayscale
-from crop import crop
+from .padding import pad
+from .invert import invert
+from .warp import RandomWarpGridDistortion
+from .binarize import binarize
+from .threshold import threshold
+from .scale import scale
+from .save import save
+from .convert import pil2cv2, cv2pil
+from .grayscale import toGrayscale
+from .crop import crop
 
 
 def applyPipeline(sourcepath, truth, context, train):
@@ -21,7 +21,7 @@ def applyPipeline(sourcepath, truth, context, train):
             return bool(ctx[prop])
         return default
 
-    bgColor = np.asarray((255, 255, 255))
+    bgColor = 255
 
     # Step 0: Read Image as Grayscale
     images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]

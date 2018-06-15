@@ -1,7 +1,7 @@
-from puigcerver2017 import Puigcerver2017
-from Voigtlaender2016 import VoigtlaenderDoetschNey2016
-from graves2009 import GravesSchmidhuber2009
-from reshtr import ResHtr
+from .puigcerver2017 import Puigcerver2017
+from .Voigtlaender2016 import VoigtlaenderDoetschNey2016
+from .graves2009 import GravesSchmidhuber2009
+from .reshtr import ResHtr
 
 
 def getAlgorithm(name, algoConfig, transpose):

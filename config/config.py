@@ -6,7 +6,7 @@ class Configuration(object):
         self.config = config
 
     def __getitem__(self, key):
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             segments = key.split(".")
             part = self.config
             for segment in segments:
@@ -31,29 +31,31 @@ class Configuration(object):
     def __call__(self, name='Configuration', keyLen=20, valueLen=30):
         totalLen = (keyLen + valueLen + 1)
         divider = '-' * totalLen
-        print divider
-        print divider
-        print ('{:^' + str(totalLen) + '}').format(name)
-        print divider
-        print divider
+        print(divider)
+        print(divider)
+        print(('{:^' + str(totalLen) + '}').format(name))
+        print(divider)
+        print(divider)
         self._print_self(keyLen, valueLen, self.config, '', divider=divider)
 
     def _print_self(self, keyLen=20, valueLen=30, obj={}, prefix='', divider=None):
         act_prefix = "{} ".format(prefix) if prefix != '' else ''
         for key in obj:
             if type(obj[key]) is dict:
-                print self._str_pair('{}{}'.format(act_prefix, key), '', keyLen, valueLen)
+                print(self._str_pair('{}{}'.format(
+                    act_prefix, key), '', keyLen, valueLen))
                 self._print_self(keyLen, valueLen, obj[key], prefix + '-')
             else:
-                print self._str_pair('{}{}'.format(act_prefix, key), obj[key], keyLen, valueLen)
+                print(self._str_pair('{}{}'.format(
+                    act_prefix, key), obj[key], keyLen, valueLen))
             if divider is not None:
-                print divider
+                print(divider)
 
     def _str_pair(self, key, val, keyLen, valueLen, seperator=' '):
         return ('{:<' + str(keyLen) + '}{}{:<' + str(valueLen) + '}').format(key, seperator, val)
 
     def __setitem__(self, key, value):
-        if isinstance(key, basestring):
+        if isinstance(key, str):
             segments = key.split(".")
             part = self.config
             for segment in segments[:-1]:
