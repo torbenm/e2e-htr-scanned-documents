@@ -1,4 +1,4 @@
-from . import util
+import data.util
 import os
 import math
 import numpy as np

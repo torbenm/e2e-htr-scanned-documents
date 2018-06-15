@@ -1,7 +1,7 @@
 import os
-import util
-from datasets import identifyDataset
-from steps import vocab, scalefactor, pipeline, split, index
+from . import util
+from .datasets import identifyDataset
+from .steps import vocab, scalefactor, pipeline, split, index
 import sys
 import numpy as np
 from random import shuffle
@@ -39,7 +39,7 @@ def prepareDataset(name, context):
 
         # Step 3: Extract scale factor, if wished
         if 'scale' in context and ('mode' not in context['scale'] or context['scale'] == 'factor'):
-            imagepaths = map(lambda x: x["path"], files)
+            imagepaths = list(map(lambda x: x["path"], files))
             context['scale']['factor'] = scalefactor.getScaleFactor(
                 imagepaths, context['scale']['size'], util.printPercentage("Extracting Scale Factor"))
 
