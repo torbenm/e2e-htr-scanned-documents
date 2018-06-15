@@ -52,7 +52,7 @@ class Configuration(object):
                 print(divider)
 
     def _str_pair(self, key, val, keyLen, valueLen, seperator=' '):
-        return ('{:<' + str(keyLen) + '}{}{:<' + str(valueLen) + '}').format(key, seperator, val)
+        return ('{:<' + str(keyLen) + '}{}{:<' + str(valueLen) + '}').format(str(key), str(seperator), str(val))
 
     def __setitem__(self, key, value):
         if isinstance(key, str):
