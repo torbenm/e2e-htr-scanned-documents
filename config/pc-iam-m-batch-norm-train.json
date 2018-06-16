@@ -15,7 +15,8 @@
     },
     "bnorm": {
       "active": true,
-      "train": true
+      "train": true,
+      "before_activation": true
     }
   }
 }
