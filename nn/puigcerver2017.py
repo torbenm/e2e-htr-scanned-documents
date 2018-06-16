@@ -106,7 +106,7 @@ class Puigcerver2017(AlgorithmBase):
             net = self._conv_block(net, i, is_train)
 
         if self._get('format') == 'nchw':
-            x = tf.transpose(x, [0, 2, 3, 1])
+            net = tf.transpose(net, [0, 2, 3, 1])
 
         if not self._transpose:
             net = wrap_1d(tf.transpose(net, [0, 2, 1, 3]))
