@@ -1,5 +1,5 @@
-from datasets import identifyDataset
-import util
+from .datasets import identifyDataset
+from . import util
 import os
 from urllib.request import urlretrieve
 import tarfile
@@ -8,7 +8,11 @@ import tarfile
 def process_instance(name, config, path, args):
     download_file = os.path.join(path, config["file"])
     if not os.path.exists(download_file):
-        do_download(name, config, download_file, args)
+        if 'url' in config:
+            do_download(name, config, download_file, args)
+        else:
+            print(config['error'])
+            exit()
     if "tgz" in config and config["tgz"]:
         untarfolder = os.path.join(path, os.path.splitext(
             os.path.basename(download_file))[0])
@@ -38,7 +42,7 @@ def do_download(name, config, download_target, args):
 
 
 def do_untar(name, file, folder):
-    with tarfile.open(file, "r:gz") as tar:
+    with tarfile.open(file, "r:*") as tar:
         os.mkdir(folder)
         tar.extractall(folder)
         util.printDone("Untarring {}".format(name))
@@ -46,8 +50,8 @@ def do_untar(name, file, folder):
 
 def downloadDataset(dataset, args):
     # STEP 0: Get Download Info
-    download_info = dataset.getDownloadInfo()
     raw_path = os.path.join(util.RAW_PATH, dataset.getIdentifier())
+    download_info = dataset.getDownloadInfo()
 
     # STEP 1: Make Download Path
     if not os.path.exists(raw_path):
@@ -57,6 +61,9 @@ def downloadDataset(dataset, args):
     # STEP 2: Iterate through files
     for identifier in download_info:
         process_instance(identifier, download_info[identifier], raw_path, args)
+
+    if dataset.requires_splitting:
+        dataset.do_split(raw_path)
 
 
 if __name__ == "__main__":

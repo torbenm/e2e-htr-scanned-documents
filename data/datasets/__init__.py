@@ -1,5 +1,6 @@
 from .iam import IamDataset
 from .real import RealDataset
+from .rimes import RimesDataset
 
 
 def identifyDataset(name):
@@ -7,3 +8,5 @@ def identifyDataset(name):
         return IamDataset()
     elif name == "real":
         return RealDataset()
+    elif name == "rimes":
+        return RimesDataset()

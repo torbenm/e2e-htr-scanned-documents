@@ -135,7 +135,7 @@ class Executor(object):
         total_steps = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'], dataset)
         cer_total = []
-        loss_total
+        loss_total = []
         examples = {
             'Y': [],
             'trans': []
