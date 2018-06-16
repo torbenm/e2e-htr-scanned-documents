@@ -18,24 +18,43 @@ class Puigcerver2017(AlgorithmBase):
         self._transpose = transpose
         self.defaults = {
             'conv.num': 5,
-            'lstm.num': 5,
-            'lstm.size': 256,
             'conv.size': 16,
             'conv.pooling': [[2, 2]] * 3,
             'conv.bias': True,
+            'conv.kernel': [3, 3],
+            'conv.strides': [1, 1],
+            'conv.dropout.prob': 0.2,
+            'conv.dropout.first_layer': 2,
+            'lstm.num': 5,
+            'lstm.size': 256,
             'bnorm.active': True,
-            'bnorm.train': False
+            'bnorm.train': False,
+            'bnorm.before_activation': False
         }
 
     def _conv_block(self, net, index, is_train):
-        num_filters = (index + 1) * self._get('conv.size')
-        net = wrap_1d(tf.layers.conv2d(
-            net, num_filters, (3, 3), strides=(1, 1), activation=tf.nn.leaky_relu, use_bias=self._get('conv.bias')))
-        if index > 1:
-            net = wrap_1d(tf.layers.dropout(net, 0.2, training=is_train))
+        _activation_fn = tf.nn.leaky_relu
+
+        def conv_layer(x):
+            num_filters = (index + 1) * self._get('conv.size')
+            strides = self._get('conv.strides')
+            kernel = self._get('conv.kernel')
+            activation = _activation_fn if not self._get(
+                'bnorm.before_activation') else None
+            use_bias = self._get('conv.bias')
+            return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, strides=strides, activation=activation, use_bias=use_bias))
+
+        net = conv_layer(net)
+        if index > self._get('conv.dropout.first_layer')-1:
+            net = wrap_1d(tf.layers.dropout(net, self._get(
+                'conv.dropout.prob'), training=is_train))
+
         if self._get('bnorm.active'):
             net = wrap_1d(tf.layers.batch_normalization(net)) if not self._get('bnorm.train') else wrap_1d(
                 tf.layers.batch_normalization(net, training=is_train))
+
+        if self._get('bnorm.before_activation'):
+            net = wrap_1d(_activation_fn(net))
 
         # maxpool or dropout first?
         pooling = self._get('conv.pooling')
