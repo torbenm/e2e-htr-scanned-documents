@@ -60,15 +60,16 @@ class Puigcerver2017(AlgorithmBase):
         if self._get('bnorm.before_activation'):
             net = wrap_1d(_activation_fn(net))
 
-        if index > self._get('conv.dropout.first_layer')-1:
-            net = wrap_1d(tf.layers.dropout(net, self._get(
-                'conv.dropout.prob'), training=is_train))
-
         # maxpool or dropout first?
         pooling = self._get('conv.pooling')
         if index < len(pooling):
             net = wrap_1d(tf.layers.max_pooling2d(
                 net, pooling[index], pooling[index]))
+
+        if index > self._get('conv.dropout.first_layer')-1:
+            net = wrap_1d(tf.layers.dropout(net, self._get(
+                'conv.dropout.prob'), training=is_train))
+
         return net
 
     def _rec_block(self, net, index, is_train, scope):
