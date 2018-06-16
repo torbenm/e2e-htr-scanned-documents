@@ -29,7 +29,8 @@ class Puigcerver2017(AlgorithmBase):
             'lstm.size': 256,
             'bnorm.active': True,
             'bnorm.train': False,
-            'bnorm.before_activation': False
+            'bnorm.before_activation': False,
+            'format': 'nhwc'
         }
 
     def _conv_block(self, net, index, is_train):
@@ -42,22 +43,26 @@ class Puigcerver2017(AlgorithmBase):
             activation = _activation_fn if not self._get(
                 'bnorm.before_activation') else None
             use_bias = self._get('conv.bias')
+            data_format = 'channels_first' if self._get(
+                'format') == 'nchw' else 'channels_last'
             return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, strides=strides, activation=activation, use_bias=use_bias))
 
         def batch_norm(x):
             is_training = is_train if self._get('bnorm.train') else False
-            return wrap_1d(tf.layers.batch_normalization(x, training=is_training, fused=True, axis=3))
+            axis = 1 if self._get(
+                'format') == 'nchw' else 3
+            return wrap_1d(tf.layers.batch_normalization(x, training=is_training, fused=True, axis=axis))
 
         net = conv_layer(net)
-        if index > self._get('conv.dropout.first_layer')-1:
-            net = wrap_1d(tf.layers.dropout(net, self._get(
-                'conv.dropout.prob'), training=is_train))
-
         if self._get('bnorm.active'):
             net = batch_norm(net)
 
         if self._get('bnorm.before_activation'):
             net = wrap_1d(_activation_fn(net))
+
+        if index > self._get('conv.dropout.first_layer')-1:
+            net = wrap_1d(tf.layers.dropout(net, self._get(
+                'conv.dropout.prob'), training=is_train))
 
         # maxpool or dropout first?
         pooling = self._get('conv.pooling')
@@ -92,9 +97,15 @@ class Puigcerver2017(AlgorithmBase):
             tf.int32, shape=[None], name="y")
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
+        if self._get('format') == 'nchw':
+            x = tf.transpose(x, [0, 3, 1, 2])
+
         net = x
         for i in range(self._get('conv.num')):
             net = self._conv_block(net, i, is_train)
+
+        # if self._get('format') == 'nchw':
+        #             x = tf.transpose(x, [0, 3, 1, 2])
 
         if not self._transpose:
             net = wrap_1d(tf.transpose(net, [0, 2, 1, 3]))
