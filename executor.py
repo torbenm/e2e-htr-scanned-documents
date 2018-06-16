@@ -25,7 +25,6 @@ class Executor(object):
         self._decoder = None
         self._cer = None
         self._decoded_dense = None
-        self._update_ops = None
         self.config('Algorithm Configuration')
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
@@ -86,11 +85,6 @@ class Executor(object):
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
 
-    def _get_train_update_ops(self):
-        if self._update_ops == None:
-            self._update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        return self._update_ops
-
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options):
         training_loss = 0
         steps = 0
@@ -112,8 +106,7 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_, _1, _2 = sess.run(
-                [graph['total_loss'], graph['train_step'],
-                    self._get_train_update_ops()], train_dict,
+                [graph['total_loss'], graph['train_step']], train_dict,
                 run_metadata=run_metadata, options=run_options)
 
             training_loss += np.ma.masked_invalid(

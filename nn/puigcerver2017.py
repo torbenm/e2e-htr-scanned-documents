@@ -111,8 +111,10 @@ class Puigcerver2017(AlgorithmBase):
         total_loss = tf.nn.ctc_loss(y, logits, l)
 
         logits = tf.nn.softmax(logits)
-        train_step = tf.train.AdamOptimizer(
-            learning_rate).minimize(total_loss)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(update_ops):
+            train_step = tf.train.AdamOptimizer(
+                learning_rate).minimize(total_loss)
 
         return dict(
             x=x,
