@@ -105,7 +105,7 @@ class Executor(object):
                 graph['l']: length,
                 graph['is_train']: True
             }
-            training_loss_, _1, _2 = sess.run(
+            training_loss_, _ = sess.run(
                 [graph['total_loss'], graph['train_step']], train_dict,
                 run_metadata=run_metadata, options=run_options)
 
