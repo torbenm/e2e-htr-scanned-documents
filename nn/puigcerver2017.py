@@ -99,14 +99,14 @@ class Puigcerver2017(AlgorithmBase):
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
         if self._get('format') == 'nchw':
-            x = tf.transpose(x, [0, 3, 1, 2])
+            x = wrap_1d(tf.transpose(x, [0, 3, 1, 2]))
 
         net = x
         for i in range(self._get('conv.num')):
             net = self._conv_block(net, i, is_train)
 
         if self._get('format') == 'nchw':
-            net = tf.transpose(net, [0, 2, 3, 1])
+            net = wrap_1d(tf.transpose(net, [0, 2, 3, 1]))
 
         if not self._transpose:
             net = wrap_1d(tf.transpose(net, [0, 2, 1, 3]))
