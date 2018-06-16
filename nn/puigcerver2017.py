@@ -44,14 +44,17 @@ class Puigcerver2017(AlgorithmBase):
             use_bias = self._get('conv.bias')
             return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, strides=strides, activation=activation, use_bias=use_bias))
 
+        def batch_norm(x):
+            is_training = is_train if self._get('bnorm.train') else False
+            return wrap_1d(tf.layers.batch_normalization(x, training=is_training, fused=True, axis=3))
+
         net = conv_layer(net)
         if index > self._get('conv.dropout.first_layer')-1:
             net = wrap_1d(tf.layers.dropout(net, self._get(
                 'conv.dropout.prob'), training=is_train))
 
         if self._get('bnorm.active'):
-            net = wrap_1d(tf.layers.batch_normalization(net)) if not self._get('bnorm.train') else wrap_1d(
-                tf.layers.batch_normalization(net, training=is_train))
+            net = batch_norm(net)
 
         if self._get('bnorm.before_activation'):
             net = wrap_1d(_activation_fn(net))
