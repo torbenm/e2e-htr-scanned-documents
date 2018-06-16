@@ -22,11 +22,12 @@ def val_batch_hook(step, max_steps, val_stats):
 
 
 def epoch_hook(epoch, loss, time, val_stats):
-    msg = 'epoch = {0} | loss = {1:.3f} | time {2:.3f} | cer {3:.3f}'.format(str(epoch).zfill(3),
-                                                                             loss,
-                                                                             time, val_stats['cer'])
+    msg = 'epoch {0} | loss {1:.3f} | val_loss {4:.3f} | cer {3:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
+                                                                                            loss,
+                                                                                            time, val_stats['cer'], val_stats['loss'])
     sys.stdout.write('\r{:130}\n'.format(msg))
     sys.stdout.flush()
+
 
 if __name__ == "__main__":
 
