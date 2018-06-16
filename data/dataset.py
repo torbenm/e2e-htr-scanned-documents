@@ -109,7 +109,7 @@ class Dataset(object):
 
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
         total_len = len(self.data[dataset])
-        num_batches = int(math.ceil(float(total_len) / batch_size))
+        num_batches = int(math.floor(float(total_len) / batch_size))
         return min(
             num_batches, max_batches) if max_batches > 0 else num_batches
 
