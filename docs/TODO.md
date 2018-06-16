@@ -16,3 +16,5 @@
 1.  Remove bias from cnn
 2.  Batch Norm w/wo -> maybe now is_train works
 3.  switch row/col back
+
+4.  Autocreate model dir
