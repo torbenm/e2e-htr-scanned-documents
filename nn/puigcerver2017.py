@@ -45,7 +45,7 @@ class Puigcerver2017(AlgorithmBase):
             activation = _activation_fn if not self._get(
                 'bnorm.before_activation') else None
             use_bias = self._get('conv.bias')
-            return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, strides=strides, activation=activation, use_bias=use_bias))
+            return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, data_format=data_format, strides=strides, activation=activation, use_bias=use_bias))
 
         def batch_norm(x):
             is_training = is_train if self._get('bnorm.train') else False
