@@ -10,13 +10,13 @@
   "crop": true,
   "scale": {
     "mode": "height",
-    "size": [-1, 30]
+    "size": [-1, 60]
   },
   "padding": 5,
   "warp": {
-    "num": 2,
-    "gridsize": [10, 10],
-    "deviation": 1.2
+    "num": 3,
+    "gridsize": [20, 20],
+    "deviation": 2.0
   },
   "binarize": false
 }
