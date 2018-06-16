@@ -15,7 +15,7 @@
     },
     "bnorm": {
       "active": true,
-      "train": false
+      "train": true
     }
   }
 }
