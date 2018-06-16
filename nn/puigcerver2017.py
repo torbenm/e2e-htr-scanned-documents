@@ -35,6 +35,8 @@ class Puigcerver2017(AlgorithmBase):
 
     def _conv_block(self, net, index, is_train):
         _activation_fn = tf.nn.leaky_relu
+        data_format = 'channels_first' if self._get(
+            'format') == 'nchw' else 'channels_last'
 
         def conv_layer(x):
             num_filters = (index + 1) * self._get('conv.size')
@@ -43,8 +45,6 @@ class Puigcerver2017(AlgorithmBase):
             activation = _activation_fn if not self._get(
                 'bnorm.before_activation') else None
             use_bias = self._get('conv.bias')
-            data_format = 'channels_first' if self._get(
-                'format') == 'nchw' else 'channels_last'
             return wrap_1d(tf.layers.conv2d(x, num_filters, kernel, strides=strides, activation=activation, use_bias=use_bias))
 
         def batch_norm(x):
@@ -64,7 +64,7 @@ class Puigcerver2017(AlgorithmBase):
         pooling = self._get('conv.pooling')
         if index < len(pooling):
             net = wrap_1d(tf.layers.max_pooling2d(
-                net, pooling[index], pooling[index]))
+                net, pooling[index], pooling[index], data_format=data_format))
 
         if index > self._get('conv.dropout.first_layer')-1:
             net = wrap_1d(tf.layers.dropout(net, self._get(
@@ -105,8 +105,8 @@ class Puigcerver2017(AlgorithmBase):
         for i in range(self._get('conv.num')):
             net = self._conv_block(net, i, is_train)
 
-        # if self._get('format') == 'nchw':
-        #             x = tf.transpose(x, [0, 3, 1, 2])
+        if self._get('format') == 'nchw':
+            x = tf.transpose(x, [0, 2, 3, 1])
 
         if not self._transpose:
             net = wrap_1d(tf.transpose(net, [0, 2, 1, 3]))
@@ -117,7 +117,9 @@ class Puigcerver2017(AlgorithmBase):
             net = self._rec_block(net, i, is_train, 'lstm-{}'.format(i))
 
         net = wrap_1d(tf.layers.dropout(net, 0.5, training=is_train))
-        net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
+        net = wrap_1d(tf.layers.dense(
+            net, vocab_length, activation=tf.nn.relu))
+        # net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
         total_loss = tf.nn.ctc_loss(y, logits, l)
