@@ -25,6 +25,7 @@ class Executor(object):
         self._decoder = None
         self._cer = None
         self._decoded_dense = None
+        self._update_ops = None
         self.config('Algorithm Configuration')
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
@@ -74,6 +75,7 @@ class Executor(object):
     def _train(self, graph, sess, hooks, options={}):
         batch_num = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'])
+
         foldername = os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model')
         if self.config.default('save', False) != False:
@@ -83,6 +85,11 @@ class Executor(object):
                 graph, sess, idx, epoch, batch_num, hooks, options)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
+
+    def _get_train_update_ops(self):
+        if self._update_ops == None:
+            self._update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        return self._update_ops
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options):
         training_loss = 0
@@ -104,8 +111,9 @@ class Executor(object):
                 graph['l']: length,
                 graph['is_train']: True
             }
-            training_loss_, other = sess.run(
-                [graph['total_loss'], graph['train_step']], train_dict,
+            training_loss_, _1, _2 = sess.run(
+                [graph['total_loss'], graph['train_step'],
+                    self._get_train_update_ops()], train_dict,
                 run_metadata=run_metadata, options=run_options)
 
             training_loss += np.ma.masked_invalid(
