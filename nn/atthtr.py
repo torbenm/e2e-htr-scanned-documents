@@ -7,11 +7,11 @@ from .util import wrap_1d, wrap_4d, make_sparse, valueOr
 from config.config import Configuration
 
 """
-Puigcerver, Joan. "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?."
+Attention Based Handwritten Text Recognition
 """
 
 
-class Puigcerver2017(AlgorithmBase):
+class AttHtr(AlgorithmBase):
 
     def __init__(self, config, transpose=True):
         self.config = Configuration(config)
@@ -82,6 +82,9 @@ class Puigcerver2017(AlgorithmBase):
                 cell_fw, cell_bw, net, dtype=tf.float32)
             net = wrap_1d(tf.concat(output, 2))
             return net
+
+    def _attention(self, net):
+        pass
 
     def _get(self, prop):
         return self.config.default(prop, self.defaults[prop])
