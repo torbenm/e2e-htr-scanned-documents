@@ -20,7 +20,7 @@ class Dataset(object):
         self.channels = 1
         self._fill_meta()
 
-    def info():
+    def info(self):
         self.meta('Dataset Configuration')
 
     def _load_meta(self):
