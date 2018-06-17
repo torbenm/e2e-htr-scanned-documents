@@ -26,6 +26,7 @@ class Executor(object):
         self._cer = None
         self._decoded_dense = None
         self.config('Algorithm Configuration')
+        self.dataset.info()
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'

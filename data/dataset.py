@@ -1,4 +1,5 @@
 from . import util
+from config.config import Configuration
 import os
 import math
 import numpy as np
@@ -17,13 +18,24 @@ class Dataset(object):
         self._compile_sets()
         self.transpose = transpose
         self.channels = 1
+        self._fill_meta()
+
+    def info():
+        self.meta('Dataset Configuration')
 
     def _load_meta(self):
-        self.meta = util.loadJson(self.datapath, "meta")
+        self.meta = Configuration(util.loadJson(self.datapath, "meta"))
 
     def _load_vocab(self):
         self.vocab = util.loadJson(self.datapath, "vocab")
         self.vocab_length = len(self.vocab[0])
+
+    def _fill_meta(self):
+        self.meta['vocab.size'] = self.vocab_length
+        self.meta['train.count'] = len(self.data['train'])
+        self.meta['train.count'] = len(self.data['train'])
+        self.meta['dev.count'] = len(self.data['dev'])
+        self.meta['test.count'] = len(self.data['test'])
 
     def _load_sets(self):
         self.data = {
