@@ -31,7 +31,8 @@ class Puigcerver2017(AlgorithmBase):
             'bnorm.active': True,
             'bnorm.train': False,
             'bnorm.before_activation': False,
-            'format': 'nhwc'
+            'format': 'nhwc',
+            'fc.use_activation': True,
         }
 
     def _conv_block(self, net, index, is_train):
@@ -121,8 +122,9 @@ class Puigcerver2017(AlgorithmBase):
             net = self._rec_block(net, i, is_train, 'lstm-{}'.format(i))
 
         net = wrap_1d(tf.layers.dropout(net, 0.5, training=is_train))
+
         net = wrap_1d(tf.layers.dense(
-            net, vocab_length, activation=tf.nn.relu))
+            net, vocab_length, activation=tf.nn.relu if self._get('fc.use_activation') else None))
         # net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
