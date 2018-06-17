@@ -35,6 +35,11 @@ class Puigcerver2017(AlgorithmBase):
         }
 
     def _conv_block(self, net, index, is_train):
+
+        if self._get('conv.dropout.active') and index > self._get('conv.dropout.first_layer')-1:
+            net = wrap_1d(tf.layers.dropout(net, self._get(
+                'conv.dropout.prob'), training=is_train))
+
         _activation_fn = tf.nn.leaky_relu
         data_format = 'channels_first' if self._get(
             'format') == 'nchw' else 'channels_last'
@@ -66,10 +71,6 @@ class Puigcerver2017(AlgorithmBase):
         if index < len(pooling):
             net = wrap_1d(tf.layers.max_pooling2d(
                 net, pooling[index], pooling[index], data_format=data_format))
-
-        if self._get('conv.dropout.active') and index > self._get('conv.dropout.first_layer')-1:
-            net = wrap_1d(tf.layers.dropout(net, self._get(
-                'conv.dropout.prob'), training=is_train))
 
         return net
 
