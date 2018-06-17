@@ -33,6 +33,7 @@ class Puigcerver2017(AlgorithmBase):
             'bnorm.before_activation': False,
             'format': 'nhwc',
             'fc.use_activation': True,
+            'optimizer': 'adam'
         }
 
     def _conv_block(self, net, index, is_train):
@@ -132,9 +133,14 @@ class Puigcerver2017(AlgorithmBase):
 
         logits = tf.nn.softmax(logits)
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        train_step = None
         with tf.control_dependencies(update_ops):
-            train_step = tf.train.AdamOptimizer(
-                learning_rate).minimize(total_loss)
+            if self._get('optimizer') == 'adam':
+                train_step = tf.train.AdamOptimizer(
+                    learning_rate).minimize(total_loss)
+            elif self._get('optimizer') == 'rmsprop':
+                train_step = tf.train.RMSPropOptimizer(
+                    learning_rate).minimize(total_loss)
 
         return dict(
             x=x,
