@@ -25,6 +25,7 @@ class Puigcerver2017(AlgorithmBase):
             'conv.strides': [1, 1],
             'conv.dropout.prob': 0.2,
             'conv.dropout.first_layer': 2,
+            'conv.dropout.active': True,
             'lstm.num': 5,
             'lstm.size': 256,
             'bnorm.active': True,
@@ -66,7 +67,7 @@ class Puigcerver2017(AlgorithmBase):
             net = wrap_1d(tf.layers.max_pooling2d(
                 net, pooling[index], pooling[index], data_format=data_format))
 
-        if index > self._get('conv.dropout.first_layer')-1:
+        if self._get('conv.dropout.active') and index > self._get('conv.dropout.first_layer')-1:
             net = wrap_1d(tf.layers.dropout(net, self._get(
                 'conv.dropout.prob'), training=is_train))
 
