@@ -12,12 +12,15 @@
     "format": "nchw",
     "conv": {
       "pooling": [[2, 2], [2, 2], [1, 2]],
-      "bias": false
+      "bias": false,
+      "dropout": {
+      	"active": false
+      }
     },
     "bnorm": {
-      "active": false,
+      "active": true,
       "train": true,
-      "before_activation": false
+      "before_activation": true
     }
   }
 }
