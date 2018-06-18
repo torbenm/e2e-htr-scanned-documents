@@ -6,7 +6,7 @@
   "batch": 90,
   "epochs": 300,
   "max_batches": 0,
-  "learning_rate": 0.0005,
+  "learning_rate": 0.0003,
   "ctc": "greedy",
   "algo_config": {
     "format": "nchw",
@@ -14,12 +14,16 @@
       "pooling": [[2, 2], [2, 2], [1, 2]],
       "bias": false,
       "dropout": {
-      	"active": false
+      	"active": true
       }
     },
+    "fc": {
+      "use_activation": true
+    },
+    "optimizer": "adam",
     "bnorm": {
       "active": true,
-      "train": true,
+      "train": false,
       "before_activation": true
     }
   }
