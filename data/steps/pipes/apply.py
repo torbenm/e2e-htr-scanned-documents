@@ -39,7 +39,7 @@ def applyPipeline(sourcepath, truth, context, train):
     if isActive('crop'):
         images = crop(images)
 
-    # Step 4: Scale Image
+     # Step 4: Scale Image
     if isActive('scale'):
         images = scale(images, context['scale'], bgColor)
 
