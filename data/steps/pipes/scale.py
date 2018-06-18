@@ -42,15 +42,12 @@ def _scale_by_factor(image, config, fill=(255, 255, 255)):
     image, ws, hs = _do_scale(image, factor, max_size=(width, height))
     h_pad = height - hs if height > -1 else 0
     w_pad = width - ws if width > -1 else 0
-
-    return cv2.copyMakeBorder(
-        image, 0, h_pad, 0, w_pad, cv2.BORDER_CONSTANT, value=fill)
+    return image
 
 
 def _scale_by_height(image, config, fill=(255, 255, 255)):
     target_size = config['size']
     current_height = image.shape[0]
-    top
     factor = current_height / float(target_size[1])
     image, _, _ = _do_scale(image, factor, target_size=target_size)
     return image
@@ -60,10 +57,6 @@ def _scale_by_line_centroid(image, config, fill=(255, 255, 255)):
     target_size = config['size']
     image_c = image+1
     current_height, top, bottom = _line_height(image_c)
-    top = max(top, 0)
-    bottom = min(bottom, image.shape[0]-1)
-    image[top, :] = 255 - fill
-    image[bottom, :] = 255 - fill
     factor = current_height / float(target_size[1])
     image, _, _ = _do_scale(image, factor)
     return image
