@@ -1,18 +1,18 @@
 {
   "dataset": "iam",
   "subset": "lines",
-  "limit": 10,
+  "limit": -1,
   "shuffle": true,
   "test_frac": 0.1,
   "dev_frac": 0.1,
-  "invert": false,
+  "invert": true,
   "threshold": false,
-  "crop": false,
+  "crop": true,
   "scale": {
     "mode": "factor",
     "size": [-1, 80]
   },
-  "padding": [5, 5, 5, 5],
+  "padding": 5,
   "warp": {
     "num": 5,
     "gridsize": [30, 30],
