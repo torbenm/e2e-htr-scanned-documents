@@ -28,6 +28,7 @@ class Puigcerver2017(AlgorithmBase):
             'conv.dropout.active': True,
             'lstm.num': 5,
             'lstm.size': 256,
+            'lstm.cell': 'lstm',
             'bnorm.active': True,
             'bnorm.train': False,
             'bnorm.before_activation': False,
@@ -79,8 +80,14 @@ class Puigcerver2017(AlgorithmBase):
     def _rec_block(self, net, index, is_train, scope):
         with tf.variable_scope(scope):
             net = wrap_1d(tf.layers.dropout(net, 0.5, training=is_train))
-            cell_fw = tf.nn.rnn_cell.LSTMCell(self._get('lstm.size'))
-            cell_bw = tf.nn.rnn_cell.LSTMCell(self._get('lstm.size'))
+            cell_fw, cell_bw = None, None
+            if self._get('lstm.cell') == 'lstm':
+                cell_fw = tf.nn.rnn_cell.LSTMCell(self._get('lstm.size'))
+                cell_bw = tf.nn.rnn_cell.LSTMCell(self._get('lstm.size'))
+            elif self._get('lstm.cell') == 'gru':
+                cell_fw = tf.nn.rnn_cell.GRUCell(self._get('lstm.size'))
+                cell_bw = tf.nn.rnn_cell.GRUCell(self._get('lstm.size'))
+
             output, _ = tf.nn.bidirectional_dynamic_rnn(
                 cell_fw, cell_bw, net, dtype=tf.float32)
             net = wrap_1d(tf.concat(output, 2))
