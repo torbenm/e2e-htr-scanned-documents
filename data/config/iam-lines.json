@@ -3,7 +3,7 @@
   "subset": "lines",
   "binarize": false,
   "invert": true,
-  "padding": 15,
+  "padding": 5,
   "limit": -1,
   "shuffle": true,
   "test_frac": 0.1,

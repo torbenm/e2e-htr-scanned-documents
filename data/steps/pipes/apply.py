@@ -39,7 +39,14 @@ def applyPipeline(sourcepath, truth, context, train):
     if isActive('crop'):
         images = crop(images)
 
-     # Step 4: Scale Image
+    # Step 7: Warp Image
+    if train and isActive('warp') and isActive('num', ctx=context['warp']):
+        images = cv2pil(images)
+        images = RandomWarpGridDistortion(
+            images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
+        images = pil2cv2(images)
+
+      # Step 4: Scale Image
     if isActive('scale'):
         images = scale(images, context['scale'], bgColor)
 
@@ -49,13 +56,6 @@ def applyPipeline(sourcepath, truth, context, train):
 
     # Step 6: Extract width & height
     h, w = images[0].shape[:2]
-
-    # Step 7: Warp Image
-    if train and isActive('warp') and isActive('num', ctx=context['warp']):
-        images = cv2pil(images)
-        images = RandomWarpGridDistortion(
-            images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
-        images = pil2cv2(images)
 
     # Step 8: Binarize Image
     if isActive('binarize'):
