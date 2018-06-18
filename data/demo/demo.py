@@ -2,33 +2,37 @@ import cv2
 import numpy as np
 
 
-def pad(array, reference_shape, offsets=None):
-    """
-    array: Array to be padded
-    reference_shape: tuple of size of ndarray to create
-    offsets: list of offsets (number of elements must be equal to the dimension of the array)
-    will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
-    """
-    offsets = offsets if offsets is not None else [0] * len(reference_shape)
-    # Create an array of zeros with the reference shape
-    result = np.zeros(reference_shape)
-    # Create a list of slices from offset to offset + shape in each dimension
-    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
-                  for dim in range(array.ndim)]
-    # Insert the array in the result at the specified offsets
-    result[insertHere] = array
-    return result
+def com_stats(A, axis=0):
+    print(A)
+    A = A.astype(float)    # if you are worried about int vs. float
+    n = A.shape[axis]
+    m = A.shape[(axis-1) % 2]
+    r = np.arange(1, n+1)
+    R = np.vstack([r] * m)
+    if axis == 0:
+        R = R.T
 
-image = cv2.imread('input.png', cv2.IMREAD_GRAYSCALE)
-image = np.transpose(image, [1, 0])
+    mu = np.average(R, axis=axis, weights=A)
+    var = np.average(R**2, axis=axis, weights=A) - mu**2
+    std = np.sqrt(var)
+    return mu, var, std
 
-meta = {
-    "width": 3767, "height": 130
-}
 
-if image.shape[0] != meta["width"] or image.shape[1] != meta["height"]:
-    image = pad(image, (meta["width"], meta["height"]))
+image = cv2.imread('input3.png', cv2.IMREAD_GRAYSCALE)
 
-image = np.transpose(image, [1, 0])
+mu, var, std = com_stats(image)
+print(len(mu))
+mu = int(np.average(mu))
+std = int(np.median(std))
+var = int(np.median(var))
+
+diff = std
+
+
+image[mu, :] = 0
+image[mu+diff, :] = 0
+image[mu-diff, :] = 0
+
+print(np.average(mu), var, std)
 
 cv2.imwrite("output.png", image)
