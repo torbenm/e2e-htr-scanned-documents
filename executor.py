@@ -48,8 +48,8 @@ class Executor(object):
         }
         return self._exec(self._transcribe, hooks, date, epoch, options)
 
-    def train(self, hooks=None, options={}):
-        return self._exec(self._train, hooks, options=options)
+    def train(self, date=None, epoch=0, hooks=None, options={}):
+        return self._exec(self._train, hooks, date, epoch, options=options)
 
     def validate(self, date=None, epoch=0, hooks=None, dataset="dev"):
         options = {

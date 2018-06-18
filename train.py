@@ -44,15 +44,19 @@ if __name__ == "__main__":
     parser.add_argument('--timeline', default='')
     parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
                         action='store_true', default=False)
+    parser.add_argument('--model-date', 'date to continue for', default='')
+    parser.add_argument('--model-epoch', 'epoch to continue for',
+                        default=0, type=int)
     args = parser.parse_args()
 
     exc = Executor(args.config, transpose=args.legacy_transpose)
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
-    exc.train({
-        'batch': batch_hook,
-        'val_batch': val_batch_hook,
-        'epoch': epoch_hook
-    }, {
-        'skip_validation': args.skip_validation,
-        'timeline': args.timeline
-    })
+    exc.train(args.model_date if args.model_date !=
+              "" else None, args.model_epoch, {
+                  'batch': batch_hook,
+                  'val_batch': val_batch_hook,
+                  'epoch': epoch_hook
+              }, {
+                  'skip_validation': args.skip_validation,
+                  'timeline': args.timeline
+              })

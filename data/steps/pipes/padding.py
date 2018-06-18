@@ -13,4 +13,5 @@ def _pad_pil(img, padding=0, fill=255):
 
 
 def _pad_cv2(image, padding=0, fill=255):
-    return cv2.copyMakeBorder(image, top=padding, bottom=padding, left=padding, right=padding, borderType=cv2.BORDER_CONSTANT, value=fill)
+    pad_list = padding if isinstance(padding, list) else [padding]*4
+    return cv2.copyMakeBorder(image, top=pad_list[0], bottom=pad_list[2], left=pad_list[3], right=pad_list[1], borderType=cv2.BORDER_CONSTANT, value=fill)
