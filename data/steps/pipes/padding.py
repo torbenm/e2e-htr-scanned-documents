@@ -3,9 +3,7 @@ import cv2
 
 
 def pad(imgs, padding=None, fill=255):
-    if padding is not None and padding > 0:
-        return [_pad_cv2(img, padding, fill) for img in imgs]
-    return imgs
+    return [_pad_cv2(img, padding, fill) for img in imgs]
 
 
 def _pad_pil(img, padding=0, fill=255):
