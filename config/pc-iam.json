@@ -3,7 +3,7 @@
   "dataset": "iam-lines",
   "algorithm": "puigcerver",
   "save": 5,
-  "batch": 90,
+  "batch": 50,
   "epochs": 300,
   "max_batches": 0,
   "learning_rate": 0.0003,
