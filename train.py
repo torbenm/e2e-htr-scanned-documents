@@ -44,8 +44,9 @@ if __name__ == "__main__":
     parser.add_argument('--timeline', default='')
     parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
                         action='store_true', default=False)
-    parser.add_argument('--model-date', 'date to continue for', default='')
-    parser.add_argument('--model-epoch', 'epoch to continue for',
+    parser.add_argument(
+        '--model-date', help='date to continue for', default='')
+    parser.add_argument('--model-epoch', help='epoch to continue for',
                         default=0, type=int)
     args = parser.parse_args()
 
