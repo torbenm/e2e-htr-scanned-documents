@@ -24,6 +24,8 @@ def _get_scale_fn(mode):
         return _scale_by_height
     elif mode == 'line':
         return _scale_by_line_centroid
+    elif mode == 'none':
+        return _no_scaling
     return None
 
 
@@ -42,6 +44,10 @@ def _scale_by_factor(image, config, fill=(255, 255, 255)):
     image, ws, hs = _do_scale(image, factor, max_size=(width, height))
     h_pad = height - hs if height > -1 else 0
     w_pad = width - ws if width > -1 else 0
+    return image
+
+
+def _no_scaling(image, config=None, fill=None):
     return image
 
 
