@@ -1,9 +1,9 @@
 {
-  "name": "pc-iam",
-  "dataset": "iam-lines-s-hfac10",
+  "name": "pc-iam-pad",
+  "dataset": "iam-lines-m-pad",
   "algorithm": "puigcerver",
   "save": 5,
-  "batch": 100,
+  "batch": 50,
   "epochs": 300,
   "max_batches": 0,
   "learning_rate": 0.0003,

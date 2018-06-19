@@ -10,7 +10,7 @@
   "crop": true,
   "scale": {
     "mode": "factor",
-    "size": [-1, 180]
+    "size": [-1, 124]
   },
   "padding": 5,
   "warp": {

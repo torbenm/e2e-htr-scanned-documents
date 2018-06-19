@@ -9,10 +9,10 @@
   "threshold": false,
   "crop": true,
   "scale": {
-    "mode": "factor",
-    "size": [-1, 180]
+    "mode": "height",
+    "size": [-1, 42]
   },
-  "padding": 5,
+  "padding": [5, 5, 80, 5],
   "warp": {
     "num": 5,
     "gridsize": [30, 30],
