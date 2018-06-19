@@ -141,9 +141,11 @@ class Puigcerver2017(AlgorithmBase):
 
         net = wrap_1d(tf.layers.dropout(net, 0.5, training=is_train))
 
-        net = wrap_1d(tf.layers.dense(
-            net, vocab_length, activation=tf.nn.relu if self._get('fc.use_activation') else None))
-        # net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
+        if self._transpose:
+            net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
+        else:
+            net = wrap_1d(tf.layers.dense(
+                net, vocab_length, activation=tf.nn.relu if self._get('fc.use_activation') else None))
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
         total_loss = tf.nn.ctc_loss(y, logits, l)
