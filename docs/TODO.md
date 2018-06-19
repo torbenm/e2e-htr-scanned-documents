@@ -1,6 +1,4 @@
 1.  MDLSTMs à la gpu
-2.  Padding does/should not alter image size
-3.  Scaling by line heihgt and (somewhat) flexible width, which is filled with 0s
 
 ---
 
@@ -13,8 +11,5 @@
 
 --- IDEAS FOR line htr
 
-1.  Remove bias from cnn
-2.  Batch Norm w/wo -> maybe now is_train works
-3.  switch row/col back
-
-4.  Autocreate model dir
+1.  Autocreate model dir
+2.  Save model + dataset settings to model dir for easier recreation + automatic preprocessing

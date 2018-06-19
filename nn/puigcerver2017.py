@@ -62,6 +62,15 @@ class Puigcerver2017(AlgorithmBase):
                 'format') == 'nchw' else 3
             return wrap_1d(tf.layers.batch_normalization(x, training=is_training, fused=True, axis=axis))
 
+        def pooling(x):
+            pooling_sizes = self._get('conv.pooling')
+            _pool_data_format = data_format
+            if index < len(pooling_sizes):
+                pooling_size = pooling_sizes[index]
+                x = wrap_1d(tf.layers.max_pooling2d(
+                    x, pooling_size, pooling_size, data_format=_pool_data_format))
+            return x
+
         net = conv_layer(net)
         if self._get('bnorm.active'):
             net = batch_norm(net)
@@ -69,11 +78,7 @@ class Puigcerver2017(AlgorithmBase):
         if self._get('bnorm.before_activation'):
             net = wrap_1d(_activation_fn(net))
 
-        # maxpool or dropout first?
-        pooling = self._get('conv.pooling')
-        if index < len(pooling):
-            net = wrap_1d(tf.layers.max_pooling2d(
-                net, pooling[index], pooling[index], data_format=data_format))
+        net = pooling(net)
 
         return net
 
@@ -97,6 +102,11 @@ class Puigcerver2017(AlgorithmBase):
         return self.config.default(prop, self.defaults[prop])
 
     def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
+
+        # cpu does not support nchw, so nhwc forcing
+        if(self._cpu):
+            self.config['format'] = self.defaults['format']
+
         if self._transpose:
             x = wrap_1d(tf.placeholder(
                 tf.float32, [None, image_width, image_height, channels], name="x"))

@@ -40,6 +40,7 @@ class Executor(object):
             allow_soft_placement=softplacement, log_device_placement=logplacement)
         self.sessionConfig.gpu_options.allow_growth = allow_growth
         self.device = evaluate_device(device)
+        self.algorithm.set_cpu(device == -1)
         return self.sessionConfig
 
     def transcribe(self, subset, date=None, epoch=0, hooks=None):

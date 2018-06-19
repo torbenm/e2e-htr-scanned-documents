@@ -39,6 +39,7 @@ if __name__ == "__main__":
                                         'trans_batch': transcription_hook
                                     })
     print('\n')
+    print('Transcriptions for {} lines'.format(len(transcriptions['files'])))
     for i in range(len(transcriptions['files'])):
         print('{:100} -> {}'.format(exc.dataset.decompile(
             transcriptions['trans'][i]), os.path.basename(transcriptions['files'][i])))
