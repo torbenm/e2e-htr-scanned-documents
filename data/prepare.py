@@ -1,7 +1,7 @@
 import os
 from . import util
 from .datasets import identifyDataset
-from .steps import vocab, scalefactor, pipeline, split, index
+from .steps import vocab, scalefactor, pipeline, split, index, enhance
 import sys
 import numpy as np
 from random import shuffle
@@ -11,7 +11,7 @@ def loadContext(name):
     return util.loadJson(util.CONFIG_PATH, name)
 
 
-def prepareDataset(name, context):
+def prepareDataset(name, context, ehanceDataset):
     dataset = identifyDataset(context['dataset'])
     if dataset is not None:
         basepath = os.path.join(util.OUTPUT_PATH, name)
@@ -46,15 +46,20 @@ def prepareDataset(name, context):
             util.printDone("Extracting Scale Factor", True)
             print("Extracted Factor is", context['scale']['factor'])
 
-        # Step 4: Shuffle dataset
-        if 'shuffle' in context and context['shuffle']:
-            shuffle(files)
-        util.printDone("Shuffling all data")
+        if ehanceDataset == '':
+            # Step 4: Shuffle dataset
+            if 'shuffle' in context and context['shuffle']:
+                shuffle(files)
+            util.printDone("Shuffling all data")
 
-        # Step 5: Split datasets
-        train, dev, test = split.split(
-            files, context['dev_frac'], context['test_frac'])
-        util.printDone("Splitting data")
+            # Step 5: Split datasets
+            train, dev, test = split.split(
+                files, context['dev_frac'], context['test_frac'])
+            util.printDone("Splitting data")
+        else:
+            enhancePath = os.path.join(util.OUTPUT_PATH, ehanceDataset)
+            train, dev, test = enhance.enhance(files, enhancePath)
+            util.printDone('Retrieved data split from other Dataset', True)
 
         # Step 6: Apply image pipeline to training
         train, train_sizes = pipeline.applyFullPipeline(
@@ -97,6 +102,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--config", help="Configuration name", default="iam-lines")
+    parser.add_argument(
+        "--enhance", help="Dataset to enhance", default="")
     args = parser.parse_args()
     context = loadContext(args.config)
-    prepareDataset(args.config, context)
+    prepareDataset(args.config, context, args.enhance)

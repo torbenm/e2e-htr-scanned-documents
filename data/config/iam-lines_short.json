@@ -4,7 +4,7 @@
   "binarize": false,
   "invert": true,
   "padding": 15,
-  "limit": 100,
+  "limit": 10,
   "shuffle": true,
   "test_frac": 0.1,
   "dev_frac": 0.1,
