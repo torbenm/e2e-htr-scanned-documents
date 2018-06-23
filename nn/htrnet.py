@@ -27,10 +27,10 @@ class HtrNet(AlgorithmBaseV2):
 
     def _encoder(self, net, is_train):
         encoder = None
-        if self['encoder'] == 'cnn':
+        if self['encoder.type'] == 'cnn':
             encoder = CNNEncoder.CNNEncoder(
                 self['encoder.cnn'], data_format=self['format'])
-        elif self['encoeder'] == 'resnet':
+        elif self['encoder.type'] == 'resnet':
             encoder = ResNetEncoder.ResNetEncoder(
                 self['encoder.resnet'], data_format=self['format'])
         return encoder(net, is_train)
