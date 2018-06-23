@@ -1,23 +1,24 @@
 {
   "name": "pc-iam",
-  "dataset": "iam-lines-s-hfac",
+  "dataset": "iam-lines5",
   "algorithm": "puigcerver",
   "save": 5,
-  "batch": 50,
+  "batch": 10,
   "epochs": 300,
   "max_batches": 0,
-  "learning_rate": 0.0003,
+  "learning_rate": 0.0006,
   "ctc": "greedy",
   "algo_config": {
     "format": "nchw",
     "conv": {
+      "size": 32,
       "bias": true,
       "dropout": {
         "active": true
       }
     },
     "lstm": {
-	"cell": "gru"
+      "size": 512
     },
     "fc": {
       "use_activation": false

@@ -9,7 +9,7 @@
   "test_frac": 0.1,
   "dev_frac": 0.1,
   "warp": {
-    "num": 0,
+    "num": 4,
     "gridsize": [30, 30],
     "deviation": 2.7
   },
