@@ -1,5 +1,6 @@
 from nn.layer.Layer import Layer
 from nn.util import log_1d
+import tensorflow as tf
 
 DEFAULTS = {
     "layers": 5,
