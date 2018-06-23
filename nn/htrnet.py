@@ -22,7 +22,7 @@ DEFAULTS = {
 class HtrNet(AlgorithmBaseV2):
 
     def __init__(self, config):
-        super.__init__(config, _DEFAULTS)
+        super.__init__(config, DEFAULTS)
         self.viz = []
 
     def _encoder(self, net, is_train):
