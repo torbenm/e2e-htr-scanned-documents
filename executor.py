@@ -49,6 +49,12 @@ class Executor(object):
         }
         return self._exec(self._transcribe, hooks, date, epoch, options)
 
+    def visualize(self, image, date=None, epoch=0, hooks=None):
+        options = {
+            "image": image
+        }
+        return self._exec(self._visualize, hooks, date, epoch, options)
+
     def train(self, date=None, epoch=0, hooks=None, options={}):
         return self._exec(self._train, hooks, date, epoch, options=options)
 
@@ -203,6 +209,15 @@ class Executor(object):
             if hooks is not None and 'trans_batch' in hooks:
                 hooks['trans_batch'](steps, total_steps)
         return transcriptions
+
+    def _visualize(self, graph, sess, hooks=None, options={}):
+        X = [self.dataset.load_image(options['image'])]
+        viz_dict = {
+            graph['x']: X,
+            graph['l']: [graph['logits'].shape[0]] * len(X)
+        }
+        activations = sess.run(graph['viz'], viz_dict)
+        return activations
 
     def _build_decoded_dense(self, graph):
         if self._decoded_dense is None:

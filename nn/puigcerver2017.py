@@ -1,9 +1,6 @@
 import tensorflow as tf
-from .layer.separable_lstm2d import separable_lstm
-from .layer.lstm2d import LSTM2D
-from .layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
-from .layer.algorithmBase import AlgorithmBase
-from .util import wrap_1d, wrap_4d, make_sparse, valueOr
+from nn.layer.algorithmBase import AlgorithmBase
+from nn.util import wrap_1d, wrap_4d, make_sparse, valueOr
 from config.config import Configuration
 
 """
@@ -16,6 +13,7 @@ class Puigcerver2017(AlgorithmBase):
     def __init__(self, config, transpose=True):
         self.config = Configuration(config)
         self._transpose = transpose
+        self.viz = []
         self.defaults = {
             'conv.num': 5,
             'conv.size': 16,
@@ -77,6 +75,7 @@ class Puigcerver2017(AlgorithmBase):
 
         if self._get('bnorm.before_activation'):
             net = wrap_1d(_activation_fn(net))
+            self.viz.append(net)
 
         net = pooling(net)
 
@@ -168,5 +167,6 @@ class Puigcerver2017(AlgorithmBase):
             is_train=is_train,
             logits=logits,
             total_loss=total_loss,
-            train_step=train_step
+            train_step=train_step,
+            viz=self.viz
         )

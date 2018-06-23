@@ -1,10 +1,10 @@
 import tensorflow as tf
-from .layer.separable_lstm2d import separable_lstm
-from .layer.lstm2d import LSTM2D
-from .layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
-from .layer.mdlstm2d import mdlstm2d
-from .layer.algorithmBase import AlgorithmBase
-from .util import wrap_1d, wrap_4d, make_sparse
+from nn.layer.separable_lstm2d import separable_lstm
+from nn.layer.lstm2d import LSTM2D
+from nn.layer.rnn2d import multidir_rnn2d, multidir_conv, sum_and_tanh, element_sum, multidir_fullyconnected
+from nn.layer.mdlstm2d import mdlstm2d
+from nn.layer.algorithmBase import AlgorithmBase
+from nn.util import wrap_1d, wrap_4d, make_sparse
 
 """
 Voigtlaender, Paul, Patrick Doetsch, and Hermann Ney. 
