@@ -12,7 +12,8 @@ DEFAULTS = {
 class BidirectionalRNN(Layer):
 
     def __init__(self, config, defaults=None, data_format='nhwc'):
-        super(Layer, self).__init__(config, defaults or DEFAULTS, data_format)
+        super(BidirectionalRNN, self).__init__(
+            config, defaults or DEFAULTS, data_format)
 
     def _cell(self):
         cell_fn = tf.nn.rnn_cell.LSTMCell

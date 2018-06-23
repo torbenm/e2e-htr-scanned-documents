@@ -18,7 +18,8 @@ DEFAULTS = {
 class ResNetEncoder(Layer):
 
     def __init__(self, config, defaults=None, data_format='nhwc'):
-        super(Layer, self).__init__(config, defaults or DEFAULTS, data_format)
+        super(ResNetEncoder, self).__init__(
+            config, defaults or DEFAULTS, data_format)
 
     def __call__(self, x, is_train):
         ResNet = resnet.Model(resnet_size=self['resnet_size'], bottleneck=self['bottleneck'], num_filters=self['num_filters'],
