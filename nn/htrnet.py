@@ -85,6 +85,8 @@ class HtrNet(AlgorithmBaseV2):
         if self['format'] == 'nchw':
             net = log_1d(tf.transpose(net, [0, 2, 3, 1]))
 
+        net = wrap_1d(tf.transpose(net, [0, 2, 1, 3]))
+
         ################
         # PHASE II: Recurrent Block
         ###############
