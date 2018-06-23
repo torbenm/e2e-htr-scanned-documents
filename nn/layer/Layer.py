@@ -16,7 +16,7 @@ class Layer(object):
         default = self._defaults.default(key, None)
         return self._config.default(key, default)
 
-    def _parse_format():
+    def _parse_format(self):
         return 'channels_first' if self._format == 'nchw' else 'channels_last'
 
     @abc.abstractmethod
