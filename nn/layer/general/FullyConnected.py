@@ -11,7 +11,7 @@ DEFAULTS = {
 class FullyConnected(Layer):
 
     def __init__(self, config, vocab_length, defaults=None, data_format='nhwc'):
-        super.__init__(config, defaults or DEFAULTS, data_format)
+        super(Layer, self).__init__(config, defaults or DEFAULTS, data_format)
         self.vocab_length = vocab_length
 
     def __call__(self, x, is_train):
