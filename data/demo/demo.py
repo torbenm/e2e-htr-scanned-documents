@@ -2,37 +2,38 @@ import cv2
 import numpy as np
 
 
-def com_stats(A, axis=0):
-    print(A)
-    A = A.astype(float)    # if you are worried about int vs. float
-    n = A.shape[axis]
-    m = A.shape[(axis-1) % 2]
-    r = np.arange(1, n+1)
-    R = np.vstack([r] * m)
-    if axis == 0:
-        R = R.T
+image = cv2.imread('input2.png', cv2.IMREAD_GRAYSCALE)
 
-    mu = np.average(R, axis=axis, weights=A)
-    var = np.average(R**2, axis=axis, weights=A) - mu**2
-    std = np.sqrt(var)
-    return mu, var, std
+# threshold
 
 
-image = cv2.imread('input3.png', cv2.IMREAD_GRAYSCALE)
-
-mu, var, std = com_stats(image)
-print(len(mu))
-mu = int(np.average(mu))
-std = int(np.median(std))
-var = int(np.median(var))
-
-diff = std
+def _threshold(image, invert=False):
+    threshold = np.mean(image, axis=(0, 1))
+    _, res_img = cv2.threshold(
+        image, threshold, 255,  cv2.THRESH_OTSU)
+    return res_img
 
 
-image[mu, :] = 0
-image[mu+diff, :] = 0
-image[mu-diff, :] = 0
+image = _threshold(image, True)
 
-print(np.average(mu), var, std)
+
+def boundary(image, axis=0, invalid_val=-1, sparse_val=0, flip=False):
+    mask = image != sparse_val
+    val = None
+    if flip:
+        val = image.shape[axis] - \
+            np.flip(mask, axis=axis).argmax(axis=axis) - 1
+    else:
+        val = mask.argmax(axis=axis)
+    masked = np.where(mask.any(axis=axis), val, invalid_val)
+    result = np.average(masked[masked != invalid_val])
+    return result.astype(int)
+
+
+_min = boundary(image, sparse_val=255)
+_max = boundary(image, flip=True, sparse_val=255)
+
+image[_min, :] = 0
+image[_max, :] = 0
 
 cv2.imwrite("output.png", image)

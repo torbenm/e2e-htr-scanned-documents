@@ -73,10 +73,8 @@ class Dataset(object):
                 return ''
         return ''.join([getKey(c) for c in values])
 
-    def _loadline(self, line, transpose=True):
-        l = len(line["compiled"])
-        y = np.asarray(line["compiled"])
-        x = cv2.imread(line["path"], cv2.IMREAD_GRAYSCALE)
+    def load_image(self, path, transpose=False):
+        x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if transpose:
             try:
                 x = np.transpose(x, [1, 0])
@@ -89,6 +87,12 @@ class Dataset(object):
             if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
                 x = pad(x, (self.meta["height"], self.meta["width"]))
             x = np.reshape(x, [self.meta["height"], self.meta["width"], 1])
+        return x
+
+    def _loadline(self, line, transpose=True):
+        l = len(line["compiled"])
+        y = np.asarray(line["compiled"])
+        x = self.load_image(line["path"])
         return x, y, l, line["path"]
 
     def _load_batch(self, index, batch_size, dataset, with_filepath=False):

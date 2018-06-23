@@ -1,15 +1,13 @@
-1.  MDLSTMs à la gpu
+Next Steps:
 
----
-
-1.  Attention
-    1.1 Idea: Stack Row-Wise and run through BLSTM & then mult with encoder output
-2.  Increase parameters
-3.  Resnet instead of CNN
-4.  Different datasets
-5.  mdlstm email aachen
-
---- IDEAS FOR line htr
-
-1.  Autocreate model dir
-2.  Save model + dataset settings to model dir for easier recreation + automatic preprocessing
+1.  Visual Backprop Paper
+    1.a Any next steps?
+2.  Include Tensorboard logging
+3.  Store Model Info in model dir, autocreate model dir
+4.  Transcribe / Visualize Pipeline from model config
+5.  Train unscaled dataset
+6.  Train with resnet
+7.  Train using GRUs
+8.  Collect printed text dataset
+9.  Add binary classifier
+10. Max/Min Line Extraction

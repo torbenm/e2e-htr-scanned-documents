@@ -1,6 +1,19 @@
+import json
 
 
 class Configuration(object):
+
+    @staticmethod
+    def load(path, name):
+        with open(os.path.join(path, "{}.json".format(name)), 'r') as f:
+            return Configuration(json.load(f))
+
+    @staticmethod
+    def merge(**configurations):
+        _config = Configuration({})
+        for key in configurations:
+            _config[key] = configurations[key]
+        return _config
 
     def __init__(self, config):
         self.config = config
@@ -21,6 +34,10 @@ class Configuration(object):
 
     def __str__(self):
         return self.config.__str__()
+
+    def save(self, path, name):
+        with open(os.path.join(path, "{}.json".format(name)), 'w+') as f:
+            json.dump(self.config, f)
 
     def default(self, prop, defaultValue=''):
         try:
