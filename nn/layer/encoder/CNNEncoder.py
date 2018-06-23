@@ -28,6 +28,7 @@ class CNNEncoder(Layer):
     def __init__(self, config, defaults=None, data_format='nhwc'):
         super(CNNEncoder, self).__init__(
             config, defaults or DEFAULTS, data_format)
+        self.viz = []
 
     def _conv_block(self, net, index, is_train):
         if self['dropout.active'] and index > self['dropout.first_layer']-1:
