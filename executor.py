@@ -122,11 +122,11 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_ = [0]
-            if i % 5 == 0:
+            if i % 100 == 0:
                 training_loss_, _, s = sess.run(
                     [graph['total_loss'], graph['train_step'], summ], train_dict,
                     run_metadata=run_metadata, options=run_options)
-                writer.add_summary(s)
+                writer.add_summary(s, global_step=len(epoch)*idx+i)
             else:
                 training_loss_, _ = sess.run(
                     [graph['total_loss'], graph['train_step']], train_dict,

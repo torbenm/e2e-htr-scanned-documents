@@ -62,7 +62,8 @@ class CNNEncoder(Layer):
 
         net = conv_layer(net)
         if self['bnorm.active']:
-            net = batch_norm(net)
+            with tf.name_scope('bnorm'):
+                net = batch_norm(net)
 
         if self['bnorm.before_activation']:
             net = log_1d(_activation_fn(net))
@@ -76,6 +77,6 @@ class CNNEncoder(Layer):
     def __call__(self, x, is_train):
         with tf.name_scope('convolutions'):
             for i in range(self['layers']):
-                with tf.variable_scope('conv{}'.format(i)):
+                with tf.name_scope('conv{}'.format(i)):
                     x = self._conv_block(x, i, is_train)
         return x
