@@ -116,7 +116,7 @@ class HtrNet(AlgorithmBaseV2):
             train_step = self._train_step(total_loss, learning_rate)
 
         with tf.name_scope('logits'):
-        logits = tf.nn.softmax(logits)
+            logits = tf.nn.softmax(logits)
 
         return dict(
             x=x,
