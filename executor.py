@@ -103,6 +103,7 @@ class Executor(object):
                 saver.save(sess, foldername, global_step=idx)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
+        global global_step
         training_loss = 0
         steps = 0
         start_time = time.time()
