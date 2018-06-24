@@ -83,7 +83,7 @@ class HtrNet(AlgorithmBaseV2):
             net = self._encoder(net, is_train)
 
             if self['format'] == 'nchw':
-                net = log_1d(tf.transpose(net, [0, 2, 3, 1]), name='nchw2nhwc')
+                net = log_1d(tf.transpose(net, [0, 2, 3, 1], name='nchw2nhwc'))
 
             net = log_1d(tf.transpose(net, [0, 2, 1, 3]))
 
