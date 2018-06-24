@@ -22,9 +22,10 @@ class ResNetEncoder(Layer):
             config, defaults or DEFAULTS, data_format)
 
     def __call__(self, x, is_train):
-        ResNet = resnet.Model(resnet_size=self['resnet_size'], bottleneck=self['bottleneck'], num_filters=self['num_filters'],
-                              kernel_size=self['kernel_size'],
-                              conv_stride=self['conv_stride'], first_pool_size=self[
-                                  'first_pool_size'], first_pool_stride=self['first_pool_stride'],
-                              block_sizes=self['block_sizes'], block_strides=self['block_strides'], data_format=self._parse_format())
-        return log_1d(ResNet(x, is_train))
+        with tf.name_scope('resnet'):
+            ResNet = resnet.Model(resnet_size=self['resnet_size'], bottleneck=self['bottleneck'], num_filters=self['num_filters'],
+                                  kernel_size=self['kernel_size'],
+                                  conv_stride=self['conv_stride'], first_pool_size=self[
+                'first_pool_size'], first_pool_stride=self['first_pool_stride'],
+                block_sizes=self['block_sizes'], block_strides=self['block_strides'], data_format=self._parse_format())
+            return log_1d(ResNet(x, is_train))

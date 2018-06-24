@@ -33,7 +33,7 @@ class CNNEncoder(Layer):
     def _conv_block(self, net, index, is_train):
         if self['dropout.active'] and index > self['dropout.first_layer']-1:
             net = log_1d(tf.layers.dropout(
-                net, self['dropout.prob'], training=is_train))
+                net, self['dropout.prob'], training=is_train, name='dropout'))
 
         _activation_fn = tf.nn.leaky_relu  # not yet configurable
         data_format = self._parse_format()
@@ -44,12 +44,12 @@ class CNNEncoder(Layer):
             kernel = self['kernel']
             activation = _activation_fn if not self['bnorm.before_activation'] else None
             use_bias = self['bias']
-            return log_1d(tf.layers.conv2d(x, num_filters, kernel, data_format=data_format, strides=strides, activation=activation, use_bias=use_bias))
+            return log_1d(tf.layers.conv2d(x, num_filters, kernel, data_format=data_format, strides=strides, activation=activation, use_bias=use_bias, name='conv2d'))
 
         def batch_norm(x):
             is_training = is_train if self['bnorm.train'] else False
             axis = 1 if self._format == 'nchw' else 3
-            return log_1d(tf.layers.batch_normalization(x, training=is_training, fused=self['bnorm.fused'], axis=axis))
+            return log_1d(tf.layers.batch_normalization(x, training=is_training, fused=self['bnorm.fused'], axis=axis, name='batch_norm'))
 
         def pooling(x):
             pooling_sizes = self['pooling']
@@ -57,7 +57,7 @@ class CNNEncoder(Layer):
             if index < len(pooling_sizes):
                 pooling_size = pooling_sizes[index]
                 x = log_1d(tf.layers.max_pooling2d(
-                    x, pooling_size, pooling_size, data_format=_pool_data_format))
+                    x, pooling_size, pooling_size, data_format=_pool_data_format, name='maxpool'))
             return x
 
         net = conv_layer(net)
@@ -73,6 +73,8 @@ class CNNEncoder(Layer):
         return net
 
     def __call__(self, x, is_train):
-        for i in range(self['layers']):
-            x = self._conv_block(x, i, is_train)
+        with tf.name_scope('convolutions'):
+            for i in range(self['layers']):
+                with tf.name_scope('conv{}'.format(i)):
+                    x = self._conv_block(x, i, is_train)
         return x

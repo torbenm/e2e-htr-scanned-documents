@@ -16,7 +16,8 @@ class FullyConnected(Layer):
         self.vocab_length = vocab_length
 
     def __call__(self, x, is_train):
-        x = log_1d(tf.layers.dropout(x, self['dropout'], training=is_train))
+        x = log_1d(tf.layers.dropout(
+            x, self['dropout'], training=is_train, name='dropout'))
         x = log_1d(tf.layers.dense(
-            x, self.vocab_length, activation=tf.nn.relu if self['use_activation'] else None))
+            x, self.vocab_length, activation=tf.nn.relu if self['use_activation'] else None, name='dense'))
         return x

@@ -25,7 +25,7 @@ class BidirectionalRNN(Layer):
     def _rec_block(self, net, index, is_train, scope):
         with tf.variable_scope(scope):
             net = log_1d(tf.layers.dropout(
-                net, self['dropout'], training=is_train))
+                net, self['dropout'], training=is_train, name='dropout'))
             cell_fw = self._cell()
             cell_bw = self._cell()
 
@@ -35,6 +35,7 @@ class BidirectionalRNN(Layer):
             return net
 
     def __call__(self, x, is_train):
-        for i in range(self['layers']):
-            x = self._rec_block(x, i, is_train, 'rnn-{}'.format(i))
-        return x
+        with tf.name_scope('brnn'):
+            for i in range(self['layers']):
+                x = self._rec_block(x, i, is_train, 'rnn{}'.format(i))
+            return x

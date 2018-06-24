@@ -61,56 +61,61 @@ class HtrNet(AlgorithmBaseV2):
         ###################
         # PLACEHOLDER
         ###################
+        with tf.name_scope('placeholder'):
+            x = log_1d(tf.placeholder(
+                tf.float32, [None, image_height, image_width, channels], name="x"))
 
-        x = log_1d(tf.placeholder(
-            tf.float32, [None, image_height, image_width, channels], name="x"))
+            y = tf.sparse_placeholder(
+                tf.int32, shape=[None, sequence_length], name="y")
+            l = tf.placeholder(
+                tf.int32, shape=[None], name="y")
+            is_train = tf.placeholder_with_default(False, (), name='is_train')
 
-        y = tf.sparse_placeholder(
-            tf.int32, shape=[None, sequence_length], name="y")
-        l = tf.placeholder(
-            tf.int32, shape=[None], name="y")
-        is_train = tf.placeholder_with_default(False, (), name='is_train')
-
-        if self['format'] == 'nchw':
-            net = log_1d(tf.transpose(x, [0, 3, 1, 2]))
-        else:
-            net = x
+            if self['format'] == 'nchw':
+                net = log_1d(tf.transpose(x, [0, 3, 1, 2], name='nhwc2nchw'))
+            else:
+                net = x
 
         ################
         # PHASE I: Encoding
         ###############
+        with tf.name_scope('encoder'):
+            net = self._encoder(net, is_train)
 
-        net = self._encoder(net, is_train)
+            if self['format'] == 'nchw':
+                net = log_1d(tf.transpose(net, [0, 2, 3, 1]), name='nchw2nhwc')
 
-        if self['format'] == 'nchw':
-            net = log_1d(tf.transpose(net, [0, 2, 3, 1]))
-
-        net = log_1d(tf.transpose(net, [0, 2, 1, 3]))
+            net = log_1d(tf.transpose(net, [0, 2, 1, 3]))
 
         ################
         # PHASE II: Recurrent Block
         ###############
+        with tf.name_scope('recurrent'):
+            net = log_1d(tf.reshape(
+                net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
 
-        net = log_1d(tf.reshape(
-            net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
-
-        net = self._recurrent(net, is_train)
+            net = self._recurrent(net, is_train)
 
         ################
         # PHASE III: Fully Connected
         ###############
-
-        fc = FullyConnected.FullyConnected(self['fc'], vocab_length)
-        net = fc(net, is_train)
+        with tf.name_scope('fc'):
+            fc = FullyConnected.FullyConnected(self['fc'], vocab_length)
+            net = fc(net, is_train)
 
         ##################
         # PHASE IV: CTC
         #################
         logits = log_1d(tf.transpose(net, [1, 0, 2]))
-        total_loss = tf.nn.ctc_loss(y, logits, l)
 
+        with tf.name_scope('loss'):
+            total_loss = tf.nn.ctc_loss(y, logits, l)
+
+        with tf.name_scope('train'):
+            train_step = self._train_step(total_loss, learning_rate)
+
+        with tf.name_scope('logits'):
         logits = tf.nn.softmax(logits)
-        train_step = self._train_step(total_loss, learning_rate)
 
         return dict(
             x=x,
