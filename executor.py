@@ -12,6 +12,8 @@ MODELS_PATH = "./models"
 CONFIG_PATH = "./config"
 TENSORBOARD_PATH = "./tensorboard"
 
+global_step = 0
+
 
 class Executor(object):
 
@@ -110,7 +112,7 @@ class Executor(object):
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
         # Batch loop
-        i = 0
+        global_step = 0
         for X, Y, length in epoch:
             if hooks is not None and 'batch' in hooks:
                 hooks['batch'](idx, steps, batch_num)
@@ -122,16 +124,16 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_ = [0]
-            if i % 100 == 0:
+            if global_step % 100 == 0:
                 training_loss_, _, s = sess.run(
                     [graph['total_loss'], graph['train_step'], summ], train_dict,
                     run_metadata=run_metadata, options=run_options)
-                writer.add_summary(s, global_step=len(epoch)*idx+i)
+                writer.add_summary(s, global_step=global_step)
             else:
                 training_loss_, _ = sess.run(
                     [graph['total_loss'], graph['train_step']], train_dict,
                     run_metadata=run_metadata, options=run_options)
-            i += 1
+            global_step += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
         if 'skip_validation' in options and options['skip_validation']:
