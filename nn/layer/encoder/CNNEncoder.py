@@ -77,6 +77,6 @@ class CNNEncoder(Layer):
     def __call__(self, x, is_train):
         with tf.name_scope('convolutions'):
             for i in range(self['layers']):
-                with tf.name_scope('conv{}'.format(i)):
+                with tf.variable_scope('conv{}'.format(i)):
                     x = self._conv_block(x, i, is_train)
         return x
