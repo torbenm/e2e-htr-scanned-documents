@@ -110,7 +110,7 @@ class HtrNet(AlgorithmBaseV2):
 
         with tf.name_scope('loss'):
             total_loss = tf.nn.ctc_loss(y, logits, l)
-            tf.summary.scalar('loss', total_loss)
+            tf.summary.scalar('loss', tf.reduce_mean(total_loss))
 
         with tf.name_scope('train'):
             train_step = self._train_step(total_loss, learning_rate)
