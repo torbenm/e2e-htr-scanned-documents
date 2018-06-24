@@ -267,16 +267,16 @@ def batch_normalization(inputs,
         dtype=inputs.dtype.base_dtype,
         _reuse=reuse,
         _scope=name)
-        activation = layer.apply(inputs, training=training)
-        if scale:
-            tf.summary.histogram('gamma', layer.gamma)
-        if center:
-            tf.summary.histogram('beta', layer.beta)
-        tf.summary.histogram('moving_mean', layer.moving_mean)
-        tf.summary.histogram('moving_variance', layer.moving_variance)
+    activation = layer.apply(inputs, training=training)
+    if scale:
+        tf.summary.histogram('gamma', layer.gamma)
+    if center:
+        tf.summary.histogram('beta', layer.beta)
+    tf.summary.histogram('moving_mean', layer.moving_mean)
+    tf.summary.histogram('moving_variance', layer.moving_variance)
 
-        tf.summary.histogram('activation', activation)
-        return activation
+    tf.summary.histogram('activation', activation)
+    return activation
 
 
 def dense(
