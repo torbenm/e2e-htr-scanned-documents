@@ -64,7 +64,7 @@ class HtrNet(AlgorithmBaseV2):
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, image_height, image_width, channels], name="x"))
-
+            tf.summary.image('input', x, 3)
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, sequence_length], name="y")
             l = tf.placeholder(
@@ -110,6 +110,7 @@ class HtrNet(AlgorithmBaseV2):
 
         with tf.name_scope('loss'):
             total_loss = tf.nn.ctc_loss(y, logits, l)
+            tf.summary.scalar('loss', total_loss)
 
         with tf.name_scope('train'):
             train_step = self._train_step(total_loss, learning_rate)

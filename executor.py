@@ -10,6 +10,7 @@ from nn.util import valueOr
 
 MODELS_PATH = "./models"
 CONFIG_PATH = "./config"
+TENSORBOARD_PATH = "./tensorboard"
 
 
 class Executor(object):
@@ -27,6 +28,10 @@ class Executor(object):
         self._decoded_dense = None
         self.config('Algorithm Configuration')
         self.dataset.info()
+        self.log_name = '{}-{}'.format(self.config['name'],
+                                       time.strftime("%Y-%m-%d-%H-%M-%S"))
+        self.tensorboard_path = os.path.join(TENSORBOARD_PATH, self.log_name)
+        self.models_path = os.path.join(MODELS_PATH, self.log_name)
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -82,18 +87,20 @@ class Executor(object):
     def _train(self, graph, sess, hooks, options={}):
         batch_num = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'])
-
-        foldername = os.path.join(
-            MODELS_PATH, '{}-{}'.format(self.config['name'], time.strftime("%Y-%m-%d-%H-%M-%S")), 'model')
+        self._build_cer(graph)
+        summ = tf.summary.merge_all()
+        writer = tf.summary.FileWriter(self.tensorboard_path)
+        writer.add_graph(sess.graph)
+        foldername = os.path.join(self.models_path, 'model')
         if self.config.default('save', False) != False:
             saver = tf.train.Saver(max_to_keep=None)
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
-                graph, sess, idx, epoch, batch_num, hooks, options)
+                graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
 
-    def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options):
+    def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
         training_loss = 0
         steps = 0
         start_time = time.time()
@@ -103,6 +110,7 @@ class Executor(object):
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
         # Batch loop
+        i = 0
         for X, Y, length in epoch:
             if hooks is not None and 'batch' in hooks:
                 hooks['batch'](idx, steps, batch_num)
@@ -113,10 +121,17 @@ class Executor(object):
                 graph['l']: length,
                 graph['is_train']: True
             }
-            training_loss_, _ = sess.run(
-                [graph['total_loss'], graph['train_step']], train_dict,
-                run_metadata=run_metadata, options=run_options)
-
+            training_loss_ = [0]
+            if i % 5 == 0:
+                training_loss_, _, s = sess.run(
+                    [graph['total_loss'], graph['train_step'], summ], train_dict,
+                    run_metadata=run_metadata, options=run_options)
+                writer.add_summary(s)
+            else:
+                training_loss_, _ = sess.run(
+                    [graph['total_loss'], graph['train_step']], train_dict,
+                    run_metadata=run_metadata, options=run_options)
+            i += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
         if 'skip_validation' in options and options['skip_validation']:
@@ -241,6 +256,7 @@ class Executor(object):
             decoded = self._decode(graph)
             self._cer = tf.reduce_mean(tf.edit_distance(
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
+            tf.summary.scalar('cer', self._cer)
         return self._cer
 
     def _build_graph(self):

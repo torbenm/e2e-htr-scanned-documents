@@ -1,6 +1,7 @@
 import tensorflow as tf
 from nn.layer.Layer import Layer
 from nn.util import log_1d
+from nn.layer.histogrammed import conv2d, batch_normalization
 
 DEFAULTS = {
     "layers": 5,
@@ -39,17 +40,16 @@ class CNNEncoder(Layer):
         data_format = self._parse_format()
 
         def conv_layer(x):
-            num_filters = (index + 1) * self['size']
-            strides = self['strides']
-            kernel = self['kernel']
-            activation = _activation_fn if not self['bnorm.before_activation'] else None
-            use_bias = self['bias']
-            return log_1d(tf.layers.conv2d(x, num_filters, kernel, data_format=data_format, strides=strides, activation=activation, use_bias=use_bias, name='conv2d'))
+            with tf.name_scope('conv'):
+                num_filters = (index + 1) * self['size']
+                activation = _activation_fn if not self['bnorm.before_activation'] else None
+                return log_1d(conv2d(x, num_filters, self['kernel'], data_format=data_format,
+                                     strides=self['strides'], activation=activation, use_bias=self['bias']))
 
         def batch_norm(x):
             is_training = is_train if self['bnorm.train'] else False
             axis = 1 if self._format == 'nchw' else 3
-            return log_1d(tf.layers.batch_normalization(x, training=is_training, fused=self['bnorm.fused'], axis=axis, name='batch_norm'))
+            return log_1d(batch_normalization(x, training=is_training, fused=self['bnorm.fused'], axis=axis, name='batch_norm'))
 
         def pooling(x):
             pooling_sizes = self['pooling']
@@ -66,6 +66,7 @@ class CNNEncoder(Layer):
 
         if self['bnorm.before_activation']:
             net = log_1d(_activation_fn(net))
+            tf.summary.histogram('final_activation', net)
             self.viz.append(net)
 
         net = pooling(net)
