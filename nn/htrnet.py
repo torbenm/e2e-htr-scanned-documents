@@ -64,7 +64,6 @@ class HtrNet(AlgorithmBaseV2):
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, image_height, image_width, channels], name="x"))
-            tf.summary.image('input', x, 3)
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, sequence_length], name="y")
             l = tf.placeholder(
