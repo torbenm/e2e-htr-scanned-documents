@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.python.ops import init_ops
 
 # This file contains layer functions from tf.layers extended by summary functions
 
