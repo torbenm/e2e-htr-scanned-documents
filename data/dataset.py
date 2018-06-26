@@ -36,6 +36,9 @@ class Dataset(object):
         self.meta['train.count'] = len(self.data['train'])
         self.meta['dev.count'] = len(self.data['dev'])
         self.meta['test.count'] = len(self.data['test'])
+        self.meta['print_train.count'] = len(self.data['print_train'])
+        self.meta['print_dev.count'] = len(self.data['print_dev'])
+        self.meta['print_test.count'] = len(self.data['print_test'])
 
     def _load_sets(self):
         self.data = {
@@ -43,6 +46,12 @@ class Dataset(object):
             "dev": util.loadJson(self.datapath, "dev"),
             "test": util.loadJson(self.datapath, "test")
         }
+        if self.meta.default('printed', False):
+            self.data['print_train'] = util.loadJson(
+                self.datapath, "print_train")
+            self.data['print_dev'] = util.loadJson(self.datapath, "print_dev")
+            self.data['print_test'] = util.loadJson(
+                self.datapath, "print_test")
 
     def _compile_set(self, dataset):
         for item in self.data[dataset]:
@@ -95,13 +104,22 @@ class Dataset(object):
         x = self.load_image(line["path"])
         return x, y, l, line["path"]
 
+    def _loadprintline(self, line, transpose=True):
+        y = line["truth"]
+        x = self.load_image(line["path"])
+        return x, [y], 0, line["path"]
+
     def _load_batch(self, index, batch_size, dataset, with_filepath=False):
         X = []
         Y = []
         L = []
         F = []
+
+        parseline = self._loadline if not dataset.startswith(
+            "print_") else self._loadprintline
+
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
-            x, y, l, f = self._loadline(
+            x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose)
             if x is not None:
                 X.append(x)

@@ -16,9 +16,6 @@
         "active": true
       }
     },
-    "lstm": {
-	"cell": "gru"
-    },
     "fc": {
       "use_activation": false
     },

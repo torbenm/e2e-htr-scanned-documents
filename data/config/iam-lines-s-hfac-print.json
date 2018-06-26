@@ -17,5 +17,10 @@
     "num": 5,
     "gridsize": [30, 30],
     "deviation": 2.7
+  },
+  "binarize": false,
+  "printed": {
+    "count": 1000,
+    "padding": 5
   }
 }

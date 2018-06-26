@@ -1,4 +1,4 @@
-def makeIndex(context, sizes=None):
+def makeIndex(context, sizes=None, with_printed=False):
     if sizes is None and 'scale' in context:
         metaContent = {
             "width": context['scale']['size'][0],
@@ -16,4 +16,6 @@ def makeIndex(context, sizes=None):
         }
     else:
         metaContent = {}
+    if with_printed:
+        metaContent['printed'] = True
     return metaContent

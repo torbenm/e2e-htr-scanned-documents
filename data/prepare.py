@@ -1,7 +1,7 @@
 import os
 from . import util
 from .datasets import identifyDataset
-from .steps import vocab, scalefactor, pipeline, split, index, enhance
+from .steps import vocab, scalefactor, pipeline, split, index, enhance, generate_print
 import sys
 import numpy as np
 from random import shuffle
@@ -16,6 +16,7 @@ def prepareDataset(name, context, ehanceDataset):
     if dataset is not None:
         basepath = os.path.join(util.OUTPUT_PATH, name)
         imagepath = os.path.join(basepath, "imgs")
+        printedpath = os.path.join(basepath, "printed")
 
         # Step 0: Prepare folders
         util.rmkdir(basepath)
@@ -71,15 +72,27 @@ def prepareDataset(name, context, ehanceDataset):
             dev, context, util.printPercentage("Processing Validation Images"), False)
         util.printDone("Processing Validation Images", True)
 
-        # Step 7: Apply image pipeline to train
+        # Step 8: Apply image pipeline to train
         test, test_sizes = pipeline.applyFullPipeline(
             test, context, util.printPercentage("Processing Test Images"), False)
         util.printDone("Processing Test Images", True)
 
-        # Step 4: Shuffle training images
+        # Step 9: Shuffle training images
         if 'shuffle' in context and context['shuffle']:
             shuffle(train)
         util.printDone("Shuffling Training data")
+
+        # Step 10: Create printed dataset
+        if 'printed' in context:
+            os.makedirs(printedpath)
+            print_data = generate_print.generate_printed_sampels(
+                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath)
+            shuffle(print_data)
+            print_train, print_dev, print_test = split.split(
+                print_data, context['dev_frac'], context['test_frac'])
+            util.dumpJson(basepath, "print_train", print_train)
+            util.dumpJson(basepath, "print_dev", print_dev)
+            util.dumpJson(basepath, "print_test", print_test)
 
         # Step 6: Write datasets
         util.dumpJson(basepath, "train", train)
@@ -93,7 +106,7 @@ def prepareDataset(name, context, ehanceDataset):
 
         # Step 7: Write meta file
         util.dumpJson(basepath, "meta", index.makeIndex(
-            context, max_size))
+            context, max_size, 'printed' in context))
         util.printDone("Writing meta file")
 
 

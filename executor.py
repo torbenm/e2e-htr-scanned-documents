@@ -13,6 +13,7 @@ CONFIG_PATH = "./config"
 TENSORBOARD_PATH = "./tensorboard"
 
 global_step = 1
+class_step = 1
 
 
 class Executor(object):
@@ -96,11 +97,49 @@ class Executor(object):
         foldername = os.path.join(self.models_path, 'model')
         if self.config.default('save', False) != False:
             saver = tf.train.Saver(max_to_keep=None)
+        class_epochs = None
+        if self.dataset.meta.default('printed', False):
+            class_epochs = self.dataset.generateEpochs(
+                self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'], dataset='print_train')
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
+            if self.dataset.meta.default('printed', False):
+                self._train_class_epoch(graph, sess, idx, next(
+                    class_epochs), batch_num, hooks, options, summ, writer)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
+
+    def _train_class_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
+        global class_step
+        start_time = time.time()
+        training_loss = 0
+        steps = 0
+        for X, Y, _ in epoch:
+            if hooks is not None and 'batch' in hooks:
+                hooks['batch'](idx, steps, batch_num)
+            steps += 1
+            train_dict = {
+                graph['x']: X,
+                graph['class_y']: Y,
+                graph['is_train']: True
+            }
+            training_loss_ = [0]
+            if class_step % 50 == 0:
+                training_loss_, _, s = sess.run(
+                    [graph['class_loss'], graph['class_train'], summ], train_dict)
+                writer.add_summary(s, global_step=global_step)
+            else:
+                training_loss_, _, logits = sess.run(
+                    [graph['class_loss'], graph['class_train'], graph['class_logits']], train_dict)
+                print(logits)
+            class_step += 1
+            print(training_loss_, Y)
+            training_loss += np.ma.masked_invalid(
+                training_loss_).mean()
+        if hooks is not None and 'epoch' in hooks:
+            hooks['epoch'](idx, training_loss / steps,
+                           time.time() - start_time, self._empty_val_stats())
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
         global global_step
@@ -195,6 +234,7 @@ class Executor(object):
                 'Y': [],
                 'trans': []
             },
+            'loss': 0,
             'cer': -1.0
         }
 
@@ -265,7 +305,8 @@ class Executor(object):
         return self.algorithm.build_graph(
             batch_size=self.config['batch'], learning_rate=self.config[
                 'learning_rate'], sequence_length=self.dataset.max_length,
-            image_height=self.dataset.meta["height"], image_width=self.dataset.meta["width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels)
+            image_height=self.dataset.meta["height"], image_width=self.dataset.meta["width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels, class_learning_rate=self.config[
+                'learning_rate'])
 
     def _restore(self, sess, date="", epoch=0):
         filename = os.path.join(

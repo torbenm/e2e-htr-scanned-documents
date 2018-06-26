@@ -15,6 +15,7 @@ DEFAULTS = {
         "type": "brnn",  # This is just a placeholder for now as only one type of recurrent block is supported
         "brnn": {}
     },
+    "nowidth": False,
     "format": "nhwc"
 }
 
@@ -35,6 +36,13 @@ class HtrNet(AlgorithmBaseV2):
                 self['encoder.resnet'], data_format=self['format'])
         return encoder(net, is_train)
 
+    def _classifier(self, net, is_train):
+        axes = [2, 3] if self['format'] == 'nchw' else [1, 2]
+        net = log_1d(tf.reduce_mean(net, axes))
+        net = log_1d(tf.layers.dense(net, 128, activation=tf.nn.relu))
+        net = log_1d(tf.layers.dense(net, 1, activation=tf.nn.sigmoid))
+        return net
+
     def _recurrent(self, net, is_train):
         recurrent_block = BidirectionalRNN.BidirectionalRNN(
             self['recurrent.brnn'], data_format=self['format'])
@@ -52,7 +60,7 @@ class HtrNet(AlgorithmBaseV2):
                     learning_rate).minimize(total_loss)
         return train_step
 
-    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
+    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001, class_learning_rate=0.001):
 
         # cpu does not support nchw, so nhwc forcing
         if(self._cpu):
@@ -63,9 +71,11 @@ class HtrNet(AlgorithmBaseV2):
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, image_height, image_width, channels], name="x"))
+                tf.float32, [None, image_height, None if self['nowidth'] else image_width, channels], name="x"))
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, sequence_length], name="y")
+            class_y = tf.placeholder(
+                tf.float32, shape=[None, 1], name="class_y")
             l = tf.placeholder(
                 tf.int32, shape=[None], name="y")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
@@ -79,10 +89,13 @@ class HtrNet(AlgorithmBaseV2):
         # PHASE I: Encoding
         ###############
         with tf.name_scope('encoder'):
-            net = self._encoder(net, is_train)
+            encoder_net = self._encoder(net, is_train)
 
             if self['format'] == 'nchw':
-                net = log_1d(tf.transpose(net, [0, 2, 3, 1], name='nchw2nhwc'))
+                net = log_1d(tf.transpose(
+                    encoder_net, [0, 2, 3, 1], name='nchw2nhwc'))
+            else:
+                net = encoder_net
 
             net = log_1d(tf.transpose(net, [0, 2, 1, 3]))
 
@@ -90,8 +103,12 @@ class HtrNet(AlgorithmBaseV2):
         # PHASE II: Recurrent Block
         ###############
         with tf.name_scope('recurrent'):
-            net = log_1d(tf.reshape(
-                net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
+            if self['nowidth']:
+                # maybe theres a better way to do columnwise stacking
+                net = tf.reduce_sum(net, 2)
+            else:
+                net = log_1d(tf.reshape(
+                    net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
 
             net = self._recurrent(net, is_train)
 
@@ -117,9 +134,23 @@ class HtrNet(AlgorithmBaseV2):
         with tf.name_scope('logits'):
             logits = tf.nn.softmax(logits)
 
+        #################
+        # PHASE V: Classifier
+        ################
+        with tf.name_scope('classifier'):
+            class_logits = self._classifier(encoder_net, is_train)
+            class_loss = tf.nn.sigmoid_cross_entropy_with_logits(
+                logits=class_logits, labels=class_y)
+            tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
+            class_train = self._train_step(class_loss, class_learning_rate)
+
         return dict(
             x=x,
             y=y,
+            class_y=class_y,
+            class_logits=class_logits,
+            class_loss=class_loss,
+            class_train=class_train,
             l=l,
             is_train=is_train,
             logits=logits,
