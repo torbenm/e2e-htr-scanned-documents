@@ -83,9 +83,10 @@ def prepareDataset(name, context, ehanceDataset):
         util.printDone("Shuffling Training data")
 
         # Step 10: Create printed dataset
+        print_max_size = (0, 0)
         if 'printed' in context:
             os.makedirs(printedpath)
-            print_data = generate_print.generate_printed_sampels(
+            print_data, print_max_size = generate_print.generate_printed_sampels(
                 train, context['printed'], 'invert' in context and bool(context['invert']), printedpath)
             shuffle(print_data)
             print_train, print_dev, print_test = split.split(
@@ -93,6 +94,7 @@ def prepareDataset(name, context, ehanceDataset):
             util.dumpJson(basepath, "print_train", print_train)
             util.dumpJson(basepath, "print_dev", print_dev)
             util.dumpJson(basepath, "print_test", print_test)
+            util.printDone("Creating Printed Samples")
 
         # Step 6: Write datasets
         util.dumpJson(basepath, "train", train)
@@ -100,7 +102,8 @@ def prepareDataset(name, context, ehanceDataset):
         util.dumpJson(basepath, "test", test)
         util.printDone("Saving split data")
 
-        max_size = np.max([train_sizes, dev_sizes, test_sizes], axis=0)
+        max_size = np.max(
+            [train_sizes, dev_sizes, test_sizes, print_max_size], axis=0)
 
         print("Maximum Extracted size:", max_size)
 

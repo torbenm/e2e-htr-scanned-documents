@@ -21,6 +21,14 @@
   "binarize": false,
   "printed": {
     "count": 1000,
-    "padding": 5
+    "padding": 5,
+    "fonts": [
+      "./data/fonts/AppleGaramond.ttf",
+      "./data/fonts/Cursif.ttf",
+      "./data/fonts/EnglishTowne.ttf",
+      "./data/fonts/LinLibertine.ttf",
+      "./data/fonts/OldNewspaperTypes.ttf",
+      "./data/fonts/Roboto-Light.ttf"
+    ]
   }
 }

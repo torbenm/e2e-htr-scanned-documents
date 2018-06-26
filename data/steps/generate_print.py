@@ -49,6 +49,7 @@ class PrintGenerator(object):
     def __init__(self, config={}):
         self.config = Configuration(config)
         self.default = Configuration(DEFAULTS)
+        self.max_size = (0, 0)
 
     def __getitem__(self, key):
         default = self.default.default(key, None)
@@ -66,8 +67,11 @@ class PrintGenerator(object):
     def _create_text_image(self, text, font, height, background, foreground):
         font = ImageFont.truetype(font, size=height)
         size, offset = font.font.getsize(text)
+        image_size = (size[0]+offset[0]+self['padding']*2,
+                      size[1]+offset[1]+self['padding']*2)
+        self.max_size = np.max([self.max_size, image_size], axis=0)
         image = Image.new(
-            "L", (size[0]+offset[0]+self['padding']*2, size[1]+offset[1]+self['padding']*2), background)
+            "L", image_size, background)
         draw = ImageDraw.Draw(image)
 
         draw.text((self['padding'], -(offset[1]/2) +
@@ -116,4 +120,4 @@ def generate_printed_sampels(ht_samples, config, invert, path):
         image.save(printedpath)
         full_samples.append({"path": printedpath, "truth": 0})
         full_samples.append({"path": sample['path'], "truth": 1})
-    return full_samples
+    return full_samples, generator.max_size
