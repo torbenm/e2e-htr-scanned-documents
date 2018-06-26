@@ -132,9 +132,7 @@ class Executor(object):
             else:
                 training_loss_, _, logits = sess.run(
                     [graph['class_loss'], graph['class_train'], graph['class_logits']], train_dict)
-                print(logits)
             class_step += 1
-            print(training_loss_, Y)
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
         if hooks is not None and 'epoch' in hooks:
