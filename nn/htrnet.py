@@ -141,7 +141,7 @@ class HtrNet(AlgorithmBaseV2):
             class_logits = self._classifier(encoder_net, is_train)
             class_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 logits=class_logits, labels=class_y)
-            tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
+            # tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
             class_train = self._train_step(class_loss, class_learning_rate)
 
         return dict(
