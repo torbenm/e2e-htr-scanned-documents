@@ -24,6 +24,12 @@
         }
       }
     },
+    "recurrent": {
+       "type": "brnn",
+       "brnn": {
+		"layers": 7
+       }
+    },
     "fc": {
       "use_activation": false
     },

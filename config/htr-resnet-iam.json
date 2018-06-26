@@ -3,13 +3,13 @@
   "dataset": "iam-lines-s-hfac",
   "algorithm": "htrnet",
   "save": 5,
-  "batch": 50,
+  "batch": 25,
   "epochs": 300,
   "max_batches": 0,
   "learning_rate": 0.0003,
   "ctc": "greedy",
   "algo_config": {
-    "format": "nchw",
+    "format": "nhwc",
     "encoder": {
       "type": "resnet",
       "resnet": {
@@ -17,8 +17,8 @@
         "num_filters": 8,
         "kernel_size": 3,
         "conv_stride": 1,
-        "block_sizes": [2, 2, 2],
-        "block_strides": [1, 1, 1]
+        "block_sizes": [3, 3, 3, 3],
+        "block_strides": [1, 1, 1, 1]
       }
     },
     "fc": {
