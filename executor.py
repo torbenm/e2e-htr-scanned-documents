@@ -125,13 +125,8 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_ = [0]
-            if class_step % 50 == 0:
-                training_loss_, _, s = sess.run(
-                    [graph['class_loss'], graph['class_train'], summ], train_dict)
-                writer.add_summary(s, global_step=global_step)
-            else:
-                training_loss_, _, logits = sess.run(
-                    [graph['class_loss'], graph['class_train'], graph['class_logits']], train_dict)
+            training_loss_, _, logits = sess.run(
+                [graph['class_loss'], graph['class_train'], graph['class_logits']], train_dict)
             class_step += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
