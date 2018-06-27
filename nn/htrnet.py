@@ -17,7 +17,7 @@ DEFAULTS = {
     },
     "classifier": {
         "units_1": 512
-    }
+    },
     "nowidth": False,
     "format": "nhwc"
 }
