@@ -330,7 +330,7 @@ class Executor(object):
     def _build_accuracy(self, graph):
         if self._accuracy is None:
             predictions = tf.to_int32(
-                graph['class_preds'] > self.config.default('accuracy_threshold', 0.5))
+                graph['class_pred'] > self.config.default('accuracy_threshold', 0.5))
             self._accuracy = tf.metrics.accuracy(
                 graph['class_y'],
                 predictions
