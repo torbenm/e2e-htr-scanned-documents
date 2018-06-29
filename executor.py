@@ -253,7 +253,8 @@ class Executor(object):
             if hooks is not None and 'val_batch' in hooks:
                 hooks['val_batch'](steps, total_steps, acc_)
         return {
-            'accuracy': np.mean(acc_total)
+            "accuracy": np.mean(acc_total),
+            "cer": 0
         }
 
     def _empty_val_stats(self):
@@ -334,7 +335,8 @@ class Executor(object):
         if self._accuracy is None:
             predictions = tf.to_int32(
                 graph['class_pred'] > self.config.default('accuracy_threshold', 0.5))
-            equality = tf.equal(predictions, tf.cast(graph['class_y'], tf.int32))
+            equality = tf.equal(predictions, tf.cast(
+                graph['class_y'], tf.int32))
             self._accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
         return self._accuracy
 
