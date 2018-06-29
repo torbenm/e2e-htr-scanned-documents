@@ -40,7 +40,7 @@ class HtrNet(AlgorithmBaseV2):
         return encoder(net, is_train)
 
     def _classifier(self, net, is_train):
-        axes = [2, 3] if self['format'] == 'nchw' else [1, 2]
+        axes = [1]  # [2, 3] if self['format'] == 'nchw' else [1, 2]
         net = log_1d(tf.reduce_mean(net, axes))
         net = log_1d(tf.layers.dense(
             net, self['classifier.units_1'], activation=tf.nn.relu))
@@ -93,13 +93,13 @@ class HtrNet(AlgorithmBaseV2):
         # PHASE I: Encoding
         ###############
         with tf.name_scope('encoder'):
-            encoder_net = self._encoder(net, is_train)
+            net = self._encoder(net, is_train)
 
             if self['format'] == 'nchw':
                 net = log_1d(tf.transpose(
-                    encoder_net, [0, 2, 3, 1], name='nchw2nhwc'))
+                    net, [0, 2, 3, 1], name='nchw2nhwc'))
             else:
-                net = encoder_net
+                net = net
 
             net = log_1d(tf.transpose(net, [0, 2, 1, 3]))
 
@@ -113,7 +113,7 @@ class HtrNet(AlgorithmBaseV2):
             else:
                 net = log_1d(tf.reshape(
                     net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
-
+            encoder_net = net
             net = self._recurrent(net, is_train)
 
         ################
