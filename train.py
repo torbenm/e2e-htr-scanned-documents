@@ -64,7 +64,7 @@ if __name__ == "__main__":
               "" else None, args.model_epoch, {
                   'batch': batch_hook,
                   'val_batch': val_batch_hook,
-                  'epoch': epoch_hook
+                  'epoch': epoch_hook,
                   'class_epoch': class_epoch_hook
               }, {
                   'skip_validation': args.skip_validation,
