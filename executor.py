@@ -138,7 +138,7 @@ class Executor(object):
             class_step += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
-            val_stats = self._validate_classifier(graph, sess, hooks)
+        val_stats = self._validate_classifier(graph, sess, hooks)
         if hooks is not None and 'class_epoch' in hooks:
             hooks['class_epoch'](idx, training_loss / steps,
                                  time.time() - start_time, self.val_stats)
