@@ -129,7 +129,7 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_ = [0]
-            training_loss_, _, _ = sess.run(
+            training_loss_, _ = sess.run(
                 [graph['class_loss'], graph['class_train']], train_dict)
             class_step += 1
             training_loss += np.ma.masked_invalid(
