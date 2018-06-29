@@ -24,6 +24,9 @@
         }
       }
     },
+    "classifier": {
+        "units": [512]
+    }
     "fc": {
       "use_activation": false
     },

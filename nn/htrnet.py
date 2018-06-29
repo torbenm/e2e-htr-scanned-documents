@@ -16,7 +16,7 @@ DEFAULTS = {
         "brnn": {}
     },
     "classifier": {
-        "units_1": 512
+        "units": [512]
     },
     "nowidth": False,
     "format": "nhwc"
@@ -42,8 +42,9 @@ class HtrNet(AlgorithmBaseV2):
     def _classifier(self, net, is_train):
         axes = [1]  # [2, 3] if self['format'] == 'nchw' else [1, 2]
         net = log_1d(tf.reduce_mean(net, axes))
-        net = log_1d(tf.layers.dense(
-            net, self['classifier.units_1'], activation=tf.nn.relu))
+        for unit in self['classifier.units']:
+            net = log_1d(tf.layers.dense(
+                net, unit, activation=tf.nn.relu))
         net = log_1d(tf.layers.dense(net, 1, activation=tf.nn.sigmoid))
         return net
 
