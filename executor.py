@@ -304,7 +304,7 @@ class Executor(object):
                 'learning_rate'], sequence_length=self.dataset.max_length,
             image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
                 "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
-            class_learning_rate=self.config.default('class_learning_rate', self.config['learning.rate']))
+            class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
 
     def _restore(self, sess, date="", epoch=0):
         filename = os.path.join(
