@@ -29,6 +29,14 @@ def epoch_hook(epoch, loss, time, val_stats):
     sys.stdout.flush()
 
 
+def class_epoch_hook(epoch, loss, time, val_stats):
+    msg = 'epoch {0} | loss {1:.3f} | accuracy {4:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
+                                                                              loss,
+                                                                              time, val_stats['accuracy'])
+    sys.stdout.write('\r{:130}\n'.format(msg))
+    sys.stdout.flush()
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -57,6 +65,7 @@ if __name__ == "__main__":
                   'batch': batch_hook,
                   'val_batch': val_batch_hook,
                   'epoch': epoch_hook
+                  'class_epoch': class_epoch_hook
               }, {
                   'skip_validation': args.skip_validation,
                   'timeline': args.timeline

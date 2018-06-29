@@ -28,6 +28,7 @@ class Executor(object):
         self.sessionConfig = None
         self._decoder = None
         self._cer = None
+        self._accuracy = None
         self._decoded_dense = None
         self.config('Algorithm Configuration')
         self.dataset.info()
@@ -110,7 +111,7 @@ class Executor(object):
                 graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
             if self.dataset.meta.default('printed', False):
                 self._train_class_epoch(graph, sess, idx, next(
-                    class_epochs), batch_num, hooks, options, summ, writer)
+                    class_epochs), batch_num_printed, hooks, options, summ, writer)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
                 saver.save(sess, foldername, global_step=idx)
 
@@ -134,9 +135,10 @@ class Executor(object):
             class_step += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
-        if hooks is not None and 'epoch' in hooks:
-            hooks['epoch'](idx, training_loss / steps,
-                           time.time() - start_time, self._empty_val_stats())
+            val_stats = self._validate_classifier(graph, sess, hooks)
+        if hooks is not None and 'class_epoch' in hooks:
+            hooks['class_epoch'](idx, training_loss / steps,
+                                 time.time() - start_time, self.val_stats)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
         global global_step
@@ -225,6 +227,32 @@ class Executor(object):
             'cer': np.mean(cer_total)
         }
 
+    def _validate_classifier(self, graph, sess, hooks=None, options={}):
+        # OPTIONS
+        dataset = options['dataset'] if 'dataset' in options else 'print_dev'
+
+        # ADDITIONAL GRAPHs
+        accuracy = self._build_accuracy(graph)
+        # VARIABLES
+        steps = 0
+        total_steps = self.dataset.getBatchCount(
+            self.config['batch'], self.config['max_batches'], dataset)
+        acc_total = []
+        for X, Y, _ in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset):
+            steps += 1
+            val_dict = {
+                graph['x']: X,
+                graph['class_y']: Y
+            }
+            acc_ = sess.run(
+                accuracy, val_dict)
+            acc_total.append(acc_)
+            if hooks is not None and 'val_batch' in hooks:
+                hooks['val_batch'](steps, total_steps, acc_)
+        return {
+            'accuracy': acc_
+        }
+
     def _empty_val_stats(self):
         return {
             'examples': {
@@ -232,7 +260,8 @@ class Executor(object):
                 'trans': []
             },
             'loss': 0,
-            'cer': -1.0
+            'cer': -1.0,
+            'accuracy': -1.0
         }
 
     def _transcribe(self, graph, sess, hooks=None, options={}):
@@ -297,6 +326,16 @@ class Executor(object):
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
             tf.summary.scalar('cer', self._cer)
         return self._cer
+
+    def _build_accuracy(self, graph):
+        if self._accuracy is None:
+            predictions = tf.to_int32(
+                graph['class_preds'] > self.config.default('accuracy_threshold', 0.5))
+            self._accuracy = tf.metrics.accuracy(
+                graph['class_y'],
+                predictions
+            )
+        return self._accuracy
 
     def _build_graph(self):
         return self.algorithm.build_graph(
