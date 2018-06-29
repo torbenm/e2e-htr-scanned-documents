@@ -82,6 +82,8 @@ class Executor(object):
             config = self.sessionConfig or self.configure()
             graph = self._build_graph()
             with tf.Session(config=config) as sess:
+                # Hot fix
+                self._build_accuracy(graph)
                 if date is None:
                     sess.run(tf.global_variables_initializer())
                 else:
