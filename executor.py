@@ -253,8 +253,7 @@ class Executor(object):
             if hooks is not None and 'val_batch' in hooks:
                 hooks['val_batch'](steps, total_steps, acc_)
         return {
-            "accuracy": np.mean(acc_total),
-            "cer": 0
+            "accuracy": np.mean(acc_total)
         }
 
     def _empty_val_stats(self):

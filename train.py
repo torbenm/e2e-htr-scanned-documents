@@ -30,8 +30,7 @@ def epoch_hook(epoch, loss, time, val_stats):
 
 
 def class_epoch_hook(epoch, loss, time, val_stats):
-    print(val_stats)
-    msg = 'epoch {0} | loss {1:.3f} | accuracy {4:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
+    msg = 'epoch {0} | loss {1:.3f} | accuracy {3:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
                                                                               loss,
                                                                               time, val_stats['accuracy'])
     sys.stdout.write('\r{:130}\n'.format(msg))
