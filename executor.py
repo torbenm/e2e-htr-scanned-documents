@@ -141,7 +141,7 @@ class Executor(object):
         val_stats = self._validate_classifier(graph, sess, hooks)
         if hooks is not None and 'class_epoch' in hooks:
             hooks['class_epoch'](idx, training_loss / steps,
-                                 time.time() - start_time, self.val_stats)
+                                 time.time() - start_time, val_stats)
 
     def _train_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
         global global_step
