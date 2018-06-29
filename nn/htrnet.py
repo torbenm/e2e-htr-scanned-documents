@@ -45,7 +45,7 @@ class HtrNet(AlgorithmBaseV2):
         for unit in self['classifier.units']:
             net = log_1d(tf.layers.dense(
                 net, unit, activation=tf.nn.relu))
-        net = log_1d(tf.layers.dense(net, 1, activation=tf.nn.sigmoid))
+        net = log_1d(tf.layers.dense(net, 1, activation=None))
         return net
 
     def _recurrent(self, net, is_train):
@@ -146,6 +146,7 @@ class HtrNet(AlgorithmBaseV2):
             class_logits = self._classifier(encoder_net, is_train)
             class_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 logits=class_logits, labels=class_y)
+            class_pred = tf.nn.sigmoid(class_logits)
             # tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
             class_train = self._train_step(class_loss, class_learning_rate)
 
@@ -153,7 +154,7 @@ class HtrNet(AlgorithmBaseV2):
             x=x,
             y=y,
             class_y=class_y,
-            class_logits=class_logits,
+            class_pred=class_pred,
             class_loss=class_loss,
             class_train=class_train,
             l=l,

@@ -90,6 +90,10 @@ class Executor(object):
     def _train(self, graph, sess, hooks, options={}):
         batch_num = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'])
+        batch_num_printed = 0
+        if self.dataset.meta.default('printed', False):
+            batch_num_printed = self.dataset.getBatchCount(
+                self.config['batch'], self.config['max_batches'], dataset='print_train')
         self._build_cer(graph)
         summ = tf.summary.merge_all()
         writer = tf.summary.FileWriter(self.tensorboard_path)
@@ -125,8 +129,8 @@ class Executor(object):
                 graph['is_train']: True
             }
             training_loss_ = [0]
-            training_loss_, _, logits = sess.run(
-                [graph['class_loss'], graph['class_train'], graph['class_logits']], train_dict)
+            training_loss_, _, _ = sess.run(
+                [graph['class_loss'], graph['class_train']], train_dict)
             class_step += 1
             training_loss += np.ma.masked_invalid(
                 training_loss_).mean()
@@ -298,8 +302,9 @@ class Executor(object):
         return self.algorithm.build_graph(
             batch_size=self.config['batch'], learning_rate=self.config[
                 'learning_rate'], sequence_length=self.dataset.max_length,
-            image_height=self.dataset.meta["height"], image_width=self.dataset.meta["width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels, class_learning_rate=self.config[
-                'learning_rate'])
+            image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
+                "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
+            class_learning_rate=self.config.default('class_learning_rate', self.config['learning.rate']))
 
     def _restore(self, sess, date="", epoch=0):
         filename = os.path.join(
