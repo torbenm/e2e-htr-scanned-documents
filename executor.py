@@ -104,6 +104,13 @@ class Executor(object):
         writer = tf.summary.FileWriter(self.tensorboard_path)
         writer.add_graph(sess.graph)
         foldername = os.path.join(self.models_path, 'model')
+        # Copy configurations to models folder
+        os.makedirs(self.models_path, exist_ok=True)
+        self.config.save(self.models_path, 'algorithm')
+        self.dataset.meta.save(self.models_path, 'data_meta')
+        util.dumpJson(self.models_path, 'vocab', self.dataset.vocab)
+        self.config.save(self.models_path, 'algorithm')
+
         if self.config.default('save', False) != False:
             saver = tf.train.Saver(max_to_keep=None)
         class_epochs = None
