@@ -40,6 +40,17 @@ if __name__ == "__main__":
                                     })
     print('\n')
     print('Transcriptions for {} lines'.format(len(transcriptions['files'])))
+    max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
+    line_format = '{0:'+str(max_trans_l+10)+'} {1:^30} {2}'
+    heading = line_format.format('Transcription', 'Is HT?', 'File')
+    print(heading)
+    print("-"*len(heading))
     for i in range(len(transcriptions['files'])):
-        print('{:100} -> {}'.format(exc.dataset.decompile(
-            transcriptions['trans'][i]), os.path.basename(transcriptions['files'][i])))
+        decompiled = exc.dataset.decompile(transcriptions['trans'][i])
+        filename = os.path.basename(transcriptions['files'][i])
+        if len(transcriptions['class']) > i:
+            is_ht = str(transcriptions['class'][i][0])
+        else:
+            is_ht = '?'
+
+        print(line_format.format(decompiled, is_ht, filename))

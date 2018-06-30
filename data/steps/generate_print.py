@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from config.config import Configuration
 import os
+from data.steps.pipes.warp import _warp
 
 DEFAULTS = {
     'fonts': ['Arial', 'Times New Roman'],
@@ -29,6 +30,12 @@ DEFAULTS = {
             'radius': 1,
             'threshold': 3,
             'percent': 150
+        },
+        {
+            'type': 'warp',
+            'prob': 0.5,
+            'deviation': 2.7,
+            'grid': [100, 30]
         }
     ],
     'padding': 0
@@ -43,13 +50,15 @@ class PrintGenerator(object):
 
     FILTERS = {
         'blur': lambda i, c: i.filter(ImageFilter.GaussianBlur(c['radius'])),
-        'sharpen': lambda i, c: i.filter(ImageFilter.UnsharpMask(c['radius'], c['percent'], c['threshold']))
+        'sharpen': lambda i, c: i.filter(ImageFilter.UnsharpMask(c['radius'], c['percent'], c['threshold'])),
+        'warp': lambda i, c: _warp(i, c['grid'], c['deviation'])
     }
 
     def __init__(self, config={}):
         self.config = Configuration(config)
         self.default = Configuration(DEFAULTS)
         self.max_size = (0, 0)
+        self.max_height = 134
 
     def __getitem__(self, key):
         default = self.default.default(key, None)
@@ -64,11 +73,19 @@ class PrintGenerator(object):
     def _random_foreground(self):
         return np.random.randint(self['foreground.low'], self['foreground.high'])
 
-    def _create_text_image(self, text, font, height, background, foreground):
-        font = ImageFont.truetype(font, size=height)
+    def _iterate_height(self, text, fontname, height):
+        font = ImageFont.truetype(fontname, size=height)
         size, offset = font.font.getsize(text)
         image_size = (size[0]+offset[0]+self['padding']*2,
                       size[1]+offset[1]+self['padding']*2)
+        if self.max_height > -1 and image_size[1] > self.max_height:
+            height = int(height*(self.max_height/float(image_size[1])))
+            return self._iterate_height(text, fontname, height)
+        else:
+            return font, offset, image_size
+
+    def _create_text_image(self, text, font, height, background, foreground):
+        font, offset, image_size = self._iterate_height(text, font, height)
         self.max_size = np.max([self.max_size, image_size], axis=0)
         image = Image.new(
             "L", image_size, background)
@@ -108,10 +125,11 @@ class PrintGenerator(object):
         return text
 
 
-def generate_printed_sampels(ht_samples, config, invert, path):
+def generate_printed_sampels(ht_samples, config, invert, path, target_height=-1):
     length = min(len(ht_samples), config['count'])
     textsamples = ht_samples[:length]
     generator = PrintGenerator(config)
+    generator.max_height = target_height
     full_samples = []
     for idx, sample in enumerate(textsamples):
         text = PrintGenerator.clean_text(sample['truth'])

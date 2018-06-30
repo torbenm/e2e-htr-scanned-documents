@@ -36,9 +36,10 @@ class Dataset(object):
         self.meta['train.count'] = len(self.data['train'])
         self.meta['dev.count'] = len(self.data['dev'])
         self.meta['test.count'] = len(self.data['test'])
-        self.meta['print_train.count'] = len(self.data['print_train'])
-        self.meta['print_dev.count'] = len(self.data['print_dev'])
-        self.meta['print_test.count'] = len(self.data['print_test'])
+        if 'print_train' in self.data:
+            self.meta['print_train.count'] = len(self.data['print_train'])
+            self.meta['print_dev.count'] = len(self.data['print_dev'])
+            self.meta['print_test.count'] = len(self.data['print_test'])
 
     def _load_sets(self):
         self.data = {

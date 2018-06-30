@@ -29,6 +29,7 @@ class Executor(object):
         self._decoder = None
         self._cer = None
         self._accuracy = None
+        self._pred_thresholded = None
         self._decoded_dense = None
         self.config('Algorithm Configuration')
         self.dataset.info()
@@ -273,6 +274,7 @@ class Executor(object):
 
         # ADDITIONAL GRAPHs
         results = self._build_decoded_dense(graph)
+        class_pred = self._build_pred_thresholding(graph)
         # VARIABLES
         steps = 0
         total_steps = self.dataset.getBatchCount(
@@ -280,15 +282,21 @@ class Executor(object):
 
         transcriptions = {
             'files': [],
-            'trans': []
+            'trans': [],
+            'class': []
         }
         for X, Y, L, F in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset, True):
+            print([graph['logits'].shape[0]] * len(X))
             steps += 1
             val_dict = {
                 graph['x']: X,
                 graph['l']: [graph['logits'].shape[0]] * len(X)
             }
-            results_ = sess.run(results, val_dict)
+            if self.dataset.meta.default('printed', False):
+                results_, class_ = sess.run([results, graph['class_pred']], val_dict)
+                transcriptions['class'].extend(class_)
+            else:
+                results_ = sess.run(results, val_dict)
             transcriptions['files'].extend(F)
             transcriptions['trans'].extend(results_)
 
@@ -330,10 +338,15 @@ class Executor(object):
             tf.summary.scalar('cer', self._cer)
         return self._cer
 
+    def _build_pred_thresholding(self, graph):
+        if self._pred_thresholded is None:
+            self._pred_thresholded = tf.to_int32(
+                graph['class_pred'] > self.config.default('accuracy_threshold', 0.5))
+        return self._pred_thresholded
+
     def _build_accuracy(self, graph):
         if self._accuracy is None:
-            predictions = tf.to_int32(
-                graph['class_pred'] > self.config.default('accuracy_threshold', 0.5))
+            predictions = self._build_pred_thresholding(graph)
             equality = tf.equal(predictions, tf.cast(
                 graph['class_y'], tf.int32))
             self._accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))

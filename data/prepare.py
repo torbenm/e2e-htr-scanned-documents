@@ -82,13 +82,15 @@ def prepareDataset(name, context, ehanceDataset):
             shuffle(train)
         util.printDone("Shuffling Training data")
 
+        max_size = np.max(
+            [train_sizes, dev_sizes, test_sizes], axis=0)
         # Step 10: Create printed dataset
-        print_max_size = (0, 0)
         if 'printed' in context:
             os.makedirs(printedpath)
             print_data, print_max_size = generate_print.generate_printed_sampels(
-                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath)
+                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath, max_size[1])
             shuffle(print_data)
+            max_size = np.max([print_max_size, max_size], axis=0)
             print_train, print_dev, print_test = split.split(
                 print_data, context['dev_frac'], context['test_frac'])
             util.dumpJson(basepath, "print_train", print_train)

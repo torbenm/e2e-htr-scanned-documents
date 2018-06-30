@@ -82,7 +82,7 @@ class HtrNet(AlgorithmBaseV2):
             class_y = tf.placeholder(
                 tf.float32, shape=[None, 1], name="class_y")
             l = tf.placeholder(
-                tf.int32, shape=[None], name="y")
+                tf.int32, shape=[None], name="l")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
             if self['format'] == 'nchw':
@@ -144,11 +144,32 @@ class HtrNet(AlgorithmBaseV2):
         ################
         with tf.name_scope('classifier'):
             class_logits = self._classifier(encoder_net, is_train)
+            class_pred = tf.nn.sigmoid(class_logits)
             class_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 logits=class_logits, labels=class_y)
-            class_pred = tf.nn.sigmoid(class_logits)
             # tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
             class_train = self._train_step(class_loss, class_learning_rate)
+
+        """
+        new_dict = {
+            "classifier": {
+                "x": x,
+                "y": class_y,
+                "train": class_train,
+                "loss": class_loss,
+                "logits": class_logits
+            },
+            "recognizer": {
+                "x": x,
+                "y": y,
+                "l": l,
+                "train": train_step,
+                "loss": train_loss,
+                "logits": logits
+            }
+            "is_train": is_train
+        }
+        """
 
         return dict(
             x=x,
