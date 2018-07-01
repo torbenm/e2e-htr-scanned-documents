@@ -120,7 +120,7 @@ class Executor(object):
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
-            if self.dataset.meta.default('printed', False):
+            if self.dataset.meta.default('printed', False) and (idx+1) % 5 == 0:
                 self._train_class_epoch(graph, sess, idx, next(
                     class_epochs), batch_num_printed, hooks, options, summ, writer)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
