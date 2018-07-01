@@ -84,6 +84,7 @@ class PrintGenerator(object):
             return self._iterate_height(text, fontname, height)
         elif self.max_width > -1 and image_size[0] > self.max_width:
             height = int(height*(self.max_width/float(image_size[0])))
+            return self._iterate_height(text, fontname, height)
         else:
             return font, offset, image_size
 
