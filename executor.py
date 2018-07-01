@@ -389,8 +389,8 @@ class Executor(object):
     def _build_cer(self, graph):
         if self._cer is None:
             decoded = self._decode(graph)
-            self._cer = tf.edit_distance(
-                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32))
+            self._cer = tf.reduce_mean(tf.edit_distance(
+                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
             tf.summary.scalar('cer', self._cer)
         return self._cer
 
