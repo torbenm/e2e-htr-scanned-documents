@@ -53,6 +53,12 @@ class Executor(object):
         self.algorithm.set_cpu(device == -1)
         return self.sessionConfig
 
+    def investigate(self, subset, date=None, epoch=0, hooks=None):
+        options = {
+            "dataset": subset
+        }
+        return self._exec(self._investigate, hooks, date, epoch, options)
+
     def transcribe(self, subset, date=None, epoch=0, hooks=None):
         options = {
             "dataset": subset
@@ -120,7 +126,7 @@ class Executor(object):
         for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
-            if self.dataset.meta.default('printed', False) and (idx+1) % 5 == 0:
+            if self.dataset.meta.default('printed', False):
                 self._train_class_epoch(graph, sess, idx, next(
                     class_epochs), batch_num_printed, hooks, options, summ, writer)
             if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
@@ -311,6 +317,49 @@ class Executor(object):
                 hooks['trans_batch'](steps, total_steps)
         return transcriptions
 
+    def _investigate(self, graph, sess, hooks=None, options={}):
+        # OPTIONS
+        dataset = options['dataset'] if 'dataset' in options else 'test'
+
+        # ADDITIONAL GRAPHs
+        results = self._build_decoded_dense(graph)
+        class_pred = self._build_pred_thresholding(graph)
+        cer = self._build_cer(graph)
+
+        # VARIABLES
+        steps = 0
+        total_steps = self.dataset.getBatchCount(
+            self.config['batch'], self.config['max_batches'], dataset)
+
+        transcriptions = {
+            'files': [],
+            'trans': [],
+            'class': [],
+            'cer': [],
+            'truth': []
+        }
+        for X, Y, L, F in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset, True):
+            steps += 1
+            val_dict = {
+                graph['x']: X,
+                graph['y']: denseNDArrayToSparseTensor(Y),
+                graph['l']: [graph['logits'].shape[0]] * len(X)
+            }
+            if self.dataset.meta.default('printed', False):
+                results_, cer_, class_ = sess.run(
+                    [results, cer, graph['class_pred']], val_dict)
+                transcriptions['class'].extend(class_)
+            else:
+                results_, cer_ = sess.run([results, cer], val_dict)
+            transcriptions['files'].extend(F)
+            transcriptions['cer'].extend(cer_)
+            transcriptions['truth'].extend(Y)
+            transcriptions['trans'].extend(results_)
+
+            if hooks is not None and 'trans_batch' in hooks:
+                hooks['trans_batch'](steps, total_steps)
+        return transcriptions
+
     def _visualize(self, graph, sess, hooks=None, options={}):
         X = [self.dataset.load_image(options['image'])]
         viz_dict = {
@@ -340,8 +389,8 @@ class Executor(object):
     def _build_cer(self, graph):
         if self._cer is None:
             decoded = self._decode(graph)
-            self._cer = tf.reduce_mean(tf.edit_distance(
-                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
+            self._cer = tf.edit_distance(
+                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32))
             tf.summary.scalar('cer', self._cer)
         return self._cer
 

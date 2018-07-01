@@ -10,3 +10,4 @@ logs/
 saves/
 __pycache__/
 tensorboard/
+investigator/node_modules

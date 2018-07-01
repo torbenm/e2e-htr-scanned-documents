@@ -88,7 +88,7 @@ def prepareDataset(name, context, ehanceDataset):
         if 'printed' in context:
             os.makedirs(printedpath)
             print_data, print_max_size = generate_print.generate_printed_sampels(
-                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath, max_size[1])
+                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath, max_size[1], max_size[0])
             shuffle(print_data)
             max_size = np.max([print_max_size, max_size], axis=0)
             print_train, print_dev, print_test = split.split(
@@ -103,9 +103,6 @@ def prepareDataset(name, context, ehanceDataset):
         util.dumpJson(basepath, "dev", dev)
         util.dumpJson(basepath, "test", test)
         util.printDone("Saving split data")
-
-        max_size = np.max(
-            [train_sizes, dev_sizes, test_sizes, print_max_size], axis=0)
 
         print("Maximum Extracted size:", max_size)
 

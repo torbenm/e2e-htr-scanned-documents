@@ -58,7 +58,8 @@ class PrintGenerator(object):
         self.config = Configuration(config)
         self.default = Configuration(DEFAULTS)
         self.max_size = (0, 0)
-        self.max_height = 134
+        self.max_height = -1
+        self.max_width = -1
 
     def __getitem__(self, key):
         default = self.default.default(key, None)
@@ -81,6 +82,8 @@ class PrintGenerator(object):
         if self.max_height > -1 and image_size[1] > self.max_height:
             height = int(height*(self.max_height/float(image_size[1])))
             return self._iterate_height(text, fontname, height)
+        elif self.max_width > -1 and image_size[0] > self.max_width:
+            height = int(height*(self.max_width/float(image_size[0])))
         else:
             return font, offset, image_size
 
@@ -125,11 +128,12 @@ class PrintGenerator(object):
         return text
 
 
-def generate_printed_sampels(ht_samples, config, invert, path, target_height=-1):
+def generate_printed_sampels(ht_samples, config, invert, path, target_height=-1, target_width=-1):
     length = min(len(ht_samples), config['count'])
     textsamples = ht_samples[:length]
     generator = PrintGenerator(config)
     generator.max_height = target_height
+    generator.max_width = target_width
     full_samples = []
     for idx, sample in enumerate(textsamples):
         text = PrintGenerator.clean_text(sample['truth'])
