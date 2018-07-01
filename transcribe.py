@@ -41,15 +41,18 @@ if __name__ == "__main__":
     print('\n')
     print('Transcriptions for {} lines'.format(len(transcriptions['files'])))
     max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
-    line_format = '{0:'+str(max_trans_l+10)+'} {1:^30} {2}'
-    heading = line_format.format('Transcription', 'Is HT?', 'File')
+    line_format = '{0:'+str(max_trans_l+10)+'} {1:30} {2}'
+    heading = line_format.format('Transcription', 'Classification', 'File')
     print(heading)
     print("-"*len(heading))
     for i in range(len(transcriptions['files'])):
         decompiled = exc.dataset.decompile(transcriptions['trans'][i])
         filename = os.path.basename(transcriptions['files'][i])
         if len(transcriptions['class']) > i:
-            is_ht = str(transcriptions['class'][i][0])
+            is_ht = 'Handwritten' if transcriptions['class'][i][0] > 0.5 else 'Printed'
+            is_ht = '{:12} ({:05.2f} %)'.format(
+                is_ht, transcriptions['class'][i][0]*100)
+
         else:
             is_ht = '?'
 

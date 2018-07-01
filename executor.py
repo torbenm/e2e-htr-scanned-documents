@@ -293,14 +293,14 @@ class Executor(object):
             'class': []
         }
         for X, Y, L, F in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset, True):
-            print([graph['logits'].shape[0]] * len(X))
             steps += 1
             val_dict = {
                 graph['x']: X,
                 graph['l']: [graph['logits'].shape[0]] * len(X)
             }
             if self.dataset.meta.default('printed', False):
-                results_, class_ = sess.run([results, graph['class_pred']], val_dict)
+                results_, class_ = sess.run(
+                    [results, graph['class_pred']], val_dict)
                 transcriptions['class'].extend(class_)
             else:
                 results_ = sess.run(results, val_dict)
