@@ -58,6 +58,9 @@ class Dataset(object):
         if self.dynamic_width:
             self._sort_by_width("train")
             self._sort_by_width("dev")
+            if self.meta.default('printed', False):
+                self._sort_by_width("print_train")
+                self._sort_by_width("print_dev")
 
     def _sort_by_width(self, dataset):
         print("Sorting {} dataset by width...".format(dataset))
