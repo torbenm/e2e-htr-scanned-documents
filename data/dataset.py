@@ -12,7 +12,7 @@ class Dataset(object):
     def __init__(self, name, transpose=True, dynamic_width=False):
         self.name = name
         self.dynamic_width = dynamic_width
-        self.min_width = 120
+        self.min_width = 140
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
         self._load_vocab()
         self._load_meta()
