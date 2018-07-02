@@ -175,7 +175,7 @@ class Executor(object):
             train_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
-                graph['l']: [max(length)]*len(length),
+                graph['l']: [max(length)+1]*len(length),
                 graph['is_train']: True
             }
             training_loss_ = [0]
