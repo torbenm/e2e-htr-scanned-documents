@@ -89,6 +89,7 @@ class Dataset(object):
 
     def compile(self, text):
         parsed = [self.vocab[1][c] for c in text]
+        # if not self.dynamic_width:
         parsed.extend([-1] * (self.max_length - len(text)))
         return parsed
 
@@ -156,15 +157,21 @@ class Dataset(object):
             # print(batch_width, max(L))
             X_ = np.zeros(
                 (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
-            for idx, x in enumerate(X):
-                X_[idx, 0:x.shape[0], 0:x.shape[1], :] = x
+            # Y_ = np.full((len(L), max(L)), -1)
+            for idx in range(len(X)):
+                X_[idx, 0:X[idx].shape[0], 0:X[idx].shape[1], :] = X[idx]
+                # Y_[idx, 0:len(Y[idx])] = Y[idx]
             X = X_
+            Y = np.asarray(Y)
+            L = np.asarray(L)+5
         else:
             X = np.asarray(X)
+            Y = np.asarray(Y)
+            L = np.asarray(L)
         if not with_filepath:
-            return X, np.asarray(Y), np.asarray(L)
+            return X, Y, L
         else:
-            return X, np.asarray(Y), np.asarray(L), F
+            return X, Y, L, F
 
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)

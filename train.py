@@ -2,8 +2,6 @@ import sys
 import argparse
 from executor import Executor
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def batch_hook(epoch, batch, max_batches):
