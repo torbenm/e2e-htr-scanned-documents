@@ -12,6 +12,7 @@ from .save import save
 from .convert import pil2cv2, cv2pil
 from .grayscale import toGrayscale
 from .crop import crop
+from .morph import morph
 
 
 def applyPipeline(sourcepath, truth, context, train):
@@ -39,12 +40,17 @@ def applyPipeline(sourcepath, truth, context, train):
     if isActive('crop'):
         images = crop(images)
 
+    org_images = images.copy()
     # Step 7: Warp Image
     if train and isActive('warp') and isActive('num', ctx=context['warp']):
         images = cv2pil(images)
         images = RandomWarpGridDistortion(
             images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
         images = pil2cv2(images)
+
+    if isActive('morph'):
+        images.extend(
+            morph(org_images, context['morph'], invert=isActive('invert')))
 
       # Step 4: Scale Image
     if isActive('scale'):
