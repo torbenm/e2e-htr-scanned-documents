@@ -10,6 +10,7 @@
   "ctc": "greedy",
   "algo_config": {
     "format": "nchw",
+    "dynamic_width": true,
     "encoder": {
       "type": "cnn",
       "cnn": {
