@@ -175,7 +175,7 @@ class Executor(object):
             train_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
-                graph['l']: length,
+                graph['l']: [self.dataset.max_length] * len(X),
                 graph['is_train']: True
             }
             training_loss_ = [0]
@@ -226,7 +226,7 @@ class Executor(object):
             val_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
-                graph['l']: L
+                graph['l']: [self.dataset.max_length] * len(X)
             }
             results_, cer_, loss_ = sess.run(
                 [results, cer, graph['total_loss']], val_dict)
