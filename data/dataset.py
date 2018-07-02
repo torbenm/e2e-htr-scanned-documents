@@ -69,7 +69,7 @@ class Dataset(object):
         for datapoint in self.data[dataset]:
             img = cv2.imread(datapoint["path"], cv2.IMREAD_GRAYSCALE)
             datapoint["width"] = img.shape[1]
-        self.data[dataset].sort(key=lambda x: x["width"])
+        self.data[dataset].sort(key=lambda x: x["width"], reverse=True)
 
     def _compile_set(self, dataset):
         for item in self.data[dataset]:
