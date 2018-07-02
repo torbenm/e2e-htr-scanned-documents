@@ -14,13 +14,16 @@
   },
   "padding": 5,
   "warp": {
-    "num": 3,
+    "num": 6,
     "gridsize": [30, 30],
     "deviation": 2.7
   },
   "morph": {
-    "thin": [3, 5],
-    "thicken": [2, 10]
+    "prob": 0.3,
+    "ops": [
+      { "name": "thin", "values": [3, 4] },
+      { "name": "thicken", "values": [2, 5] }
+    ]
   },
   "binarize": false,
   "printed": {

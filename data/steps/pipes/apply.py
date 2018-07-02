@@ -49,8 +49,7 @@ def applyPipeline(sourcepath, truth, context, train):
         images = pil2cv2(images)
 
     if isActive('morph'):
-        images.extend(
-            morph(org_images, context['morph'], invert=isActive('invert')))
+        images = morph(images, context['morph'], invert=isActive('invert'))
 
       # Step 4: Scale Image
     if isActive('scale'):

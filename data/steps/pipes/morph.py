@@ -2,12 +2,16 @@ import numpy as np
 import cv2
 
 
-def morph(images, ops, invert=False):
-    new_images = []
+def morph(images, config, invert=False):
+    altered_images = []
     for image in images:
-        for op in ops:
-            new_images.append(_morph(image, op, ops[op], invert))
-    return new_images
+        if np.random.uniform() < config['prob']:
+            op = int(np.random.uniform(0, len(config['ops'])))
+            altered_images.append(
+                _morph(image, config['ops'][op]['name'],  config['ops'][op]['values'], invert))
+        else:
+            altered_images.append(image)
+    return altered_images
 
 
 def _morph(image, op_name, op_values, invert=False):
