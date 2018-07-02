@@ -8,7 +8,7 @@ import cv2
 
 class Dataset(object):
 
-    def __init__(self, name, transpose=True):
+    def __init__(self, name, transpose=True, dynamic_width=False):
         self.name = name
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
         self._load_vocab()
@@ -19,6 +19,7 @@ class Dataset(object):
         self.transpose = transpose
         self.channels = 1
         self._fill_meta()
+        self.dynamic_width = dynamic_width
 
     def info(self):
         self.meta('Dataset Configuration')
@@ -88,12 +89,16 @@ class Dataset(object):
         if transpose:
             try:
                 x = np.transpose(x, [1, 0])
+                if self.dynamic_width:
+                    return np.reshape(x, [x.shape[0], x.shape[1], 1])
             except ValueError:
                 return None, None, None, None
             if x.shape[0] != self.meta["width"] or x.shape[1] != self.meta["height"]:
                 x = pad(x, (self.meta["width"], self.meta["height"]))
             x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
         else:
+            if self.dynamic_width:
+                return np.reshape(x, [x.shape[0], x.shape[1], 1])
             if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
                 x = pad(x, (self.meta["height"], self.meta["width"]))
             x = np.reshape(x, [self.meta["height"], self.meta["width"], 1])
@@ -127,10 +132,21 @@ class Dataset(object):
                 Y.append(y)
                 L.append(l)
                 F.append(f)
-        if not with_filepath:
-            return np.asarray(X), np.asarray(Y), np.asarray(L)
+
+        if self.dynamic_width:
+            batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
+            print(batch_width)
+            X_ = np.zeros(
+                (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
+            for idx, x in enumerate(X):
+                X_[idx, 0:x.shape[0], 0:x.shape[1], :] = x
+            X = X_
         else:
-            return np.asarray(X), np.asarray(Y), np.asarray(L), F
+            X = np.asarray(X)
+        if not with_filepath:
+            return X, np.asarray(Y), np.asarray(L)
+        else:
+            return X, np.asarray(Y), np.asarray(L), F
 
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)

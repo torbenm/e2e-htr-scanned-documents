@@ -24,7 +24,7 @@ class Executor(object):
         self.algorithm = getAlgorithm(
             self.config['algorithm'], self.config.default('algo_config', {}), self._transpose)
         self.dataset = dataset.Dataset(useDataset or self.config[
-                                       'dataset'], self._transpose)
+                                       'dataset'], self._transpose, self.config.default('algo_config.dynamic_width', False))
         self.sessionConfig = None
         self._decoder = None
         self._cer = None

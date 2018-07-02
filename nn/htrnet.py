@@ -18,7 +18,7 @@ DEFAULTS = {
     "classifier": {
         "units": [512]
     },
-    "nowidth": False,
+    "dynamic_width": False,
     "format": "nhwc"
 }
 
@@ -76,7 +76,7 @@ class HtrNet(AlgorithmBaseV2):
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, image_height, None if self['nowidth'] else image_width, channels], name="x"))
+                tf.float32, [None, image_height, None if self['dynamic_width'] else image_width, channels], name="x"))
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, sequence_length], name="y")
             class_y = tf.placeholder(
@@ -108,9 +108,10 @@ class HtrNet(AlgorithmBaseV2):
         # PHASE II: Recurrent Block
         ###############
         with tf.name_scope('recurrent'):
-            if self['nowidth']:
+            if self['dynamic_width']:
                 # maybe theres a better way to do columnwise stacking
-                net = tf.reduce_sum(net, 2)
+                net = log_1d(tf.reshape(
+                    net, [-1, tf.shape(net)[1], net.shape[2] * net.shape[3]]))
             else:
                 net = log_1d(tf.reshape(
                     net, [-1, net.shape[1], net.shape[2] * net.shape[3]]))
