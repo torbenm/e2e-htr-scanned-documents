@@ -120,7 +120,7 @@ class Dataset(object):
         return x
 
     def _loadline(self, line, transpose=True):
-        l = len(line["compiled"])
+        l = len(line["truth"])
         y = np.asarray(line["compiled"])
         x = self.load_image(line["path"])
         return x, y, l, line["path"]
@@ -142,7 +142,6 @@ class Dataset(object):
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose)
-            print(f, l)
             if x is not None:
                 X.append(x)
                 Y.append(y)
