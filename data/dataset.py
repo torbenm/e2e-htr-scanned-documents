@@ -151,9 +151,10 @@ class Dataset(object):
                 F.append(f)
 
         if self.dynamic_width:
+            L = np.asarray(L)+5
             batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
             if batch_width < self.max_min_width:
-                batch_width = max(batch_width, max(L)*self.min_width_factor)
+                batch_width = max(batch_width, np.max(L)*self.min_width_factor)
             # print(batch_width, max(L))
             X_ = np.zeros(
                 (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
@@ -163,7 +164,6 @@ class Dataset(object):
                 # Y_[idx, 0:len(Y[idx])] = Y[idx]
             X = X_
             Y = np.asarray(Y)
-            L = np.asarray(L)+5
         else:
             X = np.asarray(X)
             Y = np.asarray(Y)
