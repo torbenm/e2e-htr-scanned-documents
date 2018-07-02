@@ -131,11 +131,7 @@ class HtrNet(AlgorithmBaseV2):
         logits = log_1d(tf.transpose(net, [1, 0, 2]))
 
         with tf.name_scope('loss'):
-            iloti = False
-            if self['dynamic_width']:
-                iloti = True
-            total_loss = tf.nn.ctc_loss(
-                y, logits, l, ignore_longer_outputs_than_inputs=iloti)
+            total_loss = tf.nn.ctc_loss(y, logits, l)
             tf.summary.scalar('loss', tf.reduce_mean(total_loss))
 
         with tf.name_scope('train'):

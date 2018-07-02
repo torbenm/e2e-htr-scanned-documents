@@ -12,6 +12,7 @@ class Dataset(object):
     def __init__(self, name, transpose=True, dynamic_width=False):
         self.name = name
         self.dynamic_width = dynamic_width
+        self.min_width = 200
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
         self._load_vocab()
         self._load_meta()
@@ -148,7 +149,8 @@ class Dataset(object):
                 F.append(f)
 
         if self.dynamic_width:
-            batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
+            batch_width = max(
+                np.max(list(map(lambda _x: _x.shape[1], X))), self.min_width)
             print(batch_width)
             X_ = np.zeros(
                 (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
