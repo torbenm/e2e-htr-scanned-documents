@@ -142,6 +142,7 @@ class Dataset(object):
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose)
+            print(f, l)
             if x is not None:
                 X.append(x)
                 Y.append(y)
