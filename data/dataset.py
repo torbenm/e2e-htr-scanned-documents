@@ -5,6 +5,7 @@ import math
 import numpy as np
 import cv2
 import sys
+from random import shuffle
 
 
 class Dataset(object):
