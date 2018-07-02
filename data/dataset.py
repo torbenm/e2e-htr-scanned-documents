@@ -4,12 +4,14 @@ import os
 import math
 import numpy as np
 import cv2
+import sys
 
 
 class Dataset(object):
 
     def __init__(self, name, transpose=True, dynamic_width=False):
         self.name = name
+        self.dynamic_width = dynamic_width
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
         self._load_vocab()
         self._load_meta()
@@ -19,7 +21,6 @@ class Dataset(object):
         self.transpose = transpose
         self.channels = 1
         self._fill_meta()
-        self.dynamic_width = dynamic_width
 
     def info(self):
         self.meta('Dataset Configuration')
@@ -54,6 +55,16 @@ class Dataset(object):
             self.data['print_dev'] = util.loadJson(self.datapath, "print_dev")
             self.data['print_test'] = util.loadJson(
                 self.datapath, "print_test")
+        if self.dynamic_width:
+            self._sort_by_width("train")
+            self._sort_by_width("dev")
+
+    def _sort_by_width(self, dataset):
+        print("Sorting {} dataset by width...".format(dataset))
+        for datapoint in self.data[dataset]:
+            img = cv2.imread(datapoint["path"], cv2.IMREAD_GRAYSCALE)
+            datapoint["width"] = img.shape[1]
+        self.data[dataset].sort(key=lambda x: x["width"])
 
     def _compile_set(self, dataset):
         for item in self.data[dataset]:
