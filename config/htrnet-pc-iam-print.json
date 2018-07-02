@@ -1,6 +1,6 @@
 {
   "name": "htrnet-pc-iam",
-  "dataset": "iam-lines-s-morph-print",
+  "dataset": "iam-lines-s-hfac-print",
   "algorithm": "htrnet",
   "save": 5,
   "batch": 50,
