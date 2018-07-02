@@ -9,6 +9,11 @@
   "learning_rate": 0.0003,
   "class_learning_rate": 0.0001,
   "ctc": "greedy",
+  "data_config": {
+    "dynamic_width": false,
+    "shuffle_epoch": true,
+    "sort_by_width": false
+  },
   "algo_config": {
     "format": "nchw",
     "dynamic_width": true,

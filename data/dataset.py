@@ -9,9 +9,9 @@ import sys
 
 class Dataset(object):
 
-    def __init__(self, name, transpose=True, dynamic_width=False):
+    def __init__(self, name, transpose=True, data_config={}):
         self.name = name
-        self.dynamic_width = dynamic_width
+        self.data_config = Configuration(data_config)
         self.min_width_factor = 15
         self.max_min_width = 400
         self.datapath = os.path.join(util.OUTPUT_PATH, name)
@@ -57,7 +57,7 @@ class Dataset(object):
             self.data['print_dev'] = util.loadJson(self.datapath, "print_dev")
             self.data['print_test'] = util.loadJson(
                 self.datapath, "print_test")
-        if self.dynamic_width:
+        if self.data_config.default('sort_by_width', False):
             self._sort_by_width("train")
             self._sort_by_width("dev")
             if self.meta.default('printed', False):
@@ -106,7 +106,7 @@ class Dataset(object):
         if transpose:
             try:
                 x = np.transpose(x, [1, 0])
-                if self.dynamic_width:
+                if self.data_config.default('dynamic_width', False):
                     return np.reshape(x, [x.shape[0], x.shape[1], 1])
             except ValueError:
                 return None, None, None, None
@@ -114,7 +114,7 @@ class Dataset(object):
                 x = pad(x, (self.meta["width"], self.meta["height"]))
             x = np.reshape(x, [self.meta["width"], self.meta["height"], 1])
         else:
-            if self.dynamic_width:
+            if self.data_config.default('dynamic_width', False):
                 return np.reshape(x, [x.shape[0], x.shape[1], 1])
             if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
                 x = pad(x, (self.meta["height"], self.meta["width"]))
@@ -150,7 +150,7 @@ class Dataset(object):
                 L.append(l)
                 F.append(f)
 
-        if self.dynamic_width:
+        if self.data_config.default('dynamic_width', False):
             L = np.asarray(L)+5
             batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
             if batch_width < self.max_min_width:
@@ -181,6 +181,8 @@ class Dataset(object):
 
     def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False):
         for e in range(num_epochs):
+            if self.data_config.default('shuffle_epoch', False):
+                shuffle(self.data[dataset])
             yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset, with_filepath=with_filepath)
 
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
