@@ -39,7 +39,7 @@ class Executor(object):
         self.models_path = os.path.join(MODELS_PATH, self.log_name)
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         if device != -1:
             print('Setting cuda visible devices to', device)
             os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
@@ -175,7 +175,7 @@ class Executor(object):
             train_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
-                graph['l']: [max(length)+1]*len(length),
+                graph['l']: length,
                 graph['is_train']: True
             }
             training_loss_ = [0]

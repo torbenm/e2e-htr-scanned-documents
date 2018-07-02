@@ -78,7 +78,7 @@ class HtrNet(AlgorithmBaseV2):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, image_height, None if self['dynamic_width'] else image_width, channels], name="x"))
             y = tf.sparse_placeholder(
-                tf.int32, shape=[None, sequence_length], name="y")
+                tf.int32, shape=[None, None], name="y")
             class_y = tf.placeholder(
                 tf.float32, shape=[None, 1], name="class_y")
             l = tf.placeholder(
