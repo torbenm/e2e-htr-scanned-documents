@@ -153,7 +153,7 @@ class Dataset(object):
             batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
             if batch_width < self.max_min_width:
                 batch_width = max(batch_width, max(L)*self.min_width_factor)
-            print(batch_width, max(L))
+            # print(batch_width, max(L))
             X_ = np.zeros(
                 (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
             for idx, x in enumerate(X):
