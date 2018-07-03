@@ -16,7 +16,7 @@
   },
   "algo_config": {
     "format": "nchw",
-    "dynamic_width": true,
+    "dynamic_width": false,
     "encoder": {
       "type": "cnn",
       "cnn": {

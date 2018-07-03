@@ -230,9 +230,8 @@ class Executor(object):
             }
             results_, cer_, loss_ = sess.run(
                 [results, cer, graph['total_loss']], val_dict)
-            cer_total.append(cer_)
-            loss_total.append(np.ma.masked_invalid(
-                loss_).mean())
+            cer_total.extend(cer_)
+            loss_total.extend(loss_)
             examples['Y'].extend(Y)
             examples['trans'].extend(results_)
 
@@ -389,9 +388,9 @@ class Executor(object):
     def _build_cer(self, graph):
         if self._cer is None:
             decoded = self._decode(graph)
-            self._cer = tf.reduce_mean(tf.edit_distance(
-                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32)))
-            tf.summary.scalar('cer', self._cer)
+            self._cer = tf.edit_distance(
+                tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32))
+            tf.summary.scalar('cer', tf.reduce_mean(self._cer))
         return self._cer
 
     def _build_pred_thresholding(self, graph):
