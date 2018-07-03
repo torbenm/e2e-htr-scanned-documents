@@ -1,7 +1,7 @@
 {
   "dataset": "iam",
   "subset": "lines",
-  "limit": 30,
+  "limit": -1,
   "shuffle": true,
   "test_frac": 0.1,
   "dev_frac": 0.1,
