@@ -6,6 +6,7 @@ import numpy as np
 import cv2
 import sys
 from random import shuffle
+from data.steps.pipes import warp, morph, convert
 
 
 class Dataset(object):
@@ -88,6 +89,18 @@ class Dataset(object):
         _all.extend(self.data["dev"])
         self.max_length = max(map(lambda x: len(x["truth"]), _all))
 
+    def _augment_otf(self, img):
+        if "warp" in self.data_config["otf_augmentations"]:
+            if np.random.uniform() < self.data_config['otf_augmentations.warp.prob']:
+                img = convert._cv2pil(img)
+                img = warp._warp(
+                    img, gridsize=self.data_config['otf_augmentations.warp.gridsize'], deviation=self.data_config['otf_augmentations.warp.deviation'])
+                img = convert._pil2cv2(img)
+        if "morph" in self.data_config["otf_augmentations"]:
+            img = morph._random_morph(
+                img, self.data_config["otf_augmentations.morph"], True)
+        return img
+
     def compile(self, text):
         parsed = [self.vocab[1][c] for c in text]
         # if not self.dynamic_width:
@@ -104,6 +117,8 @@ class Dataset(object):
 
     def load_image(self, path, transpose=False):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if self.data_config.default("otf_augmentations", False):
+            x = self._augment_otf(x)
         if transpose:
             try:
                 x = np.transpose(x, [1, 0])
@@ -150,19 +165,15 @@ class Dataset(object):
                 Y.append(y)
                 L.append(l)
                 F.append(f)
-
         if self.data_config.default('dynamic_width', False):
             L = np.asarray(L)+5
             batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
             if batch_width < self.max_min_width:
                 batch_width = max(batch_width, np.max(L)*self.min_width_factor)
-            # print(batch_width, max(L))
             X_ = np.zeros(
                 (len(X), self.meta["height"], batch_width, 1), dtype=np.int32)
-            # Y_ = np.full((len(L), max(L)), -1)
             for idx in range(len(X)):
                 X_[idx, 0:X[idx].shape[0], 0:X[idx].shape[1], :] = X[idx]
-                # Y_[idx, 0:len(Y[idx])] = Y[idx]
             X = X_
             Y = np.asarray(Y)
         else:

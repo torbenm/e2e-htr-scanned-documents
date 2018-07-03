@@ -5,13 +5,17 @@ import cv2
 def morph(images, config, invert=False):
     altered_images = []
     for image in images:
-        if np.random.uniform() < config['prob']:
-            op = int(np.random.uniform(0, len(config['ops'])))
-            altered_images.append(
-                _morph(image, config['ops'][op]['name'],  config['ops'][op]['values'], invert))
-        else:
-            altered_images.append(image)
+        altered_images.append(_random_morph(image, config, invert))
     return altered_images
+
+
+def _random_morph(image, config, invert=False):
+    if np.random.uniform() < config['prob']:
+        op = int(np.random.uniform(0, len(config['ops'])))
+        return _morph(image, config['ops'][op]['name'],
+                      config['ops'][op]['values'], invert)
+    else:
+        return image
 
 
 def _morph(image, op_name, op_values, invert=False):
