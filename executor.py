@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-from data import util, Dataset
+from data import util, Dataset, PreparedDataset
 from config.config import Configuration
 from nn import getAlgorithm
 import time
@@ -26,7 +26,7 @@ class Executor(object):
         if isinstance(_dataset, Dataset.Dataset):
             self.dataset = _dataset
         else:
-            self.dataset = Dataset.Dataset(_dataset or self.config[
+            self.dataset = PreparedDataset.PreparedDataset(_dataset or self.config[
                 'dataset'], self._transpose, self.config.default('data_config', {}))
         self.sessionConfig = None
         self._decoder = None

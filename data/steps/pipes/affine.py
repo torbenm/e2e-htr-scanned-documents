@@ -42,7 +42,6 @@ class AffineTransformation(object):
         self.M = np.eye(3, 3)
 
     def __call__(self):
-        print(self.M[:2, :])
         return cv2.warpAffine(self.img, self.M[:2, :], (self.img.shape[1], self.img.shape[0]))
 
     ######################################
@@ -55,8 +54,8 @@ class AffineTransformation(object):
 
     def rotate(self, prob=0.5, stdv=0.2):
         if np.random.uniform() < prob:
-            stdv = np.sqrt(1/max(img.shape[0] / img.shape[1],
-                                 img.shape[1] / img.shape[0])) * stdv
+            stdv = np.sqrt(1/max(self.img.shape[0] / self.img.shape[1],
+                                 self.img.shape[1] / self.img.shape[0])) * stdv
             alpha = np.random.normal(stdv)
             self._centered(self._rotate(alpha))
 
