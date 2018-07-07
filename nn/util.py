@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
 
+VERBOSE = False
+
 
 def wrap_4d(cell):
     print("-" * 70)
@@ -13,8 +15,9 @@ def wrap_1d(cell):
 
 
 def log_1d(cell):
-    print("-" * 70)
-    print("{:40}{:20}".format(str(cell.name), str(cell.shape)))
+    if VERBOSE:
+        print("-" * 70)
+        print("{:40}{:20}".format(str(cell.name), str(cell.shape)))
     return cell
 
 
