@@ -24,7 +24,7 @@ TENSORBOARD_PATH = "./tensorboard"
 
 class Executor(object):
 
-    def __init__(self, configFile, legacy={}, indiv_dataset=None):
+    def __init__(self, configFile, legacy={}, indiv_dataset=None, verbose=True):
         self._legacy = Configuration(legacy)
 
         # Load Dataset, Algorithm, Configuration...
@@ -45,8 +45,9 @@ class Executor(object):
         self._restore_model = None
 
         # Display information
-        self.config('Algorithm Configuration')
-        self.dataset.info()
+        if verbose:
+            self.config('Algorithm Configuration')
+            self.dataset.info()
 
     def is_legacy(self, prop):
         return self._legacy.default(prop, False)

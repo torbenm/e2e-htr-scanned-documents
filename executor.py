@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-from data import util, dataset
+from data import util, Dataset
 from config.config import Configuration
 from nn import getAlgorithm
 import time
@@ -18,25 +18,29 @@ class_step = 1
 
 class Executor(object):
 
-    def __init__(self, configName, useDataset=None, transpose=False):
+    def __init__(self, configName, _dataset=None, transpose=False, verbose=True):
         self.config = Configuration(util.loadJson(CONFIG_PATH, configName))
         self._transpose = transpose
         self.algorithm = getAlgorithm(
             self.config['algorithm'], self.config.default('algo_config', {}), self._transpose)
-        self.dataset = dataset.Dataset(useDataset or self.config[
-                                       'dataset'], self._transpose, self.config.default('data_config', {}))
+        if isinstance(_dataset, Dataset.Dataset):
+            self.dataset = _dataset
+        else:
+            self.dataset = Dataset.Dataset(_dataset or self.config[
+                'dataset'], self._transpose, self.config.default('data_config', {}))
         self.sessionConfig = None
         self._decoder = None
         self._cer = None
         self._accuracy = None
         self._pred_thresholded = None
         self._decoded_dense = None
-        self.config('Algorithm Configuration')
-        self.dataset.info()
         self.log_name = '{}-{}'.format(self.config['name'],
                                        time.strftime("%Y-%m-%d-%H-%M-%S"))
         self.tensorboard_path = os.path.join(TENSORBOARD_PATH, self.log_name)
         self.models_path = os.path.join(MODELS_PATH, self.log_name)
+        if verbose:
+            self.config('Algorithm Configuration')
+            self.dataset.info()
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
