@@ -14,11 +14,7 @@
     "shuffle_epoch": true,
     "sort_by_width": false,
     "otf_augmentations": {
-      "warp": {
-        "prob": 0.99,
-        "gridsize": [15, 15],
-        "deviation":0.9
-      }
+      "affine": {}
     }
   },
   "algo_config": {

@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import sys
 from random import shuffle
-from data.steps.pipes import warp, morph, convert
+from data.steps.pipes import warp, morph, convert, affine
 
 
 class PreparedDataset(Dataset):
@@ -91,6 +91,9 @@ class PreparedDataset(Dataset):
         self.max_length = max(map(lambda x: len(x["truth"]), _all))
 
     def _augment_otf(self, img):
+        if "affine" in self.data_config["otf_augmentations"]:
+            img = affine._affine(
+                img, self.data_config["otf_augmentations.affine"])
         if "warp" in self.data_config["otf_augmentations"]:
             if np.random.uniform() < self.data_config['otf_augmentations.warp.prob']:
                 img = convert._cv2pil(img)

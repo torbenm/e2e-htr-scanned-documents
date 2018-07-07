@@ -123,6 +123,8 @@ class AffineTransformation(object):
 if __name__ == "__main__":
 
     img = cv2.imread("./research/affine/input.png", cv2.IMREAD_GRAYSCALE)
+
+    img = cv2.resize(img, (900, 60))
     at = AffineTransformation(img)
     at.configure()
     img = at()
