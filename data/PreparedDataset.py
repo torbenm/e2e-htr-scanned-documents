@@ -91,15 +91,15 @@ class PreparedDataset(Dataset):
         self.max_length = max(map(lambda x: len(x["truth"]), _all))
 
     def _augment_otf(self, img):
-        if "affine" in self.data_config["otf_augmentations"]:
-            img = affine._affine(
-                img, self.data_config["otf_augmentations.affine"])
         if "warp" in self.data_config["otf_augmentations"]:
             if np.random.uniform() < self.data_config['otf_augmentations.warp.prob']:
                 img = convert._cv2pil(img)
                 img = warp._warp(
                     img, gridsize=self.data_config['otf_augmentations.warp.gridsize'], deviation=self.data_config['otf_augmentations.warp.deviation'])
                 img = convert._pil2cv2(img)
+        if "affine" in self.data_config["otf_augmentations"]:
+            img = affine._affine(
+                img, self.data_config["otf_augmentations.affine"])
         if "morph" in self.data_config["otf_augmentations"]:
             img = morph._random_morph(
                 img, self.data_config["otf_augmentations.morph"], True)
