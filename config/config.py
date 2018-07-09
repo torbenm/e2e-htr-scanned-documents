@@ -1,5 +1,6 @@
 import json
 import os
+import collections
 
 
 class Configuration(object):
@@ -17,7 +18,10 @@ class Configuration(object):
         return _config
 
     def __init__(self, config):
-        self.config = config
+        if isinstance(config, collections.Iterable):
+            self.config = config
+        else:
+            self.config = {}
 
     def __getitem__(self, key):
         if isinstance(key, str):

@@ -7,6 +7,13 @@ def affine(images, config):
     return [_affine(image, config) for image in images]
 
 
+def affine_but_first(images, config):
+    images_all = [images[0]]
+    altered = affine(images[1:], config)
+    images_all.extend(altered)
+    return images_all
+
+
 def _affine(image, config):
     at = AffineTransformation(image)
     at.configure(config)

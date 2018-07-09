@@ -4,6 +4,8 @@ from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from config.config import Configuration
 import os
 from data.steps.pipes.warp import _warp
+from data.steps.pipes.affine import _affine
+from data.steps.pipes.convert import _pil2cv2, _cv2pil
 
 DEFAULTS = {
     'fonts': ['Arial', 'Times New Roman'],
@@ -36,6 +38,11 @@ DEFAULTS = {
             'prob': 0.5,
             'deviation': 2.7,
             'grid': [100, 30]
+        },
+        {
+            'type': 'affine',
+            'prob': 1.0,
+            'config': {}
         }
     ],
     'padding': 0
@@ -51,8 +58,8 @@ class PrintGenerator(object):
     FILTERS = {
         'blur': lambda i, c: i.filter(ImageFilter.GaussianBlur(c['radius'])),
         'sharpen': lambda i, c: i.filter(ImageFilter.UnsharpMask(c['radius'], c['percent'], c['threshold'])),
-        'warp': lambda i, c: _warp(i, c['grid'], c['deviation'])
-    }
+        'warp': lambda i, c: _warp(i, c['grid'], c['deviation']),
+        'affine': lambda i, c: PrintGenerator._affine_filter(i, c['config'])}
 
     def __init__(self, config={}):
         self.config = Configuration(config)
@@ -127,6 +134,12 @@ class PrintGenerator(object):
         text = PUNCTUATION_REGEX.sub('', text)
         text = REGULAR_REGEX.sub(' ', text)
         return text
+
+    @staticmethod
+    def _affine_filter(image, config):
+        image = _pil2cv2(image)
+        image = _affine(image, config)
+        return _cv2pil(image)
 
 
 def generate_printed_sampels(ht_samples, config, invert, path, target_height=-1, target_width=-1):

@@ -44,7 +44,12 @@ class RegionDataset(Dataset):
         img = invert._invert(img)
         img = threshold._threshold(img, True)
         img = crop._crop(img)
-        # img = self._scale(img, 50)
+        f = 1
+        if img.shape[1] * f < 1059 and img.shape[0]*f <= 133:
+            print(img.shape[0]*f)
+            img = self._scale(img, int(img.shape[0]*f))
+        else:
+            img = self._scale(img, 1)
         img = padding._pad_cv2(img, 5, 0)
 
         img = pad(img, (self.meta["height"], self.meta["width"]))

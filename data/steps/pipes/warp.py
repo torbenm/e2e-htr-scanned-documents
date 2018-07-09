@@ -25,7 +25,6 @@ def RandomWarpGridDistortion(images, count, gridsize, deviation):
 def _warp(img, gridsize=None, deviation=None):
     gridsize = gridsize or (26, 26)
     deviation = deviation or 3
-
     (w, h) = img.size
 
     num_x = w // gridsize[0] + 1

@@ -1,6 +1,6 @@
 import argparse
 import cv2
-from segmentation.RegionExtractor import RegionExtractor
+from segmentation.MSERRegionExtractor import RegionExtractor
 from data.RegionDataset import RegionDataset
 import executor
 import os
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             cv2.putText(img, decompiled, (x, y-5), cv2.FONT_HERSHEY_PLAIN,
                         1, (0, 0, 255), 1)
         else:
-            cv2.rectangle(img, (x, y), (x + w, y + h), (75, 150, 195), 1)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (125, 125, 195), 1)
 
     cv2.imwrite('output.png', img)
     # cv2.imshow('All', cv2.resize(img, (533, 800)))
