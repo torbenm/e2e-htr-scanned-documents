@@ -1,0 +1,42 @@
+{
+  "name": "htrnet-pc-iam-affine",
+  "dataset": "iam-affine",
+  "algorithm": "htrnet",
+  "save": 5,
+  "batch": 50,
+  "epochs": 300,
+  "max_batches": 0,
+  "learning_rate": 0.0003,
+  "class_learning_rate": 0.0001,
+  "ctc": "greedy",
+  "data_config": {
+    "dynamic_width": false,
+    "shuffle_epoch": true,
+    "sort_by_width": false
+  },
+  "algo_config": {
+    "format": "nchw",
+    "dynamic_width": false,
+    "encoder": {
+      "type": "cnn",
+      "cnn": {
+        "bias": true,
+        "dropout": {
+          "active": true
+        },
+        "bnorm": {
+          "active": true,
+          "train": true,
+          "before_activation": true
+        }
+      }
+    },
+    "classifier": {
+      "units": [512]
+    },
+    "fc": {
+      "use_activation": false
+    },
+    "optimizer": "adam"
+  }
+}

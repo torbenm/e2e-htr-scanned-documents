@@ -6,9 +6,9 @@ import executor
 import os
 import re
 
-ALGORITHM_CONFIG = "htrnet-pc-iam-print"
-MODEL_DATE = "2018-07-02-23-46-51"
-MODEL_EPOCH = 65
+ALGORITHM_CONFIG = "otf-iam-print"  # "htrnet-pc-iam-print"
+MODEL_DATE = "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
+MODEL_EPOCH = 800  # 65
 
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     print("Classifying & Transcribing Regions...")
     # TODO: this is not so nice...
     models_path = os.path.join(
-        executor.MODELS_PATH, '{}-{}'.format("htrnet-pc-iam", args.model_date))
+        executor.MODELS_PATH, '{}-{}'.format(args.config, args.model_date))
     dataset = RegionDataset(regions, models_path)
 
     exc = executor.Executor(args.config, _dataset=dataset, verbose=False)
