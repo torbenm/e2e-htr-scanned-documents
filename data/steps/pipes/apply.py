@@ -48,11 +48,14 @@ def applyPipeline(sourcepath, truth, context, train):
         images = RandomWarpGridDistortion(
             images, context['warp']['num'], context['warp']['gridsize'], context['warp']['deviation'])
         images = pil2cv2(images)
-    elif isActive('copy'):
+    elif train and isActive('copy'):
         images = copy(images, context['copy'])
 
-    if isActive('morph'):
+    if train and isActive('morph'):
         images = morph(images, context['morph'], invert=isActive('invert'))
+
+    if train and isActive('affine'):
+        images = affine_but_first(images, context['affine'])
 
     # Step 4: Scale Image
     if isActive('scale'):
@@ -61,9 +64,6 @@ def applyPipeline(sourcepath, truth, context, train):
     # Step 5: Add padding
     if isActive('padding'):
         images = pad(images, context['padding'], fill=bgColor)
-
-    if isActive('affine'):
-        images = affine_but_first(images, context['affine'])
 
     # Step 6: Extract width & height
     h, w = images[0].shape[:2]
