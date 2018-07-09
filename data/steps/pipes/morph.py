@@ -20,20 +20,21 @@ def _random_morph(image, config, invert=False):
 
 def _morph(image, op_name, op_values, invert=False):
     width = int(np.random.uniform(op_values[0], op_values[1]+1))
-    return MORPH_OPS[op_name](image, width, invert)
+    height = int(np.random.uniform(op_values[0], op_values[1]+1))
+    return MORPH_OPS[op_name](image, width, height, invert)
 
 
-def _thin(img, width, invert=False):
+def _thin(img, width, height, invert=False):
     kernel = cv2.getStructuringElement(
-        cv2.MORPH_ELLIPSE, (width, width))
+        cv2.MORPH_ELLIPSE, (height, width))
     if invert:
         return cv2.erode(img, kernel)
     else:
         return cv2.dilate(img, kernel)
 
 
-def _thicken(img, width, invert=False):
-    return _thin(img, width, not invert)
+def _thicken(img, width, height, invert=False):
+    return _thin(img, width, height, not invert)
 
 
 MORPH_OPS = {
