@@ -126,8 +126,8 @@ class Executor(object):
         class_epochs = None
         if self.dataset.meta.default('printed', False):
             class_epochs = self.dataset.generateEpochs(
-                self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'], dataset='print_train')
-        for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'])):
+                self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'], dataset='print_train', augmentable=True)
+        for idx, epoch in enumerate(self.dataset.generateEpochs(self.config['batch'], self.config['epochs'], max_batches=self.config['max_batches'], augmentable=True)):
             self._train_epoch(
                 graph, sess, idx, epoch, batch_num, hooks, options, summ, writer)
             if self.dataset.meta.default('printed', False) and (idx+1) % 10 == 0:

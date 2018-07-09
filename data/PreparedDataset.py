@@ -119,9 +119,9 @@ class PreparedDataset(Dataset):
                 return ''
         return ''.join([getKey(c) for c in values])
 
-    def load_image(self, path, transpose=False):
+    def load_image(self, path, transpose=False, augmentable=False):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        if self.data_config.default("otf_augmentations", False):
+        if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self._augment_otf(x)
         if transpose:
             try:
@@ -141,18 +141,18 @@ class PreparedDataset(Dataset):
             x = np.reshape(x, [self.meta["height"], self.meta["width"], 1])
         return x
 
-    def _loadline(self, line, transpose=True):
+    def _loadline(self, line, transpose=True, augmentable=False):
         l = len(line["truth"])
         y = np.asarray(line["compiled"])
-        x = self.load_image(line["path"])
+        x = self.load_image(line["path"], augmentable=augmentable)
         return x, y, l, line["path"]
 
-    def _loadprintline(self, line, transpose=True):
+    def _loadprintline(self, line, transpose=True, augmentable=False):
         y = line["truth"]
-        x = self.load_image(line["path"])
+        x = self.load_image(line["path"], augmentable=augmentable)
         return x, [y], 0, line["path"]
 
-    def _load_batch(self, index, batch_size, dataset, with_filepath=False):
+    def _load_batch(self, index, batch_size, dataset, with_filepath=False, augmentable=False):
         X = []
         Y = []
         L = []
@@ -163,7 +163,7 @@ class PreparedDataset(Dataset):
 
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
-                self.data[dataset][idx], self.transpose)
+                self.data[dataset][idx], self.transpose, augmentable=augmentable)
             if x is not None:
                 X.append(x)
                 Y.append(y)
@@ -189,17 +189,17 @@ class PreparedDataset(Dataset):
         else:
             return X, Y, L, F
 
-    def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False):
+    def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)
         for b in range(num_batches):
-            yield self._load_batch(b, batch_size, dataset, with_filepath)
+            yield self._load_batch(b, batch_size, dataset, with_filepath, augmentable=augmentable)
         pass
 
-    def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False):
+    def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         for e in range(num_epochs):
             if self.data_config.default('shuffle_epoch', False):
                 shuffle(self.data[dataset])
-            yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset, with_filepath=with_filepath)
+            yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset, with_filepath=with_filepath, augmentable=augmentable)
 
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
         total_len = len(self.data[dataset])
