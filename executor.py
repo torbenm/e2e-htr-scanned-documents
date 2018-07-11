@@ -420,9 +420,12 @@ class Executor(object):
             class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
 
     def _restore(self, sess, date="", epoch=0):
-        filename = os.path.join(
-            MODELS_PATH, '{}-{}'.format(self.config['name'], date), 'model-{}'.format(epoch))
+        filename = os.path.join(self.get_model_path(date), 'model-{}'.format(epoch))
         tf.train.Saver().restore(sess, filename)
+
+    def get_model_path(self, date):
+        return os.path.join(
+            MODELS_PATH, '{}-{}'.format(self.config['name'], date))
 
 
 def evaluate_device(gpuNumber):

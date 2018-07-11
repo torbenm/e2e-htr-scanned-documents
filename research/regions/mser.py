@@ -80,7 +80,7 @@ def non_max_suppression_fast(boxes, overlapThresh):
 
 
 img = cv2.imread("./images/scan.jpg")
-img = cv2.resize(img, (800, 1200))
+# img = cv2.resize(img, (800, 1200))
 vis = img.copy()
 # vis = cv2.resize(vis, (533, 800))
 
@@ -94,7 +94,7 @@ img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
 # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, np.ones((1, 3)))
 cv2.imshow('gray', img)
 cv2.waitKey(0)
-exit()
+
 
 max_area = int(img.shape[0]*img.shape[1]/2)
 
@@ -131,6 +131,7 @@ for contour in hulls:
 cv2.imshow('img', vis3)
 cv2.waitKey(0)
 
+exit()
 
 # rects = np.array(rects)
 rects = list(rects)

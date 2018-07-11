@@ -35,6 +35,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     exc = Executor(args.config, args.dataset, args.legacy_transpose)
+    exc.dataset.load_vocab(exc.get_model_path(
+        args.model_date))
     exc.configure(args.gpu, not args.hardplacement, args.logplacement)
     transcriptions = exc.investigate(args.subset, args.model_date if args.model_date !=
                                      "" else None, args.model_epoch, {
@@ -49,33 +51,34 @@ if __name__ == "__main__":
     if args.verbose:
         print('Transcriptions for {} lines'.format(
             len(transcriptions['files'])))
-        max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
-        line_format = '{:'+str(max_trans_l+10)+'} {:15} {:30} {}'
-        heading = line_format.format(
-            'Transcription', 'CER', 'Classification', 'File')
+    max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
+    line_format = '{:'+str(max_trans_l+10)+'} {:15} {:30} {}'
+    heading = line_format.format(
+        'Transcription', 'CER', 'Classification', 'File')
+    if args.verbose:
         print(heading)
         print("-"*len(heading))
 
-        data = []
-        for i in range(len(transcriptions['files'])):
-            decompiled = exc.dataset.decompile(transcriptions['trans'][i])
-            decompiled_truth = exc.dataset.decompile(
-                transcriptions['truth'][i])
-            data.append({
-                "file": transcriptions['files'][i],
-                "transcription": decompiled,
-                "classification": float(transcriptions['class'][i][0]),
-                "cer": float(transcriptions['cer'][i]),
-                "truth": decompiled_truth
-            })
-            filename = os.path.basename(transcriptions['files'][i])
-            if len(transcriptions['class']) > i:
-                is_ht = 'Handwritten' if transcriptions['class'][i][0] > 0.5 else 'Printed'
-                is_ht = '{:12} ({:05.2f} %)'.format(
-                    is_ht, transcriptions['class'][i][0]*100)
-            else:
-                is_ht = '?'
-
+    data = []
+    for i in range(len(transcriptions['files'])):
+        decompiled = exc.dataset.decompile(transcriptions['trans'][i])
+        decompiled_truth = exc.dataset.decompile(
+            transcriptions['truth'][i])
+        data.append({
+            "file": transcriptions['files'][i],
+            "transcription": decompiled,
+            "classification": float(transcriptions['class'][i][0]),
+            "cer": float(transcriptions['cer'][i]),
+            "truth": decompiled_truth
+        })
+        filename = os.path.basename(transcriptions['files'][i])
+        if len(transcriptions['class']) > i:
+            is_ht = 'Handwritten' if transcriptions['class'][i][0] > 0.5 else 'Printed'
+            is_ht = '{:12} ({:05.2f} %)'.format(
+                is_ht, transcriptions['class'][i][0]*100)
+        else:
+            is_ht = '?'
+        if args.verbose:
             print(line_format.format(decompiled,
-                                     transcriptions['cer'][i], is_ht, filename))
+                                     '{:05.2f} %'.format(transcriptions['cer'][i]*100), is_ht, filename))
     util.dumpJson('./investigator/data', exc.log_name, data)

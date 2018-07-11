@@ -14,7 +14,14 @@
     "shuffle_epoch": true,
     "sort_by_width": false,
     "otf_augmentations": {
-      "affine": {}
+      "affine": {},
+      "morph": {
+        "prob": 0.5,
+        "ops": [
+          { "name": "thin", "values": [17, 7] },
+          { "name": "thicken", "values": [1, 7] }
+        ]
+      }
     }
   },
   "algo_config": {

@@ -27,14 +27,20 @@ class PreparedDataset(Dataset):
         self.channels = 1
         self._fill_meta()
 
+    def load_vocab(self, path):
+        self._load_vocab(path)
+        self._compile_sets()
+        self._fill_meta()
+
     def info(self):
         self.meta('Dataset Configuration')
 
     def _load_meta(self):
         self.meta = Configuration(util.loadJson(self.datapath, "meta"))
 
-    def _load_vocab(self):
-        self.vocab = util.loadJson(self.datapath, "vocab")
+    def _load_vocab(self, path=None):
+        path = path or self.datapath
+        self.vocab = util.loadJson(path, "vocab")
         self.vocab_length = len(self.vocab[0])
 
     def _fill_meta(self):
