@@ -346,7 +346,8 @@ class Executor(object):
             val_dict = {
                 graph['x']: X,
                 graph['y']: denseNDArrayToSparseTensor(Y),
-                graph['l']: [graph['logits'].shape[0]] * len(X)
+                graph['l']: [self.dataset.max_length] * len(X)
+                #graph['l']: [graph['logits'].shape[0]] * len(X)
             }
             if self.dataset.meta.default('printed', False):
                 results_, cer_, class_ = sess.run(

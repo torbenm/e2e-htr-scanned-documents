@@ -6,9 +6,12 @@ import executor
 import os
 import re
 
-ALGORITHM_CONFIG = "otf-iam-print"  # "htrnet-pc-iam-print"
-MODEL_DATE = "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_EPOCH = 800  # 65
+# "htrnet-pc-iam-print"
+ALGORITHM_CONFIG = "otf-iam-print"
+# "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
+MODEL_DATE = "2018-07-12-08-58-10"
+# 800  # 65
+MODEL_EPOCH = 999
 
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")

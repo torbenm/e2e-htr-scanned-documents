@@ -7,8 +7,11 @@ from sklearn.datasets.samples_generator import make_blobs
 from sklearn.preprocessing import StandardScaler
 
 
-###
+def show(img):
+    cv2.imshow('image', img)
+    cv2.waitKey(0)
 
+###
 # IDEA:
 # Step 1: Tresholding (adjusted to resolution)
 #        --> Adjust to res (or fixed scaling)
@@ -21,6 +24,7 @@ from sklearn.preprocessing import StandardScaler
 # Step 6: Non-max supression of clusters
 #        --> Fully
 # Step 7: Finito!
+
 
 def non_max_suppression_fast(boxes, overlapThresh):
     # if there are no boxes, return an empty list
@@ -90,12 +94,6 @@ mean = np.mean(img, axis=(0, 1))
 img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                             cv2.THRESH_BINARY_INV, 51, mean/4)
 
-# img = cv2.morphologyEx(img, cv2.MORPH_OPEN, np.ones((2, 2)))
-# img = cv2.morphologyEx(img, cv2.MORPH_OPEN, np.ones((1, 3)))
-cv2.imshow('gray', img)
-cv2.waitKey(0)
-
-
 max_area = int(img.shape[0]*img.shape[1]/2)
 
 mser = cv2.MSER_create(
@@ -128,9 +126,7 @@ for contour in hulls:
     # cv2.circle(vis, (cX, cY), 2, (0, 0, 255), -1)
     cv2.rectangle(vis3, (x, y), (x + w, y + h), (0, 0, 255), 1)
     rects.extend([[x-2, y-2, w+2, h+2]]*2)
-cv2.imshow('img', vis3)
-cv2.waitKey(0)
-
+show(vis3)
 exit()
 
 # rects = np.array(rects)

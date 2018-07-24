@@ -15,10 +15,19 @@
     "sort_by_width": false,
     "otf_augmentations": {
       "affine": {},
+<<<<<<< HEAD
       "warp": {
             "prob": 0.5,
             "deviation": 1.35,
             "gridsize": [15, 15]
+=======
+      "morph": {
+        "prob": 0.5,
+        "ops": [
+          { "name": "thin", "values": [1, 7] },
+          { "name": "thicken", "values": [1, 7] }
+        ]
+>>>>>>> 6fa5cb23e85da0521f95bdf26fba60a02c3d100c
       }
     }
   },
