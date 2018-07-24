@@ -1,3 +1,5 @@
 opencv-python
 pillow
 tensorflow-gpu
+PyPDF2
+Wand

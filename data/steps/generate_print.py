@@ -59,7 +59,8 @@ class PrintGenerator(object):
         'blur': lambda i, c: i.filter(ImageFilter.GaussianBlur(c['radius'])),
         'sharpen': lambda i, c: i.filter(ImageFilter.UnsharpMask(c['radius'], c['percent'], c['threshold'])),
         'warp': lambda i, c: _warp(i, c['grid'], c['deviation']),
-        'affine': lambda i, c: PrintGenerator._affine_filter(i, c['config'])}
+        'affine': lambda i, c: PrintGenerator._affine_filter(i, c['config'])
+    }
 
     def __init__(self, config={}):
         self.config = Configuration(config)

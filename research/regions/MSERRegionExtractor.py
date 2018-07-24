@@ -27,7 +27,7 @@ class RegionExtractor(object):
         self._threshold_kernel = 51
         self._cluster_y_eps = 0.5
         self._cluster_x_eps = 2.0
-        self._min_region_area = img.shape[0]*img.shape[1]/1000.0
+        self._min_region_area = img.shape[0]*img.shape[1]/10000.0
 
         if np.max(self.original.shape[:2]) < 800 or np.max(self.original.shape[0:2]) < 533:
             print("Please provide the image in a higher resolution")
@@ -155,7 +155,7 @@ class RegionExtractor(object):
 
 
 if __name__ == "__main__":
-    IMAGE = "./images/rl01.jpg"
+    IMAGE = "./images/scan.jpg"
     img = cv2.imread(IMAGE)
     re = RegionExtractor(img)
     regions = re.extract()
@@ -165,6 +165,6 @@ if __name__ == "__main__":
         x, y = region.pos
         w, h = region.size
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 1)
-    cv2.imwrite('output.png', img)
+    # cv2.imwrite('output.png', img)
     cv2.imshow('All', img)
-    cv2.waitKey(5000)
+    cv2.waitKey(-1)
