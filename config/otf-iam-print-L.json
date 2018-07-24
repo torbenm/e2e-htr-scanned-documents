@@ -1,9 +1,9 @@
 {
-  "name": "otf-iam-print",
-  "dataset": "iam-print1",
+  "name": "otf-iam-print-L",
+  "dataset": "iam-print1-L",
   "algorithm": "htrnet",
   "save": 25,
-  "batch": 50,
+  "batch": 10,
   "epochs": 1000,
   "max_batches": 0,
   "learning_rate": 0.0003,
@@ -17,17 +17,21 @@
       "affine": {},
       "warp": {
             "prob": 0.5,
-            "deviation": 1.35,
-            "gridsize": [15, 15]
+            "deviation": 2.7,
+            "gridsize": [30, 30]
       }
     }
   },
   "algo_config": {
     "format": "nchw",
     "dynamic_width": false,
+    "brnn": {
+    	"units": 512
+    },
     "encoder": {
       "type": "cnn",
-      "cnn": {
+      "cnn": {      
+	"size": 32,
         "bias": true,
         "dropout": {
           "active": true
