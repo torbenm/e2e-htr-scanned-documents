@@ -102,6 +102,15 @@ class Executor(object):
                     self._restore(sess, date, epoch)
                 return callback(graph, sess, hooks, options)
 
+    def _train_denoising(self, graph, sess, hooks, options={}):
+        os.makedirs(self.models_path, exist_ok=True)
+        if self.config.default('save', False) != False:
+            saver = tf.train.Saver(max_to_keep=None)
+        files = os.listdir(pdfpath)
+        for n in range(self.config['epochs']):
+            for filename in files:
+                print(filename)
+
     def _train(self, graph, sess, hooks, options={}):
         batch_num = self.dataset.getBatchCount(
             self.config['batch'], self.config['max_batches'])
@@ -421,7 +430,8 @@ class Executor(object):
             class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
 
     def _restore(self, sess, date="", epoch=0):
-        filename = os.path.join(self.get_model_path(date), 'model-{}'.format(epoch))
+        filename = os.path.join(self.get_model_path(
+            date), 'model-{}'.format(epoch))
         tf.train.Saver().restore(sess, filename)
 
     def get_model_path(self, date):

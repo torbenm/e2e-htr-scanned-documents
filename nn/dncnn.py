@@ -6,16 +6,16 @@ from nn.layer.histogrammed import conv2d, batch_normalization
 
 DEFAULTS = {
     "conv1": {
-        "kernel": 3,
+        "kernel": [3, 3],
         "features": 64
     },
     "convs": {
         "num": 16,
-        "kernel": 3,
+        "kernel": [3, 3],
         "features": 64
     },
     "conv_n": {
-        "kernel": 3
+        "kernel": [3, 3]
     }
 }
 
@@ -40,7 +40,7 @@ class DnCNN(AlgorithmBaseV2):
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, None, None, channels], name="x"))
-            y = tf.sparse_placeholder(tf.int32, shape=x.shape, name="y")
+            y = tf.placeholder(tf.float32, shape=x.shape, name="y")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
             net = x
@@ -49,20 +49,20 @@ class DnCNN(AlgorithmBaseV2):
         # PHASE I: Convolutional Block without BN
         ###############
         with tf.name_scope('conv1'):
-            net = conv2d(net, self['conv1.features'], self['conv1.kernel'],
-                         padding='same', activation=tf.nn.relu)
+            net = log_1d(conv2d(net, self['conv1.features'], self['conv1.kernel'],
+                                padding='same', activation=tf.nn.relu))
 
         ################
         # PHASE II: Conv Loop
         ###############
         for idx in range(self['convs.num']):
-            net = self._conv_bn_layer(net, idx+1, is_train)
+            net = log_1d(self._conv_bn_layer(net, idx+1, is_train))
 
         ################
         # PHASE III: Last Conv Block
         ###############
         with tf.name_scope('conv_n'):
-            output = conv2d(net, channels, self['conv_n.features'])
+            output = log_1d(conv2d(net, channels, self['conv_n.kernel']))
 
         ##################
         # PHASE IV: Loss & Optomizer
