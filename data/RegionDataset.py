@@ -16,13 +16,17 @@ class RegionDataset(Dataset):
 
     def __init__(self, regions, model_path, data_config={}):
         self.model_path = model_path
-        self.regions = regions
         self._load_vocab()
         self._load_meta()
-        self._load_sets()
+        self._scaling = 1.0
+        self._max_height = 10000
+        self.set_regions(regions)
 
     def info(self):
         self.meta('Dataset Configuration')
+
+    def scaling(self, scaling, max_height):
+        self._scaling = scaling
 
     def _load_meta(self):
         self.meta = Configuration(util.loadJson(self.model_path, "data_meta"))
@@ -39,21 +43,32 @@ class RegionDataset(Dataset):
         width = int(img.shape[1] / factor)
         return cv2.resize(img, (width, height))
 
+    def _scale_img(self, img):
+        if img.shape[0] == 0 or img.shape[1] == 0:
+            print(im.shape)
+            return img
+        new_height = img.shape[0]*self._scaling
+        if new_height < self._max_height:
+            return self._scale(img, int(new_height))
+        else:
+            return self._scale(img, self._max_height)
+
     def _preprocess(self, region):
         img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
         img = invert._invert(img)
         img = threshold._threshold(img, True)
         img = crop._crop(img)
-        f = 1
-        if img.shape[1] * f < 1059 and img.shape[0]*f <= 133:
-            img = self._scale(img, int(img.shape[0]*f))
-        else:
-            img = self._scale(img, 1)
+        img = self._scale_img(img)
         img = padding._pad_cv2(img, 5, 0)
 
         img = pad(img, (self.meta["height"], self.meta["width"]))
         img = np.reshape(img, [self.meta["height"], self.meta["width"], 1])
         return img
+
+    def set_regions(self, regions):
+        self.regions = regions
+        if regions is not None:
+            self._load_sets()
 
     def compile(self, text):
         parsed = [self.vocab[1][c] for c in text]

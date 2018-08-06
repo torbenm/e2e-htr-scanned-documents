@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-VERBOSE = True
+VERBOSE = False
 
 
 def wrap_4d(cell):

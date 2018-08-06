@@ -38,6 +38,7 @@ if __name__ == "__main__":
                                     "" else None, args.model_epoch, {
                                         'trans_batch': transcription_hook
                                     })
+    exc.close()
     print('\n')
     print('Transcriptions for {} lines'.format(len(transcriptions['files'])))
     max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))

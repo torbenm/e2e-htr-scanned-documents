@@ -34,6 +34,10 @@ class Executor(object):
         self._accuracy = None
         self._pred_thresholded = None
         self._decoded_dense = None
+        self._graph = None
+        self._is_init = False
+        self._sess = None
+        self.verbose = verbose
         self.log_name = '{}-{}'.format(self.config['name'],
                                        time.strftime("%Y-%m-%d-%H-%M-%S"))
         self.tensorboard_path = os.path.join(TENSORBOARD_PATH, self.log_name)
@@ -45,11 +49,12 @@ class Executor(object):
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         if device != -1:
-            print('Setting cuda visible devices to', device)
+            if self.verbose:
+                print('Setting cuda visible devices to', device)
             os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
-
-        print("Configuring. Softplacement: ", softplacement,
-              "Logplacement:", logplacement, "Allow growth:", allow_growth)
+        if self.verbose:
+            print("Configuring. Softplacement: ", softplacement,
+                  "Logplacement:", logplacement, "Allow growth:", allow_growth)
         self.sessionConfig = tf.ConfigProto(
             allow_soft_placement=softplacement, log_device_placement=logplacement)
         self.sessionConfig.gpu_options.allow_growth = allow_growth
@@ -87,20 +92,26 @@ class Executor(object):
     def test(self):
         pass
 
-    def _exec(self, callback, hooks, date=None, epoch=0, options={}):
-        print("Going to run on", self.device)
+    def _exec(self, callback, hooks, date=None, epoch=0, options={}, new_sess=False):
+        if self.verbose:
+            print("Going to run on", self.device)
         with tf.device(self.device):
             config = self.sessionConfig or self.configure()
             graph = self._build_graph()
-            with tf.Session(config=config) as sess:
-                # Hot fix
-                self._build_accuracy(graph)
+            self._sess = tf.Session(
+                config=config) if new_sess or self._sess is None else self._sess
+            s = tf.Session(config=config)
+            sess = self._sess
+            # Hot fix
+            self._build_accuracy(graph)
+            if not self._is_init:
                 if date is None:
                     sess.run(tf.global_variables_initializer())
                     sess.run(tf.local_variables_initializer())
                 else:
                     self._restore(sess, date, epoch)
-                return callback(graph, sess, hooks, options)
+                self._is_init = True
+            return callback(graph, sess, hooks, options)
 
     def _train_denoising(self, graph, sess, hooks, options={}):
         os.makedirs(self.models_path, exist_ok=True)
@@ -422,12 +433,18 @@ class Executor(object):
         return self._accuracy
 
     def _build_graph(self):
-        return self.algorithm.build_graph(
-            batch_size=self.config['batch'], learning_rate=self.config[
-                'learning_rate'], sequence_length=self.dataset.max_length,
-            image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
-                "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
-            class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
+        if self._graph is None:
+            self._graph = self.algorithm.build_graph(
+                batch_size=self.config['batch'], learning_rate=self.config[
+                    'learning_rate'], sequence_length=self.dataset.max_length,
+                image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
+                    "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
+                class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
+        return self._graph
+
+    def close(self):
+        if self._sess is not None:
+            self._sess.close()
 
     def _restore(self, sess, date="", epoch=0):
         filename = os.path.join(self.get_model_path(

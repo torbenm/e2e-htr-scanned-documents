@@ -68,3 +68,4 @@ if __name__ == "__main__":
                   'skip_validation': args.skip_validation,
                   'timeline': args.timeline
               })
+    exc.close()

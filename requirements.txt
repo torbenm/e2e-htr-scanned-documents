@@ -3,3 +3,4 @@ pillow
 tensorflow-gpu
 PyPDF2
 Wand
+pylev

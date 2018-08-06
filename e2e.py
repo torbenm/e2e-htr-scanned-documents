@@ -49,6 +49,7 @@ if __name__ == "__main__":
     exc = executor.Executor(args.config, _dataset=dataset, verbose=False)
     exc.configure(args.gpu, True, False)
     transcriptions = exc.transcribe("", args.model_date, args.model_epoch)
+    exc.close()
     # print(transcriptions)
 
     print('\n')

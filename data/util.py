@@ -70,8 +70,10 @@ def dumpJson(path, name, data):
         json.dump(data, f)
 
 
-def loadJson(path, name):
-    with open(os.path.join(path, "{}.json".format(name)), 'r') as f:
+def loadJson(path, name=None):
+    filepath = os.path.join(path, "{}.json".format(
+        name)) if name is not None else path
+    with open(filepath, 'r') as f:
         return json.load(f)
 
 
