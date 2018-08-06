@@ -33,7 +33,7 @@ class End2End(object):
         self.models_path = os.path.join(
             executor.MODELS_PATH, '{}-{}'.format(config, model_date))
         self.dataset = RegionDataset(None, self.models_path)
-        self.dataset.scaling(0.5, 133)
+        self.dataset.scaling(2.1, 123, 1079)
         self.executor = executor.Executor(
             config, _dataset=self.dataset, verbose=False)
         self.executor.configure(gpu, True, False)

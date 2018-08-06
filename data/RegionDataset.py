@@ -20,13 +20,16 @@ class RegionDataset(Dataset):
         self._load_meta()
         self._scaling = 1.0
         self._max_height = 10000
+        self._max_width = 10000
         self.set_regions(regions)
 
     def info(self):
         self.meta('Dataset Configuration')
 
-    def scaling(self, scaling, max_height):
+    def scaling(self, scaling, max_height, max_width):
         self._scaling = scaling
+        self._max_height = max_height
+        self._max_width = max_width
 
     def _load_meta(self):
         self.meta = Configuration(util.loadJson(self.model_path, "data_meta"))
@@ -38,8 +41,8 @@ class RegionDataset(Dataset):
     def _load_sets(self):
         self.data = [self._preprocess(region) for region in self.regions]
 
-    def _scale(self, img, height):
-        factor = img.shape[0] / height
+    def _scale(self, img, factor):
+        height = int(img.shape[0] / factor)
         width = int(img.shape[1] / factor)
         return cv2.resize(img, (width, height))
 
@@ -47,11 +50,11 @@ class RegionDataset(Dataset):
         if img.shape[0] == 0 or img.shape[1] == 0:
             print(im.shape)
             return img
-        new_height = img.shape[0]*self._scaling
-        if new_height < self._max_height:
-            return self._scale(img, int(new_height))
-        else:
-            return self._scale(img, self._max_height)
+        factor = max(img.shape[0] / self._max_height,
+                     img.shape[1] / self._max_width,
+                     self._scaling)
+        img = self._scale(img, factor)
+        return img
 
     def _preprocess(self, region):
         img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)

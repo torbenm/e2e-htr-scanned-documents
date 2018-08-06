@@ -125,10 +125,10 @@ class RegionExtractor(object):
             for subgroup in groups:
                 subgroup = np.array(subgroup)
                 v = [0, 0, 0, 0]
-                v[0] = int(np.min(subgroup[:, 0])-5)
-                v[2] = int(np.max(subgroup[:, 2])+5)
-                v[1] = int(np.min(subgroup[:, 1])-5)
-                v[3] = int(np.max(subgroup[:, 3])+5)
+                v[0] = int(np.min(subgroup[:, 0]))
+                v[2] = int(np.max(subgroup[:, 2]))
+                v[1] = int(np.min(subgroup[:, 1]))
+                v[3] = int(np.max(subgroup[:, 3]))
                 if (v[2]-v[0])*(v[3]-v[1]) > self._min_region_area and (v[2]-v[0])/(v[3]-v[1]) > self._min_wh_ratio:
                     regions.append(v)
 
