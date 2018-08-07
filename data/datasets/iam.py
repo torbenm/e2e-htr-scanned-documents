@@ -7,7 +7,13 @@ class IamDataset(Dataset):
     identifier = "iam"
 
     def getFilesAndTruth(self, basepath, subset, limit=-1):
-        return self._load_ascii_lines(basepath, subset, limit)
+        if subset == "both":
+            limit = int(limit/2.0) if limit != -1 else -1
+            lines, fulltext = self._load_ascii_lines(basepath, "lines", limit)
+            words, _ = self._load_ascii_lines(basepath, "words", limit)
+            return [*lines, *words], fulltext
+        else:
+            return self._load_ascii_lines(basepath, subset, limit)
 
     def getDownloadInfo(self):
         download_info = {
@@ -49,14 +55,17 @@ class IamDataset(Dataset):
                     break
                 if line[0] != "#":
                     lsplit = line.split(" ")
-                    i = i + 1
                     if lsplit[1] != "err":
-                        path = self._get_image_path(basepath, type, lsplit[0])
+                        i = i + 1
+                        path, iam_line = self._get_image_path(
+                            basepath, type, lsplit[0])
                         text = ' '.join(lsplit[8:])
-                        parsed.append({"path": path, "truth": text})
+                        parsed.append(
+                            {"path": path, "truth": text, "line": iam_line})
                         fulltext = fulltext + text
             return parsed, fulltext
 
     def _get_image_path(self, basepath, subset, identifier):
         idsplit = identifier.split("-")
-        return os.path.join(basepath, self.identifier, subset, idsplit[0], "-".join(idsplit[0:2]), identifier + ".png")
+        line = "-".join(idsplit[0:3])
+        return os.path.join(basepath, self.identifier, subset, idsplit[0], "-".join(idsplit[0:2]), identifier + ".png"), line

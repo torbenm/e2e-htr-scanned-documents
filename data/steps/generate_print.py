@@ -143,7 +143,17 @@ class PrintGenerator(object):
         return _cv2pil(image)
 
 
-def generate_printed_sampels(ht_samples, config, invert, path, target_height=-1, target_width=-1):
+def generate_printed_samples(train_samples, dev_samples, test_samples, config, invert, path, target_height=-1, target_width=-1):
+    printed_train, train_max_size = _generate_printed_samples(
+        train_samples, config, invert, path, target_height, target_width)
+    printed_dev, dev_max_size = _generate_printed_samples(
+        dev_samples, config, invert, path, target_height, target_width)
+    printed_test, test_max_size = _generate_printed_samples(
+        test_samples, config, invert, path, target_height, target_width)
+    return printed_train, printed_dev, printed_test, np.max([train_max_size, dev_max_size, test_max_size], axis=0)
+
+
+def _generate_printed_samples(ht_samples, config, invert, path, target_height=-1, target_width=-1):
     length = min(len(ht_samples), config['count'])
     textsamples = ht_samples[:length]
     generator = PrintGenerator(config)

@@ -11,7 +11,7 @@ def loadContext(name):
     return util.loadJson(util.CONFIG_PATH, name)
 
 
-def prepareDataset(name, context, ehanceDataset):
+def prepareDataset(name, context, splitConfig):
     dataset = identifyDataset(context['dataset'])
     if dataset is not None:
         basepath = os.path.join(util.OUTPUT_PATH, name)
@@ -47,7 +47,7 @@ def prepareDataset(name, context, ehanceDataset):
             util.printDone("Extracting Scale Factor", True)
             print("Extracted Factor is", context['scale']['factor'])
 
-        if ehanceDataset == '':
+        if splitConfig == '':
             # Step 4: Shuffle dataset
             if 'shuffle' in context and context['shuffle']:
                 shuffle(files)
@@ -58,9 +58,13 @@ def prepareDataset(name, context, ehanceDataset):
                 files, context['dev_frac'], context['test_frac'])
             util.printDone("Splitting data")
         else:
-            enhancePath = os.path.join(util.OUTPUT_PATH, ehanceDataset)
-            train, dev, test = enhance.enhance(files, enhancePath)
-            util.printDone('Retrieved data split from other Dataset', True)
+            if "paper-notes" not in splitConfig:
+                splitPath = os.path.join(util.OUTPUT_PATH, splitConfig)
+                train, dev, test = enhance.enhance(files, splitPath)
+                util.printDone('Retrieved data split from other Dataset', True)
+            else:
+                train, dev, test = enhance.paperNotes(files, splitConfig)
+                util.printDone('Retrieved data split from other Dataset', True)
 
         # Step 6: Apply image pipeline to training
         train, train_sizes = pipeline.applyFullPipeline(
@@ -87,12 +91,9 @@ def prepareDataset(name, context, ehanceDataset):
         # Step 10: Create printed dataset
         if 'printed' in context:
             os.makedirs(printedpath)
-            print_data, print_max_size = generate_print.generate_printed_sampels(
-                train, context['printed'], 'invert' in context and bool(context['invert']), printedpath, max_size[1], max_size[0])
-            shuffle(print_data)
+            print_train, print_dev, print_test, print_max_size = generate_print.generate_printed_samples(
+                train, dev, test, context['printed'], 'invert' in context and bool(context['invert']), printedpath, max_size[1], max_size[0])
             max_size = np.max([print_max_size, max_size], axis=0)
-            print_train, print_dev, print_test = split.split(
-                print_data, context['dev_frac'], context['test_frac'])
             util.dumpJson(basepath, "print_train", print_train)
             util.dumpJson(basepath, "print_dev", print_dev)
             util.dumpJson(basepath, "print_test", print_test)
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", help="Configuration name", default="iam-lines")
     parser.add_argument(
-        "--enhance", help="Dataset to enhance", default="")
+        "--split", help="Dataset to use as split", default="")
     args = parser.parse_args()
     context = loadContext(args.config)
-    prepareDataset(args.config, context, args.enhance)
+    prepareDataset(args.config, context, args.split)

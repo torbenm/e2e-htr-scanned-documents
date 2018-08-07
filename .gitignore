@@ -12,4 +12,3 @@ __pycache__/
 tensorboard/
 investigator/node_modules
 outputs/
-_outputs/
