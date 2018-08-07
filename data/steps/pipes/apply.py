@@ -30,6 +30,7 @@ def applyPipeline(sourcepath, truth, context, train):
     images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]
     if images[0] is None or images[0].shape[0] == 0 or images[0].shape[1] == 0:
         return [], (0, 0)
+        
     # Step 1: Invert Image
     if isActive('invert'):
         images = invert(images)
@@ -42,6 +43,9 @@ def applyPipeline(sourcepath, truth, context, train):
     # Step 3: Crop Image
     if isActive('crop'):
         images = crop(images)
+
+    if images[0].shape[0] == 0 or images[0].shape[1] == 0:
+        return [], (0, 0)
 
     # Step 7: Warp Image
     if train and isActive('warp') and isActive('num', ctx=context['warp']):
