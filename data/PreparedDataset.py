@@ -128,7 +128,6 @@ class PreparedDataset(Dataset):
     def load_image(self, path, transpose=False, augmentable=False):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if self.data_config.default("otf_augmentations", False) and augmentable:
-            print('augmenting x!')
             x = self._augment_otf(x)
         if transpose:
             try:
