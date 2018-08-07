@@ -39,17 +39,19 @@ class RegionDataset(Dataset):
         self.vocab_length = len(self.vocab[0])
 
     def _load_sets(self):
-        self.data = [self._preprocess(region) for region in self.regions]
+        self.data = list(filter(lambda x: x is not None, [
+                         self._preprocess(region) for region in self.regions]))
 
     def _scale(self, img, factor):
         height = int(img.shape[0] / factor)
         width = int(img.shape[1] / factor)
+        if width <= 0 or height <= 0:
+            return np.zeros((self._max_height, self._max_width))
         return cv2.resize(img, (width, height))
 
     def _scale_img(self, img):
         if img.shape[0] == 0 or img.shape[1] == 0:
-            print(im.shape)
-            return img
+            return np.zeros((self._max_height, self._max_width))
         factor = max(img.shape[0] / self._max_height,
                      img.shape[1] / self._max_width,
                      self._scaling)
@@ -62,6 +64,8 @@ class RegionDataset(Dataset):
         img = threshold._threshold(img, True)
         img = crop._crop(img)
         img = self._scale_img(img)
+        if img is None:
+            return None
         img = padding._pad_cv2(img, 5, 0)
 
         img = pad(img, (self.meta["height"], self.meta["width"]))

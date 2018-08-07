@@ -1,8 +1,17 @@
 from .iou import fullpageiou
 import pylev
+import re
 
 IOU_THRESHOLD: float = 0.5
 LEVENSHTEIN_THRESHOLD: float = 0.25
+PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
+REGULAR_REGEX = re.compile(r"[|]")
+
+
+def clean_text(text):
+    text = PUNCTUATION_REGEX.sub('', text)
+    text = REGULAR_REGEX.sub(' ', text)
+    return text
 
 
 def levenshtein(gt, pred):
@@ -10,16 +19,25 @@ def levenshtein(gt, pred):
     return pylev.levenshtein(gt, pred)/ln
 
 
-def evaluate(groundtruth, predictions, iou_threshold=IOU_THRESHOLD, levenshtein_threshold=LEVENSHTEIN_THRESHOLD):
+def score_threshed(dist, threshold):
+    return 0 if dist > threshold else 1.0 * (1-(dist*2))
+
+
+def score_squared_error(dist, threshold):
+    return 1.0 - (dist if dist < 1.0 else 1.0)
+
+
+def evaluate(groundtruth, predictions, iou_threshold=IOU_THRESHOLD, levenshtein_threshold=LEVENSHTEIN_THRESHOLD, score_fn=score_squared_error):
     pairs, misfire = fullpageiou(groundtruth, predictions, iou_threshold)
-    total_pairs = len(pairs) + misfire
+    total_pairs = len(list(filter(lambda x: x["pred"] is not None or len(
+        x["gt"]["text"]) > 1, pairs))) + misfire
     correct_pairs = 0.0
     for pair in pairs:
         if pair["pred"] is not None:
-            dist = levenshtein(pair["gt"]["text"], pair["pred"]["text"])
+            dist = levenshtein(clean_text(pair["gt"]["text"]).lower(),
+                               clean_text(pair["pred"]["text"]).lower())
             pair["dist"] = dist
-            if dist < levenshtein_threshold:
-                correct_pairs += 1.0 * (1-(dist*2))
+            correct_pairs += score_fn(dist, levenshtein_threshold)
     return pairs, correct_pairs/total_pairs
 
 

@@ -1,6 +1,7 @@
 import argparse
 import cv2
-from segmentation.MSERRegionExtractor import RegionExtractor
+# from segmentation.MSERRegionExtractor import RegionExtractor
+from segmentation.WordRegionExtractor import RegionExtractor
 from data.RegionDataset import RegionDataset
 from data.util import loadJson, rmkdir
 from eval.evaluate import evaluate
@@ -22,7 +23,7 @@ SUBSET = "dev"
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")
 
-HTR_THRESHOLD = 0.25
+HTR_THRESHOLD = 0.1
 
 
 class End2End(object):
