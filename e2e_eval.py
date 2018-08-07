@@ -1,5 +1,7 @@
 import argparse
 import cv2
+import numpy as np
+from time import time
 # from segmentation.MSERRegionExtractor import RegionExtractor
 from segmentation.WordRegionExtractor import RegionExtractor
 from data.RegionDataset import RegionDataset
@@ -113,6 +115,7 @@ def paper_note(e2e, basepath, num, viz=False, output=False):
     if viz:
         cv2.imshow('viz', img)
         cv2.waitKey(0)
+    return score
 
 
 if __name__ == "__main__":
@@ -146,12 +149,17 @@ if __name__ == "__main__":
     files = os.listdir(basepath)
 
     idx = 0
+    scores = []
+    start = time()
     for file in files:
-        if idx > args.limit and not args.limit == -1:
+        if idx >= args.limit and not args.limit == -1:
             break
         if file.endswith("json"):
             num = get_num(file)
-            paper_note(e2e, basepath, num, args.visualize, args.output)
+            scores.append(paper_note(e2e, basepath, num,
+                                     args.visualize, args.output))
             idx += 1
 
     e2e.close()
+    print("Average score: {:6.2f}%".format(np.mean(scores)*100))
+    print("Took {:.2f}s".format(time() - start))
