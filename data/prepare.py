@@ -41,8 +41,9 @@ def prepareDataset(name, context, splitConfig):
         # Step 3: Extract scale factor, if wished
         if 'scale' in context and ('mode' not in context['scale'] or context['scale']['mode'] == 'factor'):
             imagepaths = list(map(lambda x: x["path"], files))
-            context['scale']['factor'] = scalefactor.getScaleFactor(
-                imagepaths, context['scale']['size'], util.printPercentage("Extracting Scale Factor"))
+            context['scale']['factor'] = 2
+            # scalefactor.getScaleFactor(
+            #     imagepaths, context['scale']['size'], util.printPercentage("Extracting Scale Factor"))
 
             util.printDone("Extracting Scale Factor", True)
             print("Extracted Factor is", context['scale']['factor'])

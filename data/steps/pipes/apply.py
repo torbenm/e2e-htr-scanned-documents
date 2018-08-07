@@ -28,7 +28,8 @@ def applyPipeline(sourcepath, truth, context, train):
 
     # Step 0: Read Image as Grayscale
     images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]
-
+    if images[0] is None:
+        return [], (0, 0)
     # Step 1: Invert Image
     if isActive('invert'):
         images = invert(images)
