@@ -263,7 +263,7 @@ class Executor(object):
                 hooks['val_batch'](steps, total_steps, cer_)
         return {
             'examples': examples,
-            'loss': np.mean(loss_total),
+            'loss': np.ma.masked_invalid(loss_total).mean(),
             'cer': np.mean(cer_total)
         }
 

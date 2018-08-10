@@ -15,8 +15,14 @@
   "padding": [5, 20, 5, 20],
   "binarize": false,
   "printed": {
-    "count": 10000,
+    "count": [10000, 1000, 1000],
     "padding": 5,
+    "height": {
+      "min": 10,
+      "max": 60,
+      "center": [20, 40],
+      "scale": 5
+    },
     "fonts": [
       "./data/fonts/AppleGaramond.ttf",
       "./data/fonts/Cursif.ttf",

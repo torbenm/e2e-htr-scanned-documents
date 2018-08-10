@@ -1,4 +1,5 @@
 import re
+import numbers
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 from config.config import Configuration
@@ -77,7 +78,7 @@ class PrintGenerator(object):
         return self['fonts'][np.random.randint(0, len(self['fonts']))]
 
     def _random_height(self):
-        return max(min(int(np.random.normal(self['height.center'], self['height.scale'])), self['height.max']), self['height.min'])
+        return max(min(int(np.random.normal(self['height.center', True], self['height.scale', True])), self['height.max', True]), self['height.min', True])
 
     def _random_foreground(self):
         return np.random.randint(self['foreground.low'], self['foreground.high'])
@@ -144,17 +145,19 @@ class PrintGenerator(object):
 
 
 def generate_printed_samples(train_samples, dev_samples, test_samples, config, invert, path, target_height=-1, target_width=-1):
+    count = [config['count']] * \
+        3 if isinstance(config['count'], numbers.Number) else config['count']
     printed_train, train_max_size = _generate_printed_samples(
-        train_samples, config, invert, path, target_height, target_width)
+        train_samples, count[0], config, invert, path, target_height, target_width)
     printed_dev, dev_max_size = _generate_printed_samples(
-        dev_samples, config, invert, path, target_height, target_width)
+        dev_samples, count[1], config, invert, path, target_height, target_width)
     printed_test, test_max_size = _generate_printed_samples(
-        test_samples, config, invert, path, target_height, target_width)
+        test_samples, count[2], config, invert, path, target_height, target_width)
     return printed_train, printed_dev, printed_test, np.max([train_max_size, dev_max_size, test_max_size], axis=0)
 
 
-def _generate_printed_samples(ht_samples, config, invert, path, target_height=-1, target_width=-1):
-    length = min(len(ht_samples), config['count'])
+def _generate_printed_samples(ht_samples, count, config, invert, path, target_height=-1, target_width=-1):
+    length = min(len(ht_samples), count)
     textsamples = ht_samples[:length]
     generator = PrintGenerator(config)
     generator.max_height = target_height

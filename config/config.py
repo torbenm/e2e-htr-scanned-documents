@@ -1,6 +1,7 @@
 import json
 import os
 import collections
+import numpy as np
 
 
 class Configuration(object):
@@ -35,7 +36,10 @@ class Configuration(object):
                         segment, '{} not a valid key in {}'.format(segment, key))
             return part
         else:
-            raise TypeError(key, 'Wrong type of key:', type(key))
+            if len(key) == 2 and key[1] is True:
+                return self.choice(key[0])
+            else:
+                raise TypeError(key, 'Wrong type of key:', type(key))
 
     def __str__(self):
         return self.config.__str__()
@@ -49,6 +53,9 @@ class Configuration(object):
             return self[prop]
         except KeyError:
             return defaultValue
+
+    def choice(self, key):
+        return np.random.choice(self[key]) if isinstance(self[key], (list,)) else self[key]
 
     def __call__(self, name='Configuration', keyLen=20, valueLen=30):
         totalLen = (keyLen + valueLen + 1)
@@ -92,3 +99,15 @@ class Configuration(object):
             return part
         else:
             raise TypeError(key, 'Wrong type of key')
+
+
+if __name__ == "__main__":
+    conf = Configuration(
+        {"hello": "world", "list": [500, 24, 37], "single": 100})
+
+    print(conf["hello"])
+    print(conf.choice("list"))
+    print(conf.choice("single"))
+    print(conf["hello", True])
+    print(conf["list", True])
+    print(conf["list"])

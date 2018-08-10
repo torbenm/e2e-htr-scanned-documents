@@ -39,8 +39,8 @@ class RegionDataset(Dataset):
         self.vocab_length = len(self.vocab[0])
 
     def _load_sets(self):
-        self.data = list(filter(lambda x: x is not None, [
-                         self._preprocess(region) for region in self.regions]))
+        self.data = np.asarray(list(filter(lambda x: x is not None, [
+            self._preprocess(region) for region in self.regions])))
 
     def _scale(self, img, factor):
         height = int(img.shape[0] / factor)
@@ -91,10 +91,12 @@ class RegionDataset(Dataset):
         return ''.join([getKey(c) for c in values])
 
     def _load_batch(self, index, batch_size, dataset, with_filepath=False):
+        batch_data = self.data[index *
+                               batch_size:min((index+1)*batch_size, len(self.data))]
         if with_filepath:
-            return np.asarray(self.data), [], [], []
+            return batch_data, [], [], []
         else:
-            return np.asarray(self.data), [], []
+            return batch_data, [], []
 
     def generateBatch(self, batch_size=0, max_batches=0, dataset="", with_filepath=False):
         return [self._load_batch(0, 0, "", with_filepath)]
@@ -103,7 +105,7 @@ class RegionDataset(Dataset):
         return [self.generateBatch()]
 
     def getBatchCount(self, batch_size, max_batches=0, dataset=""):
-        return 1  # its always! one
+        return np.ceil(len(self.data)/float(batch_size))
 
 
 def pad(array, reference_shape, offsets=None):
