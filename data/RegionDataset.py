@@ -91,21 +91,24 @@ class RegionDataset(Dataset):
         return ''.join([getKey(c) for c in values])
 
     def _load_batch(self, index, batch_size, dataset, with_filepath=False):
-        batch_data = self.data[index *
-                               batch_size:min((index+1)*batch_size, len(self.data))]
+        batch_data = np.asarray(self.data[index *
+                                          batch_size:min((index+1)*batch_size, len(self.data))])
         if with_filepath:
             return batch_data, [], [], []
         else:
             return batch_data, [], []
 
     def generateBatch(self, batch_size=0, max_batches=0, dataset="", with_filepath=False):
-        return [self._load_batch(0, 0, "", with_filepath)]
+        num_batches = self.getBatchCount(batch_size, max_batches, "")
+        for b in range(num_batches):
+            yield self._load_batch(b, batch_size, "", with_filepath)
+        pass
 
     def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False):
         return [self.generateBatch()]
 
     def getBatchCount(self, batch_size, max_batches=0, dataset=""):
-        return np.ceil(len(self.data)/float(batch_size))
+        return int(np.ceil(len(self.data)/float(batch_size)))
 
 
 def pad(array, reference_shape, offsets=None):
