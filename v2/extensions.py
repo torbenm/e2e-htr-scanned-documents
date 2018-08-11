@@ -1,14 +1,14 @@
 import tensorflow as tf
 
 
-def decoder(graph, get_ext, config):
+def decoder(logits, length, mode="greedy"):
     _decoder = None
-    if config['ctc'] == "greedy":
+    if mode == "greedy":
         _decoder, _ = tf.nn.ctc_greedy_decoder(
-            graph['logits'], graph['l'], merge_repeated=True)
-    elif self.config['ctc']:
+            logits, length, merge_repeated=True)
+    elif mode:
         _decoder, _ = tf.nn.ctc_beam_search_decoder(
-            graph['logits'], graph['l'], merge_repeated=True)
+            logits, length, merge_repeated=True)
     return _decoder
 
 

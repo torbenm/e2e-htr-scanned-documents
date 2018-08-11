@@ -18,11 +18,15 @@ class Configuration(object):
             _config[key] = configurations[key]
         return _config
 
-    def __init__(self, config):
-        if isinstance(config, collections.Iterable):
+    def __init__(self, config, defaults=None):
+        if isinstance(config, Configuration):
+            self.config = config.config
+            print(config.config)
+        elif isinstance(config, collections.Iterable):
             self.config = config
         else:
             self.config = {}
+        self.defaults = None if defaults is None else Configuration(defaults)
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -32,8 +36,11 @@ class Configuration(object):
                 if segment in part:
                     part = part[segment]
                 else:
-                    raise KeyError(
-                        segment, '{} not a valid key in {}'.format(segment, key))
+                    if self.defaults is None:
+                        raise KeyError(
+                            segment, '{} not a valid key in {}'.format(segment, key))
+                    else:
+                        return self.defaults[key]
             return part
         else:
             if len(key) == 2 and key[1] is True:
@@ -100,8 +107,14 @@ class Configuration(object):
         else:
             raise TypeError(key, 'Wrong type of key')
 
+    def set(self, config):
+        for key in config:
+            self[key] = config[key]
+
 
 if __name__ == "__main__":
+
+    print("--- CHECK CHOICE ---")
     conf = Configuration(
         {"hello": "world", "list": [500, 24, 37], "single": 100})
 
@@ -111,3 +124,22 @@ if __name__ == "__main__":
     print(conf["hello", True])
     print(conf["list", True])
     print(conf["list"])
+
+    print("--- CHECK DEFAULTS ---")
+    wdef = Configuration({}, {"hello": "default"})
+    print(wdef["hello"])
+    wdef["hello"] = "config"
+    print(wdef["hello"])
+
+    print("--- CHECK SET ---")
+    cset = Configuration({"hello": "world"})
+    print(cset)
+    cset.set({
+        "hello": "brave new world",
+        "depth": {
+            "is": {
+                "also": "supported"
+            }
+        }
+    })
+    print(cset)

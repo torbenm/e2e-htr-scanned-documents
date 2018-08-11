@@ -19,15 +19,6 @@ class_step = 1
 class Executor(object):
 
     def __init__(self, configName, _dataset=None, transpose=False, verbose=True):
-        self.config = Configuration(util.loadJson(CONFIG_PATH, configName))
-        self._transpose = transpose
-        self.algorithm = getAlgorithm(
-            self.config['algorithm'], self.config.default('algo_config', {}), self._transpose)
-        if isinstance(_dataset, Dataset.Dataset):
-            self.dataset = _dataset
-        else:
-            self.dataset = PreparedDataset.PreparedDataset(_dataset or self.config[
-                'dataset'], self._transpose, self.config.default('data_config', {}))
         self.sessionConfig = None
         self._decoder = None
         self._cer = None
@@ -45,72 +36,6 @@ class Executor(object):
         if verbose:
             self.config('Algorithm Configuration')
             self.dataset.info()
-
-    def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
-        #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-        if device != -1:
-            if self.verbose:
-                print('Setting cuda visible devices to', device)
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
-        if self.verbose:
-            print("Configuring. Softplacement: ", softplacement,
-                  "Logplacement:", logplacement, "Allow growth:", allow_growth)
-        self.sessionConfig = tf.ConfigProto(
-            allow_soft_placement=softplacement, log_device_placement=logplacement)
-        self.sessionConfig.gpu_options.allow_growth = allow_growth
-        self.device = evaluate_device(device)
-        self.algorithm.set_cpu(device == -1)
-        return self.sessionConfig
-
-    def investigate(self, subset, date=None, epoch=0, hooks=None):
-        options = {
-            "dataset": subset
-        }
-        return self._exec(self._investigate, hooks, date, epoch, options)
-
-    def transcribe(self, subset, date=None, epoch=0, hooks=None):
-        options = {
-            "dataset": subset
-        }
-        return self._exec(self._transcribe, hooks, date, epoch, options)
-
-    def visualize(self, image, date=None, epoch=0, hooks=None):
-        options = {
-            "image": image
-        }
-        return self._exec(self._visualize, hooks, date, epoch, options)
-
-    def train(self, date=None, epoch=0, hooks=None, options={}):
-        return self._exec(self._train, hooks, date, epoch, options=options)
-
-    def validate(self, date=None, epoch=0, hooks=None, dataset="dev"):
-        options = {
-            "dataset": dataset
-        }
-        return self._exec(self._validate, hooks, date, epoch, options)
-
-    def test(self):
-        pass
-
-    def _exec(self, callback, hooks, date=None, epoch=0, options={}, new_sess=False):
-        if self.verbose:
-            print("Going to run on", self.device)
-        with tf.device(self.device):
-            config = self.sessionConfig or self.configure()
-            graph = self._build_graph()
-            self._sess = tf.Session(
-                config=config) if new_sess or self._sess is None else self._sess
-            sess = self._sess
-            # Hot fix
-            self._build_accuracy(graph)
-            if not self._is_init:
-                if date is None:
-                    sess.run(tf.global_variables_initializer())
-                    sess.run(tf.local_variables_initializer())
-                else:
-                    self._restore(sess, date, epoch)
-                self._is_init = True
-            return callback(graph, sess, hooks, options)
 
     def _train_denoising(self, graph, sess, hooks, options={}):
         os.makedirs(self.models_path, exist_ok=True)
@@ -140,8 +65,6 @@ class Executor(object):
         util.dumpJson(self.models_path, 'vocab', self.dataset.vocab)
         self.config.save(self.models_path, 'algorithm')
 
-        if self.config.default('save', False) != False:
-            saver = tf.train.Saver(max_to_keep=None)
         class_epochs = None
         if self.dataset.meta.default('printed', False):
             class_epochs = self.dataset.generateEpochs(
@@ -152,8 +75,6 @@ class Executor(object):
             if self.dataset.meta.default('printed', False) and (idx+1) % 3 == 0:
                 self._train_class_epoch(graph, sess, idx, next(
                     class_epochs), batch_num_printed, hooks, options, summ, writer)
-            if self.config.default('save', False) != False and (idx % self.config['save'] == 0 or idx == self.config['epochs'] - 1):
-                saver.save(sess, foldername, global_step=idx)
 
     def _train_class_epoch(self, graph, sess, idx, epoch, batch_num, hooks, options, summ, writer):
         global class_step
@@ -303,42 +224,6 @@ class Executor(object):
             'accuracy': -1.0
         }
 
-    def _transcribe(self, graph, sess, hooks=None, options={}):
-        # OPTIONS
-        dataset = options['dataset'] if 'dataset' in options else 'test'
-
-        # ADDITIONAL GRAPHs
-        results = self._build_decoded_dense(graph)
-        class_pred = self._build_pred_thresholding(graph)
-        # VARIABLES
-        steps = 0
-        total_steps = self.dataset.getBatchCount(
-            self.config['batch'], self.config['max_batches'], dataset)
-
-        transcriptions = {
-            'files': [],
-            'trans': [],
-            'class': []
-        }
-        for X, Y, L, F in self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], dataset, True):
-            steps += 1
-            val_dict = {
-                graph['x']: X,
-                graph['l']: [graph['logits'].shape[0]] * len(X)
-            }
-            if self.dataset.meta.default('printed', False):
-                results_, class_ = sess.run(
-                    [results, graph['class_pred']], val_dict)
-                transcriptions['class'].extend(class_)
-            else:
-                results_ = sess.run(results, val_dict)
-            transcriptions['files'].extend(F)
-            transcriptions['trans'].extend(results_)
-
-            if hooks is not None and 'trans_batch' in hooks:
-                hooks['trans_batch'](steps, total_steps)
-        return transcriptions
-
     def _investigate(self, graph, sess, hooks=None, options={}):
         # OPTIONS
         dataset = options['dataset'] if 'dataset' in options else 'test'
@@ -392,23 +277,6 @@ class Executor(object):
         activations = sess.run(graph['viz'], viz_dict)
         return activations
 
-    def _build_decoded_dense(self, graph):
-        if self._decoded_dense is None:
-            decoded = self._decode(graph)
-            self._decoded_dense = tf.sparse_to_dense(
-                decoded[0].indices, decoded[0].dense_shape, decoded[0].values, tf.constant(-1, tf.int64))
-        return self._decoded_dense
-
-    def _decode(self, graph):
-        if self._decoder is None:
-            if self.config['ctc'] == "greedy":
-                self._decoder, _ = tf.nn.ctc_greedy_decoder(
-                    graph['logits'], graph['l'], merge_repeated=True)
-            elif self.config['ctc']:
-                self._decoder, _ = tf.nn.ctc_beam_search_decoder(
-                    graph['logits'], graph['l'], merge_repeated=True)
-        return self._decoder
-
     def _build_cer(self, graph):
         if self._cer is None:
             decoded = self._decode(graph)
@@ -416,12 +284,6 @@ class Executor(object):
                 tf.cast(decoded[0], tf.int32), tf.cast(graph['y'], tf.int32))
             tf.summary.scalar('cer', tf.reduce_mean(self._cer))
         return self._cer
-
-    def _build_pred_thresholding(self, graph):
-        if self._pred_thresholded is None:
-            self._pred_thresholded = tf.to_int32(
-                graph['class_pred'] > self.config.default('accuracy_threshold', 0.5))
-        return self._pred_thresholded
 
     def _build_accuracy(self, graph):
         if self._accuracy is None:
@@ -431,27 +293,6 @@ class Executor(object):
             self._accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
         return self._accuracy
 
-    def _build_graph(self):
-        if self._graph is None:
-            # self.algorithm.configure(
-            #     batch_size=self.config['batch'], learning_rate=self.config[
-            #         'learning_rate'], sequence_length=self.dataset.max_length,
-            #     image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
-            #         "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
-            #     class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
-            # self._graph = self.algorithm.build_graph()
-            self._graph = self.algorithm.build_graph(
-                batch_size=self.config['batch'], learning_rate=self.config[
-                    'learning_rate'], sequence_length=self.dataset.max_length,
-                image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
-                    "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
-                class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
-        return self._graph
-
-    def close(self):
-        if self._sess is not None:
-            self._sess.close()
-
     def _restore(self, sess, date="", epoch=0):
         filename = os.path.join(self.get_model_path(
             date), 'model-{}'.format(epoch))
@@ -460,10 +301,6 @@ class Executor(object):
     def get_model_path(self, date):
         return os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], date))
-
-
-def evaluate_device(gpuNumber):
-    return "/device:CPU:0" if gpuNumber == -1 else "/device:GPU:{}".format(gpuNumber)
 
 
 def denseNDArrayToSparseTensor(arr, sparse_val=-1):
