@@ -3,10 +3,11 @@ from typing import Union, List
 import os
 from functools import reduce
 
-from .Executable import Executable
 from nn.layer.algorithmBaseV2 import AlgorithmBaseV2
 from nn import getAlgorithm
-from config.config import Configuration
+
+from .executables import Executable
+from .Configuration import Configuration
 
 INITIALIZED_SESSION = "session"
 INITIALIZED_DEVICE = "device"
@@ -27,10 +28,11 @@ class Executor(object):
     graph = None
     restore_model = None
 
-    def __init__(self, algorithm: AlgorithmBaseV2, verbose=False, config={}):
+    def __init__(self, algorithm: AlgorithmBaseV2, verbose=False, config={}, logger=None):
         self.algorithm = algorithm
         self.config = Configuration(config, self.DEFAULT_CONFIG)
-
+        self.verbose = verbose
+        self.logger = logger
     #
     # PUBLIC METHODS
     #
@@ -44,12 +46,12 @@ class Executor(object):
 
     def configure(self, **config):
         self.config.set(config)
+        self.algorithm.set_cpu(self.config['device'] == -1)
 
     def __call__(self, executables: List[Executable], new_session=False, auto_close=True):
         with tf.device(self._get_device()):
             self._create_graph()
             [executable.extend_graph(self.graph) for executable in executables]
-            executables. extend_graph(graph)
             self._get_session(new_session)
             self._initialize_session()
             self._run(executables)
@@ -66,10 +68,12 @@ class Executor(object):
 
     def _run(self, executables: List[Executable]):
         epoch = 0
-        while reduce(lambda a, e: a and x, [e.continue(epoch) for e in executables]):
+        while reduce(lambda a, e: a and x, [e.will_continue(epoch) for e in executables]):
             running_executables = filter(
                 lambda e: e.will_run(epoch), executables)
-            [e(self, epoch, session, graph) for e in running_executables]
+            [e(self, epoch, self.session, self.graph)
+             for e in running_executables]
+            self._summary(epoch, executables)
             epoch += 1
 
     def _create_graph(self):
@@ -87,8 +91,9 @@ class Executor(object):
             sessionConfig.gpu_options.allow_growth = allow_growth
             self.log("Configuring. Softplacement: {}, Logplacement: {}, Allow growth: {}".format(
                 softplacement, logplacement, allow_growth))
-            self.session = tf.Session(sessionConfig)
-            self.initialized.remove("session")
+            self.session = tf.Session(config=sessionConfig)
+            if INITIALIZED_SESSION in self.initialized:
+                self.initialized.remove(INITIALIZED_SESSION)
         return self.session
 
     def _initialize_session(self):
@@ -106,5 +111,15 @@ class Executor(object):
             self.log('Setting cuda visible devices to %s' % device)
             os.environ["CUDA_VISIBLE_DEVICES"] = str(device)
             self.initialized.append(INITIALIZED_DEVICE)
-            self.algorithm.set_cpu(device == -1)
         return "/device:CPU:0" if device == -1 else "/device:GPU:{}".format(device)
+
+    def _summary(self, epoch, executables: List[Executable]):
+        if logger is not None:
+            exec_time = reduce(lambda a, x: a + x,
+                               [e.execution_time for e in executables])
+            summary = {
+                "time": exec_time
+            }
+
+            [e.summarize(summary) for e in executables]
+            self.logger.summary("Epoch {:4d}".format(epoch), summary)

@@ -433,19 +433,13 @@ class Executor(object):
 
     def _build_graph(self):
         if self._graph is None:
-            # self.algorithm.configure(
-            #     batch_size=self.config['batch'], learning_rate=self.config[
-            #         'learning_rate'], sequence_length=self.dataset.max_length,
-            #     image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
-            #         "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
-            #     class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
-            # self._graph = self.algorithm.build_graph()
-            self._graph = self.algorithm.build_graph(
+            self.algorithm.configure(
                 batch_size=self.config['batch'], learning_rate=self.config[
                     'learning_rate'], sequence_length=self.dataset.max_length,
                 image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
                     "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
                 class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
+            self._graph = self.algorithm.build_graph()
         return self._graph
 
     def close(self):

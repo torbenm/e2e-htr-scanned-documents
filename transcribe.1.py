@@ -1,7 +1,7 @@
 import sys
 import argparse
 import os
-from exec.Executor import Executor
+from lib import QuickExecutor
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
@@ -33,10 +33,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # todo: read and parse algorithm
-    exc = Executor()
+    exc = QuickExecutor(args.dataset, args.config)
     exc.configure(softplacement=not args.hardplacement,
                   logplacement=args.logplacement, device=args.gpu)
-
+    transcriber = exc.add_transcriber(args.subset)
+    exc.restore(args.model_date, args.model_epoch)
+    exc()
+    transcriptions = transcriber.transcriptions
     # exc = Executor(args.config, args.dataset, args.legacy_transpose)
     # exc.configure(args.gpu, not args.hardplacement, args.logplacement)
     # transcriptions = exc.transcribe(args.subset, args.model_date if args.model_date !=

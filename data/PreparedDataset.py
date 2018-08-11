@@ -197,14 +197,14 @@ class PreparedDataset(Dataset):
 
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)
+        if self.data_config.default('shuffle_epoch', False):
+            shuffle(self.data[dataset])
         for b in range(num_batches):
             yield self._load_batch(b, batch_size, dataset, with_filepath, augmentable=augmentable)
         pass
 
     def generateEpochs(self, batch_size, num_epochs, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         for e in range(num_epochs):
-            if self.data_config.default('shuffle_epoch', False):
-                shuffle(self.data[dataset])
             yield self.generateBatch(batch_size, max_batches=max_batches, dataset=dataset, with_filepath=with_filepath, augmentable=augmentable)
 
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):

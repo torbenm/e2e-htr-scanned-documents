@@ -1,9 +1,12 @@
-from config.config import Configuration
-from .Constants import CONFIG_PATH, MODELS_PATH
-from .Transcriber import Transcriber
-from .Logger import Logger
+import os
+
 from data import util, Dataset, PreparedDataset
 from nn import getAlgorithm
+
+from .Configuration import Configuration
+from .Constants import CONFIG_PATH, MODELS_PATH
+from .executables import Transcriber, Saver, Visualizer, TrainClassifier, TrainTranscriber, TranscriptionValidator, ClassValidator
+from .Logger import Logger
 from .Executor import Executor
 
 
@@ -41,16 +44,40 @@ class QuickExecutor(object):
             self.config('Algorithm Configuration')
             self.dataset.info()
 
+    def configure(self, **config):
+        self.executor.configure(**config)
+
     def restore(self, date, epoch):
         filename = os.path.join(os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], date)), 'model-{}'.format(epoch))
         self.executor.restore(filename)
 
     def add_transcriber(self, subset):
-        transcriber = Transcriber(
-            self.dataset, self.logger, subset, self.config)
-        self.executables.append(transcriber)
-        return transcriber
+        return self._add(Transcriber, subset=subset)
+
+    def add_visualizer(self, image):
+        return self._add(Visualizer, image=image)
+
+    def add_train_classifier(self, subset):
+        return self._add(TrainClassifier, subset=subset)
+
+    def add_train_transcriber(self, subset):
+        return self._add(TrainTranscriber, subset=subset)
+
+    def add_transcription_validator(self, subset):
+        return self._add(TranscriptionValidator, subset=subset)
+
+    def add_class_validator(self, subset):
+        return self._add(ClassValidator, subset=subset)
+
+    def add_saver(self):
+        return self._add(Saver)
+
+    def _add(self, class_, **kwargs):
+        obj = class_(**kwargs, dataset=self.dataset, logger=self.logger,
+                     subset=subset, config=self.config)
+        self.executables.append(obj)
+        return obj
 
     def __call__(self):
         self.executor(self.executables)
