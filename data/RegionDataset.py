@@ -69,8 +69,8 @@ class RegionDataset(Dataset):
 
         img = pad(img, (self.meta["height"], self.meta["width"]))
         img = np.reshape(img, [self.meta["height"], self.meta["width"], 1])
-        cv2.imshow('region', img)
-        cv2.waitKey(0)
+        # cv2.imshow('region', img)
+        # cv2.waitKey(0)
         return img
 
     def set_regions(self, regions):
