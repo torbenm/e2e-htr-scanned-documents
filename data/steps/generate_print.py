@@ -189,6 +189,8 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
     full_samples = []
     for idx, sample in enumerate(textsamples):
         text = PrintGenerator.clean_text(sample['truth'])
+        if text.strip() == "":
+            continue
         image = generator(text, invert)
         printedpath = os.path.join(path, 'printed-{}.png'.format(idx))
         image.save(printedpath)
