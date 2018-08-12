@@ -127,10 +127,10 @@ class PrintGenerator(object):
     def _crop(self, image, invert):
         if self['crop']:
             image = _pil2cv2(image)
-            if invert:
+            if not invert:
                 image = 255 - image
             image = _crop(image)
-            if invert:
+            if not invert:
                 image = 255 - image
             image = _cv2pil(image)
         return image
