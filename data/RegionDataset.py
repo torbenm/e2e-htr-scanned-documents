@@ -61,7 +61,6 @@ class RegionDataset(Dataset):
     def _preprocess(self, region):
         img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
         img = invert._invert(img)
-        img = threshold._threshold(img, True)
         img = crop._crop(img)
         img = self._scale_img(img)
         if img is None:
@@ -70,6 +69,8 @@ class RegionDataset(Dataset):
 
         img = pad(img, (self.meta["height"], self.meta["width"]))
         img = np.reshape(img, [self.meta["height"], self.meta["width"], 1])
+        cv2.imshow('region', img)
+        cv2.waitKey(0)
         return img
 
     def set_regions(self, regions):

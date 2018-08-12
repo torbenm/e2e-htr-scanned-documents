@@ -2,7 +2,7 @@
   "name": "otf-iam-both",
   "dataset": "iam-both1",
   "algorithm": "htrnet",
-  "save": 25,
+  "save": 5,
   "batch": 50,
   "epochs": 1000,
   "max_batches": 0,

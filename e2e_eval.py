@@ -15,9 +15,9 @@ import re
 # otf-iam-both-2018-08-07-15-38-49
 ALGORITHM_CONFIG = "otf-iam-both"
 # "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_DATE = "2018-08-09-23-50-54"
+MODEL_DATE = "2018-08-12-19-26-12"
 # 800  # 65
-MODEL_EPOCH = 65
+MODEL_EPOCH = 24
 
 DATAPATH = "../paper-notes/data/final"
 SUBSET = "dev"
