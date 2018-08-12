@@ -81,6 +81,8 @@ class PrintGenerator(object):
         return max(min(int(np.random.normal(self['height.center', True], self['height.scale', True])), self['height.max', True]), self['height.min', True])
 
     def _random_foreground(self):
+        if self['foreground.low'] == self['foreground.high']:
+            return self['foreground.low']
         return np.random.randint(self['foreground.low'], self['foreground.high'])
 
     def _iterate_height(self, text, fontname, height):
