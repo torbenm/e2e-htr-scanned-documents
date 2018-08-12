@@ -191,7 +191,11 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
         text = PrintGenerator.clean_text(sample['truth'])
         if text.strip() == "":
             continue
-        image = generator(text, invert)
+        try:
+            image = generator(text, invert)
+        except ValueError:
+            print("Skipping ValueError")
+            continue
         printedpath = os.path.join(path, 'printed-{}.png'.format(idx))
         image.save(printedpath)
         full_samples.append({"path": printedpath, "truth": 0})
