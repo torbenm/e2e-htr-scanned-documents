@@ -18,6 +18,7 @@
     "count": [10000, 1000, 1000],
     "padding": 5,
     "printing_padding": 5,
+    "crop": true,
     "height": {
       "min": 10,
       "max": 110,
