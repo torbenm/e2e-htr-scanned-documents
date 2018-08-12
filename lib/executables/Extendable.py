@@ -8,6 +8,7 @@ class Extendable(object):
     _decoder = None
     _pred_thresholded = None
     _cer = None
+    _accuracy = None
 
     def __init__(self, **kwargs):
         self.config = Configuration(kwargs.get('config', {}))

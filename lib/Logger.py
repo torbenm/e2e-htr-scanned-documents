@@ -13,7 +13,7 @@ class Logger(object):
     def summary(self, prefix, summary):
         summary_part = "{} {:.3f}"
         summary_parts = [summary_part.format(
-            key, sumamry[key]) for key in summary]
+            key, summary[key]) for key in summary]
         msg = "{} | {}".format(prefix, " | ".join(summary_parts))
         sys.stdout.write('\r{:130}\n'.format(msg))
         sys.stdout.flush()

@@ -1,6 +1,7 @@
 import tensorflow as tf
+import numpy as np
 import time
-from typings import Dict
+from typing import Dict
 
 from . import Extendable, Executable
 from lib import Executor, Configuration, Logger

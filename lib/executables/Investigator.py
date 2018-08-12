@@ -23,7 +23,7 @@ class Investigator(Executable, Extendable):
         X, Y, _, _ = batch
         return {
             graph['x']: X,
-            graph['y']: denseNDArrayToSparseTensor(Y),
+            graph['y']: self.denseNDArrayToSparseTensor(Y),
             graph['l']: [self.dataset.max_length] * len(X)
             # graph['l']: [graph['logits'].shape[0]] * len(X)
         }

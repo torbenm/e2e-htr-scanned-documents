@@ -5,7 +5,7 @@ from . import Extendable, Executable
 
 class Transcriber(Executable, Extendable):
 
-    def __init__(self, dataset, logger: Logger =None, subset="test", config={}):
+    def __init__(self, dataset, logger=None, subset="test", config={}):
         super().__init__(config=config, logger=logger, subset=subset, dataset=dataset)
 
     def get_logger_prefix(self, epoch):

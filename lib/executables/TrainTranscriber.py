@@ -19,7 +19,7 @@ class TrainTranscriber(Executable):
         X, Y, _ = batch
         return {
             graph['x']: X,
-            graph['y']: denseNDArrayToSparseTensor(Y),
+            graph['y']: self.denseNDArrayToSparseTensor(Y),
             graph['l']: [self.dataset.max_length] * len(X),
             graph['is_train']: True
         }

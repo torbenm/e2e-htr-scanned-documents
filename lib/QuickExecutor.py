@@ -1,4 +1,5 @@
 import os
+import time
 
 from data import util, Dataset, PreparedDataset
 from nn import getAlgorithm
@@ -20,7 +21,7 @@ class QuickExecutor(object):
     executables = []
     logger = Logger()
 
-    def __init__(self, dataset, configName: str, verbose=False):
+    def __init__(self, dataset=None, configName: str="", verbose=False):
         self.config = Configuration(util.loadJson(
             CONFIG_PATH, configName), self.DEFAULT_CONFIG)
         self.algorithm = getAlgorithm(
@@ -40,6 +41,10 @@ class QuickExecutor(object):
         self.executor = Executor(
             self.algorithm, verbose, self.config)
 
+        self.log_name = '{}-{}'.format(self.config['name'],
+                                       time.strftime("%Y-%m-%d-%H-%M-%S"))
+        self.models_path = os.path.join(MODELS_PATH, self.log_name)
+
         if verbose:
             self.config('Algorithm Configuration')
             self.dataset.info()
@@ -52,32 +57,35 @@ class QuickExecutor(object):
             MODELS_PATH, '{}-{}'.format(self.config['name'], date)), 'model-{}'.format(epoch))
         self.executor.restore(filename)
 
-    def add_transcriber(self, subset):
-        return self._add(Transcriber, subset=subset)
+    def add_transcriber(self, **kwargs):
+        return self._add(Transcriber, **kwargs)
 
     def add_visualizer(self, image):
         return self._add(Visualizer, image=image)
 
-    def add_train_classifier(self, subset):
-        return self._add(TrainClassifier, subset=subset)
+    def add_train_classifier(self, **kwargs):
+        return self._add(TrainClassifier, **kwargs)
 
-    def add_train_transcriber(self, subset):
-        return self._add(TrainTranscriber, subset=subset)
+    def add_train_transcriber(self, **kwargs):
+        return self._add(TrainTranscriber, **kwargs)
 
-    def add_transcription_validator(self, subset):
-        return self._add(TranscriptionValidator, subset=subset)
+    def add_transcription_validator(self, **kwargs):
+        return self._add(TranscriptionValidator, **kwargs)
 
-    def add_class_validator(self, subset):
-        return self._add(ClassValidator, subset=subset)
+    def add_class_validator(self, **kwargs):
+        return self._add(ClassValidator, **kwargs)
 
-    def add_saver(self):
-        return self._add(Saver)
+    def add_saver(self, **kwargs):
+        return self._add(Saver, foldername=self.models_path, every_epoch=self.config['save'], **kwargs)
 
     def _add(self, class_, **kwargs):
-        obj = class_(**kwargs, dataset=self.dataset, logger=self.logger,
-                     subset=subset, config=self.config)
+        obj = class_(**kwargs, dataset=self.dataset,
+                     logger=self.logger,  config=self.config)
         self.executables.append(obj)
         return obj
+
+    def add_summary(self):
+        self.executor.logger = self.logger
 
     def __call__(self):
         self.executor(self.executables)

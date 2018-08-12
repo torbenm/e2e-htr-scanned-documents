@@ -1,39 +1,7 @@
 import sys
 import argparse
-from executor import Executor
+from lib import QuickExecutor
 import os
-
-
-def batch_hook(epoch, batch, max_batches):
-    percent = (float(batch) / max_batches) * 100
-    out = 'epoch = {0} [ {2:100} ] {1:02.2f}% '.format(
-        str(epoch).zfill(3), percent, "|" * int(percent))
-    sys.stdout.write("\r" + out)
-    sys.stdout.flush()
-
-
-def val_batch_hook(step, max_steps, val_stats):
-    percent = int((float(step) / max_steps) * 100)
-    msg = 'VALIDATING... {:2} %'.format(percent)
-    sys.stdout.write('\r{:130}'.format(msg))
-    sys.stdout.flush()
-
-
-def epoch_hook(epoch, loss, time, val_stats):
-    msg = 'epoch {0} | loss {1:.3f} | val_loss {4:.3f} | cer {3:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
-                                                                                            loss,
-                                                                                            time, val_stats['cer'], val_stats['loss'])
-    sys.stdout.write('\r{:130}\n'.format(msg))
-    sys.stdout.flush()
-
-
-def class_epoch_hook(epoch, loss, time, val_stats):
-    msg = 'epoch {0} | loss {1:.3f} | accuracy {3:.3f} | time {2:.3f}'.format(str(epoch).zfill(3),
-                                                                              loss,
-                                                                              time, val_stats['accuracy'])
-    sys.stdout.write('\r{:130}\n'.format(msg))
-    sys.stdout.flush()
-
 
 if __name__ == "__main__":
 
@@ -45,7 +13,9 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
-    parser.add_argument('--skip-validation', help='Skip validation',
+    parser.add_argument('--no-trans', help='Don\'t train transcriber',
+                        action='store_true', default=False)
+    parser.add_argument('--no-class', help='Don\'t train classifier',
                         action='store_true', default=False)
     parser.add_argument('--timeline', default='')
     parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
@@ -56,16 +26,17 @@ if __name__ == "__main__":
                         default=0, type=int)
     args = parser.parse_args()
 
-    exc = Executor(args.config, transpose=args.legacy_transpose)
-    exc.configure(args.gpu, not args.hardplacement, args.logplacement)
-    exc.train(args.model_date if args.model_date !=
-              "" else None, args.model_epoch, {
-                  'batch': batch_hook,
-                  'val_batch': val_batch_hook,
-                  'epoch': epoch_hook,
-                  'class_epoch': class_epoch_hook
-              }, {
-                  'skip_validation': args.skip_validation,
-                  'timeline': args.timeline
-              })
-    exc.close()
+    qe = QuickExecutor(configName=args.config)
+    qe.configure(softplacement=not args.hardplacement,
+                 logplacement=args.logplacement, device=args.gpu)
+    if not args.no_trans:
+        qe.add_train_transcriber()
+        qe.add_transcription_validator()
+    if not args.no_class:
+        qe.add_train_classifier()
+        qe.add_class_validator()
+    qe.add_saver()
+    qe.add_summary()
+    if args.model_date != "":
+        qe.restore(args.model_date, args.model_epoch)
+    qe()

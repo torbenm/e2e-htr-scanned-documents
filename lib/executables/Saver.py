@@ -7,13 +7,16 @@ from lib.util.file import writeJson, readJson
 
 class Saver(Executable):
 
-    def __init__(self, foldername, every_epoch=1):
-        super().__init(every_epoch=every_epoch)
-        self.foldername = foldername
-        self.saver = tf.train.Saver(max_to_keep=None)
+    execution_time = 0
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.foldername = kwargs.get('foldername')
+        self._copy_config()
 
     def __call__(self, executor, epoch, session, graph):
-        saver.save(session, self.foldername, global_step=epoch)
+        tf.train.Saver(max_to_keep=None).save(
+            session, os.path.join(self.foldername, 'model'), global_step=epoch)
 
     def _copy_config(self):
         # Copy configurations to models folder

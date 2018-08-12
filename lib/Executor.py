@@ -29,6 +29,7 @@ class Executor(object):
     restore_model = None
 
     def __init__(self, algorithm: AlgorithmBaseV2, verbose=False, config={}, logger=None):
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         self.algorithm = algorithm
         self.config = Configuration(config, self.DEFAULT_CONFIG)
         self.verbose = verbose
@@ -68,7 +69,7 @@ class Executor(object):
 
     def _run(self, executables: List[Executable]):
         epoch = 0
-        while reduce(lambda a, e: a and x, [e.will_continue(epoch) for e in executables]):
+        while reduce(lambda a, e: a and e, [e.will_continue(epoch) for e in executables]):
             running_executables = filter(
                 lambda e: e.will_run(epoch), executables)
             [e(self, epoch, self.session, self.graph)
@@ -114,7 +115,7 @@ class Executor(object):
         return "/device:CPU:0" if device == -1 else "/device:GPU:{}".format(device)
 
     def _summary(self, epoch, executables: List[Executable]):
-        if logger is not None:
+        if self.logger is not None:
             exec_time = reduce(lambda a, x: a + x,
                                [e.execution_time for e in executables])
             summary = {
