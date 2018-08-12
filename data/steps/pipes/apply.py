@@ -30,7 +30,7 @@ def applyPipeline(sourcepath, truth, context, train):
     images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]
     if images[0] is None or images[0].shape[0] == 0 or images[0].shape[1] == 0:
         return [], (0, 0)
-        
+
     # Step 1: Invert Image
     if isActive('invert'):
         images = invert(images)

@@ -12,11 +12,12 @@
     "mode": "factor",
     "size": [-1, 124]
   },
-  "padding": [5, 20, 5, 20],
+  "padding": 5,
   "binarize": false,
   "printed": {
     "count": [10000, 1000, 1000],
     "padding": 5,
+    "printing_padding": 5,
     "height": {
       "min": 10,
       "max": 130,
