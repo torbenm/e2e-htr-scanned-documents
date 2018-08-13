@@ -32,14 +32,18 @@ class DnCNN(AlgorithmBaseV2):
             net = batch_normalization(net, training=train)
             return tf.nn.relu(net)
 
-    def build_graph(self, channels=1, learning_rate=0.001):
+    def configure(self, **kwargs):
+        self.learning_rate = kwargs.get('learning_rate', 0.001)
+        self.channels = kwargs.get('channels', 1)
+
+    def build_graph(self):
 
         ###################
         # PLACEHOLDER
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, None, None, channels], name="x"))
+                tf.float32, [None, None, None, self.channels], name="x"))
             y = tf.placeholder(tf.float32, shape=x.shape, name="y")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
@@ -62,13 +66,13 @@ class DnCNN(AlgorithmBaseV2):
         # PHASE III: Last Conv Block
         ###############
         with tf.name_scope('conv_n'):
-            output = log_1d(conv2d(net, channels, self['conv_n.kernel']))
+            output = log_1d(conv2d(net, self.channels, self['conv_n.kernel']))
 
         ##################
         # PHASE IV: Loss & Optomizer
         #################
         loss = tf.nn.l2_loss(output - y)
-        train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+        train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
 
         return dict(
             x=x,

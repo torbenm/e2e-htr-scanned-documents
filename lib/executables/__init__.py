@@ -10,3 +10,4 @@ from .TrainClassifier import TrainClassifier
 from .TrainTranscriber import TrainTranscriber
 from .Visualizer import Visualizer
 from .Investigator import Investigator
+from .TrainDnCNN import TrainDnCNN

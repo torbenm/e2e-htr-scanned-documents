@@ -5,6 +5,7 @@ import requests
 from urllib.parse import urlparse
 import argparse
 import json
+import numpy as np
 
 
 def getFullPath(base, folder_name):
@@ -86,3 +87,21 @@ def retrieve(url, target, username='', password=''):
         with open(target, 'wb') as out:
             for bits in r.iter_content():
                 out.write(bits)
+
+
+def pad(array, reference_shape, offsets=None):
+    """
+    array: Array to be padded
+    reference_shape: tuple of size of ndarray to create
+    offsets: list of offsets (number of elements must be equal to the dimension of the array)
+    will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
+    """
+    offsets = offsets if offsets is not None else [0] * len(reference_shape)
+    # Create an array of zeros with the reference shape
+    result = np.zeros(reference_shape)
+    # Create a list of slices from offset to offset + shape in each dimension
+    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
+                  for dim in range(array.ndim)]
+    # Insert the array in the result at the specified offsets
+    result[insertHere] = array
+    return result
