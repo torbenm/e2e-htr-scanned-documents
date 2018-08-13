@@ -35,6 +35,8 @@ class DnCNN(AlgorithmBaseV2):
     def configure(self, **kwargs):
         self.learning_rate = kwargs.get('learning_rate', 0.001)
         self.channels = kwargs.get('channels', 1)
+        self.slice_width = kwargs.get('slice_width', 300)
+        self.slice_height = kwargs.get('slice_height', 300)
 
     def build_graph(self):
 
@@ -43,7 +45,7 @@ class DnCNN(AlgorithmBaseV2):
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, self.dataset.slice_height, self.dataset.slice_width, self.channels], name="x"))
+                tf.float32, [None, self.slice_height, self.slice_width, self.channels], name="x"))
             y = tf.placeholder(tf.float32, shape=x.shape, name="y")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
