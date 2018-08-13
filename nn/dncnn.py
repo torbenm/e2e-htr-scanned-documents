@@ -43,7 +43,7 @@ class DnCNN(AlgorithmBaseV2):
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, None, None, self.channels], name="x"))
+                tf.float32, [None, self.dataset.slice_height, self.dataset.slice_width, self.channels], name="x"))
             y = tf.placeholder(tf.float32, shape=x.shape, name="y")
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
