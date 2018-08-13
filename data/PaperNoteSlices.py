@@ -136,10 +136,9 @@ class PaperNoteSlices(Dataset):
 
 if __name__ == "__main__":
     pns = PaperNoteSlices(paper_note_path='../paper-notes/data/final')
-    i = 0
     for X, Y, _ in pns.generateBatch(50):
-        cv2.imshow('x', X[0])
-        cv2.imshow('y', Y[0])
-        cv2.waitKey(0)
-        i += 1
+        for x in X:
+            print(x.shape)
+            cv2.imshow('x', x)
+            cv2.waitKey(0)
     # pns.generateBatch()
