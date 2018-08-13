@@ -27,8 +27,8 @@ if __name__ == "__main__":
     config = Configuration({
         "name": "dncnn",
         "save": 5,
-        "max_batches": 0,
-        "batch": 50
+        "max_batches": 100,
+        "batch": 5
     })
     algorithm = DnCNN({})
     algorithm.configure()

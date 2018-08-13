@@ -1,6 +1,6 @@
 {
   "name": "otf-iam-both",
-  "dataset": "iam-both1",
+  "dataset": "iam-both1-raw",
   "algorithm": "htrnet",
   "save": 5,
   "batch": 50,
