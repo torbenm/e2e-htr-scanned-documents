@@ -19,7 +19,8 @@ DEFAULTS = {
         "units": [512]
     },
     "dynamic_width": False,
-    "format": "nhwc"
+    "format": "nhwc",
+    "scale": False
 }
 
 
@@ -84,6 +85,8 @@ class HtrNet(AlgorithmBaseV2):
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, self.image_height, None if self['dynamic_width'] else self.image_width, self.channels], name="x"))
+            if self["scale"]:
+                x = x / tf.constant(255.0)
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, None], name="y")
             class_y = tf.placeholder(

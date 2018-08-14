@@ -32,6 +32,12 @@ class DnCNN(AlgorithmBaseV2):
             net = batch_normalization(net, training=train)
             return tf.nn.relu(net)
 
+    def _scale(self, val):
+        return (val / tf.constant(255.0)) * tf.constant(2.0) - tf.constant(1.0)
+
+    def _unscale(self, val):
+        return ((val + tf.constant(1.0)) / tf.constant(2.0)) * tf.constant(255.0)
+
     def configure(self, **kwargs):
         self.learning_rate = kwargs.get('learning_rate', 0.001)
         self.channels = kwargs.get('channels', 1)
@@ -46,7 +52,9 @@ class DnCNN(AlgorithmBaseV2):
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, self.slice_height, self.slice_width, self.channels], name="x"))
+            x = self._scale(x)
             y = tf.placeholder(tf.float32, shape=x.shape, name="y")
+            y = self._scale(y)
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
             net = x
@@ -76,7 +84,7 @@ class DnCNN(AlgorithmBaseV2):
         #################
         loss = tf.nn.l2_loss(output - y)
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
-
+        output = self._unscale(output)
         return dict(
             x=x,
             y=y,
