@@ -4,12 +4,12 @@ import numpy as np
 from . import Extendable, Executable
 
 
-class TrainClassifier(Executable):
+class DnCNNTrainer(Executable):
 
     training_loss = 0
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('subset', 'print_train')
+        kwargs.setdefault('subset', 'train')
         super().__init__(**kwargs)
 
     def get_logger_prefix(self, epoch):
@@ -19,23 +19,23 @@ class TrainClassifier(Executable):
         X, Y, _ = batch
         return {
             graph['x']: X,
-            graph['class_y']: Y,
+            graph['y']: Y,
             graph['is_train']: True
         }
 
     def get_batches(self):
         return self.dataset.generateBatch(
-            self.config['batch'], max_batches=self.config['max_batches'], dataset=self.subset, augmentable=True)
+            self.config['batch'], max_batches=self.config['max_batches'], dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        return [graph['class_loss'], graph['class_train']]
+        return [graph['loss'], graph['train_step']]
 
     def before_call(self):
         self.all_training_loss = []
 
     def after_iteration(self, batch, execution_results):
         training_loss, _ = execution_results
-        self.all_training_loss.extend(training_loss)
+        self.all_training_loss.append(training_loss/len(batch[0]))
 
     def after_call(self):
         self.training_loss = np.ma.masked_invalid(
@@ -43,5 +43,5 @@ class TrainClassifier(Executable):
 
     def summarize(self, summary):
         summary.update({
-            "class loss": self.training_loss
+            "dn loss": self.training_loss
         })

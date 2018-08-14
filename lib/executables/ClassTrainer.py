@@ -4,12 +4,12 @@ import numpy as np
 from . import Extendable, Executable
 
 
-class TrainTranscriber(Executable):
+class ClassTrainer(Executable):
 
     training_loss = 0
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('subset', 'train')
+        kwargs.setdefault('subset', 'print_train')
         super().__init__(**kwargs)
 
     def get_logger_prefix(self, epoch):
@@ -19,8 +19,7 @@ class TrainTranscriber(Executable):
         X, Y, _ = batch
         return {
             graph['x']: X,
-            graph['y']: self.denseNDArrayToSparseTensor(Y),
-            graph['l']: [self.dataset.max_length] * len(X),
+            graph['class_y']: Y,
             graph['is_train']: True
         }
 
@@ -29,7 +28,7 @@ class TrainTranscriber(Executable):
             self.config['batch'], max_batches=self.config['max_batches'], dataset=self.subset, augmentable=True)
 
     def get_graph_executables(self, graph):
-        return [graph['total_loss'], graph['train_step']]
+        return [graph['class_loss'], graph['class_train']]
 
     def before_call(self):
         self.all_training_loss = []
@@ -44,5 +43,5 @@ class TrainTranscriber(Executable):
 
     def summarize(self, summary):
         summary.update({
-            "trans loss": self.training_loss
+            "class loss": self.training_loss
         })

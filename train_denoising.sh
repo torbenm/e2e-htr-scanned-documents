@@ -1,7 +1,5 @@
 #!/bin/bash
-
-echo $1
-file=logs/$1-$(date +%F-%T).txt
+file=logs/dncnn-$(date +%F-%T).txt
 echo $file
-nohup python train_denoising.py --gpu 3 ${@:2} > $file  2>&1 &
+nohup python train_denoising.py --gpu 3 ${@:1} > $file  2>&1 &
 tail -f $file -n 100
