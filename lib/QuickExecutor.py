@@ -6,7 +6,7 @@ from nn import getAlgorithm
 
 from .Configuration import Configuration
 from .Constants import CONFIG_PATH, MODELS_PATH
-from .executables import Transcriber, Saver, Visualizer, TrainClassifier, TrainTranscriber, TranscriptionValidator, ClassValidator
+from .executables import RecClassRunner, Saver, Visualizer, ClassTrainer, RecognitionTrainer, RecognitionValidator, ClassValidator, ClassRunner
 from .Logger import Logger
 from .Executor import Executor
 
@@ -58,19 +58,22 @@ class QuickExecutor(object):
         self.executor.restore(filename)
 
     def add_transcriber(self, **kwargs):
-        return self._add(Transcriber, **kwargs)
+        return self._add(RecClassRunner, **kwargs)
+
+    def add_classifier(self, **kwargs):
+        return self._add(ClassRunner, **kwargs)
 
     def add_visualizer(self, image):
         return self._add(Visualizer, image=image)
 
     def add_train_classifier(self, **kwargs):
-        return self._add(TrainClassifier, **kwargs)
+        return self._add(ClassTrainer, **kwargs)
 
     def add_train_transcriber(self, **kwargs):
-        return self._add(TrainTranscriber, **kwargs)
+        return self._add(RecognitionTrainer, **kwargs)
 
     def add_transcription_validator(self, **kwargs):
-        return self._add(TranscriptionValidator, **kwargs)
+        return self._add(RecognitionValidator, **kwargs)
 
     def add_class_validator(self, **kwargs):
         return self._add(ClassValidator, **kwargs)

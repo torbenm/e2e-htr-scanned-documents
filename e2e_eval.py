@@ -15,18 +15,18 @@ import re
 # otf-iam-both-2018-08-07-15-38-49
 ALGORITHM_CONFIG = "otf-iam-both"
 # "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_DATE = "2018-08-12-23-27-54"
+MODEL_DATE = "2018-08-12-23-45-59"
 # 800  # 65
-MODEL_EPOCH = 9
+MODEL_EPOCH = 24
 
 DATAPATH = "../paper-notes/data/final"
-SUBSET = "dev"
+SUBSET = "train"
 
 
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")
 
-HTR_THRESHOLD = 0.005
+HTR_THRESHOLD = 0.1
 
 
 class End2End(object):
@@ -37,7 +37,7 @@ class End2End(object):
         self.models_path = os.path.join(
             executor.MODELS_PATH, '{}-{}'.format(config, model_date))
         self.dataset = RegionDataset(None, self.models_path)
-        self.dataset.scaling(2.15, 123, 1079)
+        self.dataset.scaling(2.15, 123, 1049)
         self.executor = executor.Executor(
             config, _dataset=self.dataset, verbose=False)
         self.executor.configure(gpu, True, False)
@@ -105,7 +105,7 @@ class End2End(object):
         self.dataset.set_regions(regions)
         transcriptions = self.executor.transcribe(
             "", self.model_date, self.model_epoch)
-        self._print_transcriptions(transcriptions)
+        # self._print_transcriptions(transcriptions)
         preds, nonhts = self._post_process(regions, transcriptions)
         pairs, score = self._evaluate(preds, truthpath)
 

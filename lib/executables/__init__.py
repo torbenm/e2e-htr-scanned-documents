@@ -3,11 +3,13 @@ from .Extendable import Extendable
 
 from .Saver import Saver
 
-from .Transcriber import Transcriber
-from .TranscriptionValidator import TranscriptionValidator
+from .ClassTrainer import ClassTrainer
+from .ClassRunner import ClassRunner
 from .ClassValidator import ClassValidator
-from .TrainClassifier import TrainClassifier
-from .TrainTranscriber import TrainTranscriber
-from .Visualizer import Visualizer
+from .DnCNNRunner import DnCNNRunner
+from .DnCNNTrainer import DnCNNTrainer
+from .RecClassRunner import RecClassRunner
+from .RecognitionTrainer import RecognitionTrainer
+from .RecognitionValidator import RecognitionValidator
 from .Investigator import Investigator
-from .TrainDnCNN import TrainDnCNN
+from .Visualizer import Visualizer

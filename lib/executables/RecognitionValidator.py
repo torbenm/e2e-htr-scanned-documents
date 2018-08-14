@@ -4,7 +4,7 @@ import numpy as np
 from . import Extendable, Executable
 
 
-class TranscriptionValidator(Executable, Extendable):
+class RecognitionValidator(Executable, Extendable):
 
     validation_results = None
 

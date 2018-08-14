@@ -15,6 +15,7 @@
   "padding": 5,
   "binarize": false,
   "printed": {
+    "minlength": 2,
     "count": [10000, 1000, 1000],
     "padding": 5,
     "printing_padding": 5,

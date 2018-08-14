@@ -187,9 +187,12 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
     generator.max_height = target_height
     generator.max_width = target_width
     full_samples = []
-    for idx, sample in enumerate(textsamples):
+    idx = 0
+    for sample in textsamples:
+        if idx >= length:
+            break
         text = PrintGenerator.clean_text(sample['truth'])
-        if text.strip() == "":
+        if len(text.strip()) < config['minlength']:
             continue
         try:
             image = generator(text, invert)
@@ -200,4 +203,5 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
         image.save(printedpath)
         full_samples.append({"path": printedpath, "truth": 0})
         full_samples.append({"path": sample['path'], "truth": 1})
+        idx += 1
     return full_samples, generator.max_size
