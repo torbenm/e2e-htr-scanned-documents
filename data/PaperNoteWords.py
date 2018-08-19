@@ -111,7 +111,7 @@ class PaperNoteWords(Dataset):
     def load_image(self, path, transpose=False, augmentable=False):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         x = self.augmenter.preprocess(
-            x, (self.meta["height"], self.meta["width"]))
+            x, (self.meta["height"]-(self.data_config.default('preprocess.padding', 0)*2), self.meta["width"]-(self.data_config.default('preprocess.padding', 0)*2)))
         if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self.augmenter.augment(x)
 
