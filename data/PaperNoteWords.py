@@ -115,7 +115,6 @@ class PaperNoteWords(Dataset):
             int(self.meta["width"] -
                 (self.data_config.default('preprocess.padding', 0)*2))
         )
-        print(path)
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if x.shape[0] == 0 or x.shape[1] == 0:
             return None

@@ -26,10 +26,13 @@ def last_nonzero(arr, axis, invalid_val=-1):
 
 
 def bounding_box(image):
-    top = first_nonzero(image, 0)
-    left = first_nonzero(image, 1)
-    bottom = last_nonzero(image, 0)
-    right = last_nonzero(image, 1)
-    if bottom <= top or right <= left:
+    try:
+        top = first_nonzero(image, 0)
+        left = first_nonzero(image, 1)
+        bottom = last_nonzero(image, 0)
+        right = last_nonzero(image, 1)
+        if bottom <= top or right <= left:
+            return None
+        return top, left, bottom, right
+    except ValueError:
         return None
-    return top, left, bottom, right
