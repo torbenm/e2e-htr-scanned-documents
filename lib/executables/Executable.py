@@ -4,7 +4,9 @@ import time
 from typing import Dict
 
 from . import Extendable, Executable
-from lib import Executor, Configuration, Logger
+from lib.Executor import Executor
+from lib.Configuration import Configuration
+from lib.Logger import Logger
 
 
 class Executable(object):

@@ -11,6 +11,7 @@ class RecognitionValidator(Executable, Extendable):
     def __init__(self, **kwargs):
         kwargs.setdefault('subset', 'dev')
         super().__init__(**kwargs)
+        self.prefix = kwargs.get('prefix', '')
 
     def get_logger_prefix(self, epoch):
         return "Validating"
@@ -54,5 +55,5 @@ class RecognitionValidator(Executable, Extendable):
 
     def summarize(self, summary):
         summary.update({
-            "cer": self.validation_results["cer"]
+            "{}cer".format(self.prefix): self.validation_results["cer"]
         })

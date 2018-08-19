@@ -84,7 +84,7 @@ class DnCNN(AlgorithmBaseV2):
         #################
         loss = tf.nn.l2_loss(output - y)
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
-        output = self._unscale(output)
+        #output = self._unscale(output)
         return dict(
             x=x,
             y=y,

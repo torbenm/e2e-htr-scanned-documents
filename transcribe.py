@@ -1,7 +1,7 @@
 import sys
 import argparse
 import os
-from lib import QuickExecutor
+from lib.QuickExecutor import QuickExecutor
 
 if __name__ == "__main__":
 

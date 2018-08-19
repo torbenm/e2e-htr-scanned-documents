@@ -3,7 +3,10 @@ import os
 import time
 
 from data.PaperNoteSlices import PaperNoteSlices
-from lib import Executor, Configuration, Constants, Logger
+from lib.Executor import Executor
+from lib.Configuration import Configuration
+from lib.Constants import Constants
+from lib.Logger import Logger
 from lib.executables import DnCNNTrainer, Saver
 from nn.dncnn import DnCNN
 

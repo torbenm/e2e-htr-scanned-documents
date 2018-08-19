@@ -49,7 +49,7 @@ class Executor(object):
         self.config.set(config)
         self.algorithm.set_cpu(self.config['device'] == -1)
 
-    def __call__(self, executables: List[Executable], new_session=False, auto_close=True):
+    def __call__(self, executables, new_session=False, auto_close=True):
         with tf.device(self._get_device()):
             self._create_graph()
             [executable.extend_graph(self.graph) for executable in executables]
@@ -67,7 +67,7 @@ class Executor(object):
     # PRIVATE METHODS
     #
 
-    def _run(self, executables: List[Executable]):
+    def _run(self, executables):
         epoch = 0
         while reduce(lambda a, e: a and e, [e.will_continue(epoch) for e in executables]):
             running_executables = filter(
@@ -114,7 +114,7 @@ class Executor(object):
             self.initialized.append(INITIALIZED_DEVICE)
         return "/device:CPU:0" if device == -1 else "/device:GPU:{}".format(device)
 
-    def _summary(self, epoch, executables: List[Executable]):
+    def _summary(self, epoch, executables):
         if self.logger is not None:
             exec_time = reduce(lambda a, x: a + x,
                                [e.execution_time for e in executables])

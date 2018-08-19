@@ -1,7 +1,7 @@
 import sys
 import argparse
 import os
-from lib import QuickExecutor
+from lib.QuickExecutor import QuickExecutor
 
 ALGORITHM_CONFIG = "otf-iam-both"
 # "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"

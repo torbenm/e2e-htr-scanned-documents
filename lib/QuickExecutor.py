@@ -82,8 +82,10 @@ class QuickExecutor(object):
         return self._add(Saver, foldername=self.models_path, every_epoch=self.config['save'], **kwargs)
 
     def _add(self, class_, **kwargs):
-        obj = class_(**kwargs, dataset=self.dataset,
-                     logger=self.logger,  config=self.config)
+        kwargs.setdefault('dataset', self.dataset)
+        kwargs.setdefault('logger', self.logger)
+        kwargs.setdefault('config', self.config)
+        obj = class_(**kwargs)
         self.executables.append(obj)
         return obj
 

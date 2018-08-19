@@ -1,0 +1,88 @@
+import numpy as np
+import cv2
+
+from lib.Configuration import Configuration
+from data.steps.pipes import warp, morph, convert, affine, crop, invert, padding
+
+
+class ImageAugmenter(object):
+
+    def __init__(self, config):
+        self.config = Configuration(config)
+
+    def augment(self, img):
+        if "warp" in self.data_config["otf_augmentations"]:
+            if np.random.uniform() < self.data_config['otf_augmentations.warp.prob']:
+                img = convert._cv2pil(img)
+                img = warp._warp(
+                    img, gridsize=self.data_config['otf_augmentations.warp.gridsize'], deviation=self.data_config['otf_augmentations.warp.deviation'])
+                img = convert._pil2cv2(img)
+        if "affine" in self.data_config["otf_augmentations"]:
+            img = affine._affine(
+                img, self.data_config["otf_augmentations.affine"])
+        if "morph" in self.data_config["otf_augmentations"]:
+            img = morph._random_morph(
+                img, self.data_config["otf_augmentations.morph"], True)
+        return img
+
+    def add_graychannel(self, img):
+        return np.reshape(img, [img.shape[0], img.shape[1], 1])
+
+    def pad_to_size(self, img, width, height):
+        return self._pad(img, (width, height))
+
+    def _scale(self, img, factor, target_size=None):
+        height = int(img.shape[0] / factor)
+        width = int(img.shape[1] / factor)
+        if width <= 0 or height <= 0:
+            return np.zeros(target_size)
+        return cv2.resize(img, (width, height))
+
+    def _scale_img(self, img, scale_factor, target_size=None):
+        if img.shape[0] == 0 or img.shape[1] == 0:
+            return np.zeros(target_size)
+        factor = max(img.shape[0] / target_size[0],
+                     img.shape[1] / target_size[1],
+                     scale_factor)
+        img = self._scale(img, factor)
+        return img
+
+    def preprocess(self, img, target_size=None):
+        bg = 255
+        if self.config.default('preprocess.invert', False):
+            img = invert._invert(img)
+            bg = 255 - bg
+
+        if self.config.default('preprocess.crop', False):
+            img = crop._crop(img)
+
+        if self.config.default('preprocess.scale', False):
+            img = self._scale_img(
+                img, self.config['preprocess.scale'], target_size)
+
+        if self.config.default('preprocess.padding', False):
+            img = padding._pad_cv2(img, self.config['preprocess.padding'], bg)
+
+        if target_size != None:
+            img = self._pad(img, target_size)
+        if len(img.shape) == 2:
+            img = self.add_graychannel(img)
+        return img
+
+    def _pad(self, array, reference_shape, offsets=None):
+        """
+        array: Array to be padded
+        reference_shape: tuple of size of ndarray to create
+        offsets: list of offsets (number of elements must be equal to the dimension of the array)
+        will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
+        """
+        offsets = offsets if offsets is not None else [
+            0] * len(reference_shape)
+        # Create an array of zeros with the reference shape
+        result = np.zeros(reference_shape)
+        # Create a list of slices from offset to offset + shape in each dimension
+        insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
+                      for dim in range(array.ndim)]
+        # Insert the array in the result at the specified offsets
+        result[insertHere] = array
+        return result
