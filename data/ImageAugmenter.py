@@ -35,11 +35,13 @@ class ImageAugmenter(object):
         height = int(img.shape[0] / factor)
         width = int(img.shape[1] / factor)
         if width <= 0 or height <= 0:
+            print('w and h is <= 0', width, height)
             return None
         return cv2.resize(img, (width, height))
 
     def _scale_img(self, img, scale_factor, target_size=None):
         if img.shape[0] == 0 or img.shape[1] == 0:
+            print('prescale shape is 0', img.shape)
             return None
         factor = max(img.shape[0] / target_size[0],
                      img.shape[1] / target_size[1],
@@ -55,6 +57,7 @@ class ImageAugmenter(object):
 
         if self.config.default('preprocess.crop', False):
             if img.shape[0] == 0 or img.shape[1] == 0:
+                print('precrop shape is 0', img.shape)
                 return None
             img = crop._crop(img)
 
