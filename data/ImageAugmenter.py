@@ -35,12 +35,12 @@ class ImageAugmenter(object):
         height = int(img.shape[0] / factor)
         width = int(img.shape[1] / factor)
         if width <= 0 or height <= 0:
-            return np.zeros(target_size)
+            return None
         return cv2.resize(img, (width, height))
 
     def _scale_img(self, img, scale_factor, target_size=None):
         if img.shape[0] == 0 or img.shape[1] == 0:
-            return np.zeros(target_size)
+            return None
         factor = max(img.shape[0] / target_size[0],
                      img.shape[1] / target_size[1],
                      scale_factor)
@@ -54,11 +54,15 @@ class ImageAugmenter(object):
             bg = 255 - bg
 
         if self.config.default('preprocess.crop', False):
+            if img.shape[0] == 0 or img.shape[1] == 0:
+                return None
             img = crop._crop(img)
 
         if self.config.default('preprocess.scale', False):
             img = self._scale_img(
                 img, self.config['preprocess.scale'], target_size)
+            if img is None:
+                return None
 
         if self.config.default('preprocess.padding', False):
             img = padding._pad_cv2(img, self.config['preprocess.padding'], bg)

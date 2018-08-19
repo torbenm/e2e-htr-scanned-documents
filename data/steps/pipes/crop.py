@@ -7,6 +7,8 @@ def crop(images):
 
 def _crop(image):
     bbox = bounding_box(image)
+    if bbox is None:
+        return None
     return image[bbox[0]:bbox[2], bbox[1]:bbox[3]]
 
 
@@ -24,4 +26,10 @@ def last_nonzero(arr, axis, invalid_val=-1):
 
 
 def bounding_box(image):
-    return first_nonzero(image, 0), first_nonzero(image, 1), last_nonzero(image, 0), last_nonzero(image, 1)
+    top = first_nonzero(image, 0)
+    left = first_nonzero(image, 1)
+    bottom = last_nonzero(image, 0)
+    right = last_nonzero(image, 1)
+    if bottom <= top or right <= left:
+        return None
+    return top, bottom, left, right
