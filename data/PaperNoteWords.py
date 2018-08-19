@@ -116,7 +116,11 @@ class PaperNoteWords(Dataset):
                 (self.data_config.default('preprocess.padding', 0)*2))
         )
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if images[0].shape[0] == 0 or images[0].shape[1] == 0:
+            return None
         x = self.augmenter.preprocess(x, target_size)
+        if x is None:
+            return None
         if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self.augmenter.augment(x)
 
