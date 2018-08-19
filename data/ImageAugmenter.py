@@ -64,6 +64,12 @@ class ImageAugmenter(object):
             img = padding._pad_cv2(img, self.config['preprocess.padding'], bg)
 
         if target_size != None:
+            target_size = (
+                target_size[0] +
+                (self.config.default('preprocess.padding', 0)*2),
+                target_size[1] +
+                (self.config.default('preprocess.padding', 0)*2)
+            )
             img = self._pad(img, target_size)
         return img
 
