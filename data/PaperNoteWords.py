@@ -1,6 +1,6 @@
 from . import util
 from .Dataset import Dataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 import math
 import numpy as np
@@ -10,6 +10,7 @@ from random import shuffle
 from data.steps.pipes import warp, morph, convert
 from .Dataset import Dataset
 from data.steps.pipes import crop, threshold, invert, padding
+from data.ImageAugmenter import ImageAugmenter
 
 
 class PaperNoteWords(Dataset):
@@ -23,6 +24,7 @@ class PaperNoteWords(Dataset):
         self.max_length = kwargs.get('max_length')
         self._load_data()
         self._compile_sets()
+        self.augmenter = ImageAugmenter(self.data_config)
 
     def info(self):
         pass
