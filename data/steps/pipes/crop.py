@@ -32,4 +32,4 @@ def bounding_box(image):
     right = last_nonzero(image, 1)
     if bottom <= top or right <= left:
         return None
-    return top, bottom, left, right
+    return top, left, bottom, right

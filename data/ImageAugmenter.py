@@ -56,8 +56,8 @@ class ImageAugmenter(object):
             bg = 255 - bg
 
         if self.config.default('preprocess.crop', False):
+            print('precrop shape is 0', img.shape)
             if img.shape[0] == 0 or img.shape[1] == 0:
-                print('precrop shape is 0', img.shape)
                 return None
             img = crop._crop(img)
 
