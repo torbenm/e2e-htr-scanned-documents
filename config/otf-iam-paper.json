@@ -1,5 +1,5 @@
 {
-  "name": "otf-iam-both",
+  "name": "otf-iam-paper",
   "dataset": "iam-both1-raw",
   "algorithm": "htrnet",
   "save": 5,
