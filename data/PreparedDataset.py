@@ -125,14 +125,14 @@ class PreparedDataset(Dataset):
                 return None, None, None, None
             if x.shape[0] != self.meta["width"] or x.shape[1] != self.meta["height"]:
                 x = self.augmenter.pad_to_size(
-                    x, self.meta["width"], self.meta["height"])
+                    x, width=self.meta["width"], height=self.meta["height"])
             return self.augmenter.add_graychannel(x)
         else:
             if self.data_config.default('dynamic_width', False):
                 return self.augmenter.add_graychannel(x)
             if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
                 x = self.augmenter.pad_to_size(
-                    x, self.meta["width"], self.meta["height"])
+                    x, width=self.meta["width"], height=self.meta["height"])
             return self.augmenter.add_graychannel(x)
         return x
 

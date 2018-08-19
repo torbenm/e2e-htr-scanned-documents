@@ -28,8 +28,8 @@ class ImageAugmenter(object):
     def add_graychannel(self, img):
         return np.reshape(img, [img.shape[0], img.shape[1], 1])
 
-    def pad_to_size(self, img, width, height):
-        return self._pad(img, (width, height))
+    def pad_to_size(self, img, height, width):
+        return self._pad(img, (height, width))
 
     def _scale(self, img, factor, target_size=None):
         height = int(img.shape[0] / factor)

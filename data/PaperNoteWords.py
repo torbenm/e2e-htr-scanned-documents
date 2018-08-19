@@ -110,12 +110,14 @@ class PaperNoteWords(Dataset):
 
     def load_image(self, path, transpose=False, augmentable=False):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        x = self.augmenter.preprocess(
+            x, (self.meta["height"], self.meta["width"]))
         if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self.augmenter.augment(x)
 
         if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
             x = self.augmenter.pad_to_size(
-                x, self.meta["width"], self.meta["height"])
+                x, width=self.meta["width"], height=self.meta["height"])
 
         return self.augmenter.add_graychannel(x)
 
