@@ -20,7 +20,7 @@ class PaperNoteWords(Dataset):
         self.data_config = Configuration(kwargs.get('data_config', {}))
         self.vocab = kwargs.get('vocab', {})
 
-        self.max_length = kwargs.get('maxlength')
+        self.max_length = kwargs.get('max_length')
         self._load_data()
         self._compile_sets()
 
