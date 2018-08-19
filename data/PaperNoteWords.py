@@ -45,7 +45,7 @@ class PaperNoteWords(Dataset):
             "test": self._load_wordlist("test"),
             "print_dev": self._load_classlist("dev"),
             "print_test": self._load_classlist("test"),
-            "print_dtrain": self._load_classlist("train"),
+            "print_train": self._load_classlist("train"),
         }
 
     def _load_wordlist(self, subset):
