@@ -65,8 +65,6 @@ class ImageAugmenter(object):
 
         if target_size != None:
             img = self._pad(img, target_size)
-        if len(img.shape) == 2:
-            img = self.add_graychannel(img)
         return img
 
     def _pad(self, array, reference_shape, offsets=None):

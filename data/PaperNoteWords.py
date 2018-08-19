@@ -115,6 +115,8 @@ class PaperNoteWords(Dataset):
         if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self.augmenter.augment(x)
 
+        x = self.augmenter.add_graychannel(x)
+
         if x.shape[1] != self.meta["width"] or x.shape[0] != self.meta["height"]:
             x = self.augmenter.pad_to_size(
                 x, width=self.meta["width"], height=self.meta["height"])
