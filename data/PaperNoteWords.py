@@ -76,7 +76,7 @@ class PaperNoteWords(Dataset):
     def _fileobj(self, basepath: str, filename: str, truth):
         return {
             "path": os.path.join(basepath, filename),
-            "truth": is_htr,
+            "truth": truth,
         }
 
     def compile(self, text):
