@@ -23,11 +23,13 @@ class ClassTrainer(Executable):
             graph['is_train']: True
         }
 
-    def get_batches(self):
-        max_batches = self.config.defaultchain(
+    def max_batches(self):
+        return self.config.defaultchain(
             'max_batches.class.train', 'max_batches.class', 'max_batches')
+
+    def get_batches(self):
         return self.dataset.generateBatch(
-            self.config['batch'], max_batches=max_batches, dataset=self.subset, augmentable=True)
+            self.config['batch'], max_batches=self.max_batches(), dataset=self.subset, augmentable=True)
 
     def get_graph_executables(self, graph):
         return [graph['class_loss'], graph['class_train']]

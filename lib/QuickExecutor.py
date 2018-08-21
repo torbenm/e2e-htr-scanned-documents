@@ -55,6 +55,7 @@ class QuickExecutor(object):
     def restore(self, date, epoch):
         filename = os.path.join(os.path.join(
             MODELS_PATH, '{}-{}'.format(self.config['name'], date)), 'model-{}'.format(epoch))
+        print('Restoring', filename)
         self.executor.restore(filename)
 
     def add_transcriber(self, **kwargs):

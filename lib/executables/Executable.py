@@ -44,9 +44,12 @@ class Executable(object):
         idx = np.where(arr != sparse_val)
         return tf.SparseTensorValue(np.vstack(idx).T, arr[idx], arr.shape)
 
+    def max_batches(self):
+        return self.config['max_batches']
+
     def get_batch_count(self):
         return self.dataset.getBatchCount(
-            self.config['batch'], self.config['max_batches'], self.subset)
+            self.config['batch'], self.max_batches(), self.subset)
 
     def log_progress(self, epoch, step, total):
         if self.logger is not None:
@@ -57,7 +60,7 @@ class Executable(object):
         pass
 
     def get_batches(self):
-        return self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], self.subset)
+        return self.dataset.generateBatch(self.config['batch'], self.max_batches(), self.subset)
 
     def get_logger_prefix(self, epoch):
         return "Undefined"
