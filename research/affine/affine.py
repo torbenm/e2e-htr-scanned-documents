@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 
 class AffineTransformation(object):

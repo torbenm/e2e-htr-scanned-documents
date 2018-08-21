@@ -1,7 +1,7 @@
 import re
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 DEFAULTS = {
     'fonts': ['Arial', 'Times New Roman'],

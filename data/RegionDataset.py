@@ -1,6 +1,6 @@
 from . import util
 from .Dataset import Dataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 import math
 import numpy as np
@@ -23,7 +23,7 @@ class RegionDataset(Dataset):
         self._max_height = 10000
         self._max_width = 10000
         self.set_regions(regions)
-        self.augmenter = ImageAugmenter({
+        self.data_config = Configuration({
             "preprocess": {
                 "crop": True,
                 "invert": True,
@@ -31,6 +31,7 @@ class RegionDataset(Dataset):
                 "padding": 5
             }
         })
+        self.augmenter = ImageAugmenter(self.data_config)
 
     def info(self):
         self.meta('Dataset Configuration')
@@ -53,7 +54,16 @@ class RegionDataset(Dataset):
 
     def _loadimage(self, region):
         img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
-        return self.augmenter.preprocess(img, (self.meta["height"], self.meta["width"]))
+        target_size = (
+            int(self.meta["height"] -
+                (self.data_config.default('preprocess.padding', 0)*2)),
+            int(self.meta["width"] -
+                (self.data_config.default('preprocess.padding', 0)*2))
+        )
+        img = self.augmenter.preprocess(img, target_size)
+        if img is None:
+            img = np.zeros((self.meta["height"], self.meta["width"]))
+        return self.augmenter.add_graychannel(img)
 
     def set_regions(self, regions):
         self.regions = regions

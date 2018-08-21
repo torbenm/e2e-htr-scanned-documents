@@ -1,7 +1,7 @@
 import tensorflow as tf
 import os
 from data import util, Dataset, PreparedDataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 from nn import getAlgorithm
 import time
 import numpy as np

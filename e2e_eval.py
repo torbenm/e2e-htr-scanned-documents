@@ -13,20 +13,20 @@ import re
 
 # "htrnet-pc-iam-print"
 # otf-iam-both-2018-08-07-15-38-49
-ALGORITHM_CONFIG = "otf-iam-both"
+ALGORITHM_CONFIG = "otf-iam-paper"
 # "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_DATE = "2018-08-12-23-45-59"
+MODEL_DATE = "2018-08-19-18-20-55"
 # 800  # 65
-MODEL_EPOCH = 24
+MODEL_EPOCH = 14
 
 DATAPATH = "../paper-notes/data/final"
-SUBSET = "train"
+SUBSET = "dev"
 
 
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")
 
-HTR_THRESHOLD = 0.1
+HTR_THRESHOLD = 0.95
 
 
 class End2End(object):
@@ -99,13 +99,14 @@ class End2End(object):
             cv2.putText(img, box["text"], (x, y-5), cv2.FONT_HERSHEY_PLAIN,
                         1, (0, 0, 255), 1)
 
-    def __call__(self, imgpath: str, truthpath: str, viz=False):
+    def __call__(self, imgpath: str, truthpath: str, viz=False, class_scores=False):
         img = cv2.imread(imgpath)
         regions = self._regions(img)
         self.dataset.set_regions(regions)
         transcriptions = self.executor.transcribe(
             "", self.model_date, self.model_epoch)
-        # self._print_transcriptions(transcriptions)
+        if class_scores:
+            self._print_transcriptions(transcriptions)
         preds, nonhts = self._post_process(regions, transcriptions)
         pairs, score = self._evaluate(preds, truthpath)
 
@@ -122,12 +123,13 @@ class End2End(object):
     def close(self):
         self.executor.close()
 
-    def paper_notes(self, basepath, num, viz=False):
-        return e2e(os.path.join(basepath, "{}-paper.png".format(num)), os.path.join(basepath, "{}-truth.json".format(num)), viz)
+    def paper_notes(self, basepath, num, viz=False, class_scores=False):
+        return self(os.path.join(basepath, "{}-paper.png".format(num)), os.path.join(basepath, "{}-truth.json".format(num)), viz, class_scores)
 
 
-def paper_note(e2e, basepath, num, viz=False, output=False):
-    preds, pairs, score, img = e2e.paper_notes(basepath, num, output or viz)
+def paper_note(e2e, basepath, num, viz=False, output=False, class_scores=False):
+    preds, pairs, score, img = e2e.paper_notes(
+        basepath, num, output or viz, class_scores)
     print("{:10}{:6.2f}%".format(num, score*100))
     if output:
         cv2.imwrite("./outputs/{}-output.png".format(num), img)
@@ -147,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', default=ALGORITHM_CONFIG)
     parser.add_argument('--visualize', default=False, action='store_true')
     parser.add_argument('--output', default=False, action='store_true')
+    parser.add_argument('--class-scores', default=False, action='store_true')
     parser.add_argument(
         '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     parser.add_argument(
@@ -165,7 +168,21 @@ if __name__ == "__main__":
 
     e2e = End2End(args.config, args.model_date, args.model_epoch, args.gpu)
 
-    files = os.listdir(basepath)
+    # files = os.listdir(basepath)
+    filenums = [
+        "04693",
+        "10169",
+        "04298",
+        "04787",
+        "10200",
+        "09908",
+        "04802",
+        "09849",
+        "04598",
+        "10028",
+        "09799"
+    ]
+    files = list(map(lambda num: "{}-truth.json".format(num), filenums))
 
     idx = 0
     scores = []
@@ -176,7 +193,7 @@ if __name__ == "__main__":
         if file.endswith("json"):
             num = get_num(file)
             scores.append(paper_note(e2e, basepath, num,
-                                     args.visualize, args.output))
+                                     args.visualize, args.output, args.class_scores))
             idx += 1
 
     e2e.close()

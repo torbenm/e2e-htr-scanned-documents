@@ -16,6 +16,11 @@ class ClassValidator(Executable, Extendable):
     def get_logger_prefix(self, epoch):
         return "Validating"
 
+    def get_batches(self):
+        max_batches = self.config.defaultchain(
+            'max_batches.class.dev', 'max_batches.class', 'max_batches')
+        return self.dataset.generateBatch(self.config['batch'], max_batches, self.subset)
+
     def extend_graph(self, graph):
         self.build_accuracy(graph)
 

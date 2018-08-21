@@ -2,7 +2,7 @@ import re
 import numbers
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 from data.steps.pipes.warp import _warp
 from data.steps.pipes.crop import _crop

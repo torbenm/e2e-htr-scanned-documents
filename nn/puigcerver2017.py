@@ -1,7 +1,7 @@
 import tensorflow as tf
 from nn.layer.algorithmBase import AlgorithmBase
 from nn.util import wrap_1d, wrap_4d, make_sparse, valueOr
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 """
 Puigcerver, Joan. "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?."

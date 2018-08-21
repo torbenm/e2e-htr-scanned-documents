@@ -1,6 +1,6 @@
 from . import util
 from .Dataset import Dataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 import math
 import numpy as np

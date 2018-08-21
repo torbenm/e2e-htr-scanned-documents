@@ -1,5 +1,5 @@
 import tensorflow as tf
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 
 class Extendable(object):

@@ -3,7 +3,7 @@ import numpy as np
 from data.steps.pipes.affine import AffineTransformation
 from data.steps.pipes.convert import _cv2pil, _pil2cv2
 from data.steps.pipes.warp import _warp
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 
 class PageHandwritingBlender(object):

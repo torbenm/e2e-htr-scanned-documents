@@ -60,6 +60,15 @@ class Configuration(object):
         except KeyError:
             return defaultValue
 
+    def defaultchain(self, *keys):
+        for key in keys:
+            try:
+                return self[key]
+            except KeyError:
+                continue
+        raise KeyError(
+            'Found no matching entries for any of {}'.format(', '.join(keys)))
+
     def choice(self, key):
         return np.random.choice(self[key]) if isinstance(self[key], (list,)) else self[key]
 
@@ -142,3 +151,19 @@ if __name__ == "__main__":
         }
     })
     print(cset)
+
+    print("--- CHECK DEFAULTCHAIN ---")
+    conf = Configuration({
+        "this": {
+            "is": {
+                "a": "deeplist"
+            }
+        },
+        "otherwise": {
+            "something": "smaller"
+        }
+    })
+
+    print(conf.defaultchain('this.is.a', 'this.is', 'this'))
+    print(conf.defaultchain('this.is.a.much.depper', 'this.is.a', 'this.is', 'this'))
+    print(conf.defaultchain('ihavenoidea', 'otherwise.something'))

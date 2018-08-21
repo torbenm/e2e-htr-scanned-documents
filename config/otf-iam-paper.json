@@ -5,7 +5,16 @@
   "save": 5,
   "batch": 50,
   "epochs": 1000,
-  "max_batches": 0,
+  "max_batches": {
+    "rec": {
+      "train": 1700,
+      "dev": 215
+    },
+    "class": {
+      "train": 320,
+      "dev": 40
+    }
+  },
   "learning_rate": 0.0003,
   "class_learning_rate": 0.0001,
   "ctc": "greedy",

@@ -28,6 +28,17 @@ class RecognitionValidator(Executable, Extendable):
             graph['l']: [self.dataset.max_length] * len(X)
         }
 
+    def get_batches(self):
+        max_batches = self.config.defaultchain(
+            'max_batches.rec.dev', 'max_batches.rec', 'max_batches')
+        return self.dataset.generateBatch(
+            self.config['batch'], max_batches=max_batches, dataset=self.subset, augmentable=True)
+
+    def get_batches(self):
+        max_batches = self.config.default(
+            'max_batches.rec_train', self.config['max_batches'])
+        return self.dataset.generateBatch(self.config['batch'], self.config['max_batches'], self.subset)
+
     def get_graph_executables(self, graph):
         return [self._decoded_dense, self._cer, graph['total_loss']]
 
