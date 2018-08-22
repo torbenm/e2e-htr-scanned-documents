@@ -11,8 +11,8 @@
       "dev": 215
     },
     "class": {
-      "train": 320,
-      "dev": 40
+      "train": 640,
+      "dev": 80
     }
   },
   "learning_rate": 0.0003,
