@@ -29,7 +29,7 @@ if __name__ == "__main__":
                         default=0, type=int)
     args = parser.parse_args()
 
-    qe = QuickExecutor(configName=args.config)
+    qe = QuickExecutor(configName=args.config, verbose=True)
     qe.configure(softplacement=not args.hardplacement,
                  logplacement=args.logplacement, device=args.gpu)
 
