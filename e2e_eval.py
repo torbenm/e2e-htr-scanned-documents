@@ -15,9 +15,9 @@ import re
 # otf-iam-both-2018-08-07-15-38-49
 ALGORITHM_CONFIG = "otf-iam-paper"
 # "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_DATE = "2018-08-19-18-20-55"
+MODEL_DATE = "2018-08-21-15-30-54"
 # 800  # 65
-MODEL_EPOCH = 14
+MODEL_EPOCH = 9
 
 DATAPATH = "../paper-notes/data/final"
 SUBSET = "dev"
@@ -26,7 +26,7 @@ SUBSET = "dev"
 PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
 REGULAR_REGEX = re.compile(r"[|]")
 
-HTR_THRESHOLD = 0.95
+HTR_THRESHOLD = 0.8
 
 
 class End2End(object):

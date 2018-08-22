@@ -11,6 +11,7 @@ class RecognitionTrainer(Executable):
     def __init__(self, **kwargs):
         kwargs.setdefault('subset', 'train')
         super().__init__(**kwargs)
+        self.prefix = kwargs.get('prefix', '')
 
     def get_logger_prefix(self, epoch):
         return "Epoch {:4d}".format(epoch)

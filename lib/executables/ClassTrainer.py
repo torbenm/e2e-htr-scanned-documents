@@ -11,6 +11,7 @@ class ClassTrainer(Executable):
     def __init__(self, **kwargs):
         kwargs.setdefault('subset', 'print_train')
         super().__init__(**kwargs)
+        self.prefix = kwargs.get('prefix', '')
 
     def get_logger_prefix(self, epoch):
         return "Epoch {:4d}".format(epoch)
@@ -47,5 +48,5 @@ class ClassTrainer(Executable):
 
     def summarize(self, summary):
         summary.update({
-            "class loss": self.training_loss
+            "{}class loss".format(self.prefix): self.training_loss
         })

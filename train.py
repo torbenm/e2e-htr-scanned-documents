@@ -40,14 +40,14 @@ if __name__ == "__main__":
         qe.add_train_transcriber()
         qe.add_transcription_validator()
         if args.paper_notes:
-            qe.add_train_transcriber(dataset=paper_note_dataset)
+            qe.add_train_transcriber(dataset=paper_note_dataset, prefix='pn ')
             qe.add_transcription_validator(
                 dataset=paper_note_dataset, prefix='pn ')
     if not args.no_class:
         qe.add_train_classifier()
         qe.add_class_validator()
         if args.paper_notes:
-            qe.add_train_classifier(dataset=paper_note_dataset)
+            qe.add_train_classifier(dataset=paper_note_dataset, prefix='pn ')
             qe.add_class_validator(
                 dataset=paper_note_dataset, prefix='pn ')
 
