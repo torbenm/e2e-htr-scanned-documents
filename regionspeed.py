@@ -58,20 +58,7 @@ if __name__ == "__main__":
 
     exc = RegionExecutor()
 
-    # files = os.listdir(basepath)
-    filenums = [
-        "04693",
-        "10169",
-        "04298",
-        "04787",
-        "10200",
-        "09908",
-        "04802",
-        "09849",
-        "04598",
-        "10028",
-        "09799"
-    ]
+    files = os.listdir(basepath)
     files = list(map(lambda num: "{}-truth.json".format(num), filenums))
 
     idx = 0
