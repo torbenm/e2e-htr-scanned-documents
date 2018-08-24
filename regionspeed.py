@@ -10,6 +10,7 @@ from eval.evaluate import evaluate
 import executor
 import os
 import re
+import sys
 
 # "htrnet-pc-iam-print"
 # otf-iam-both-2018-08-07-15-38-49
@@ -65,7 +66,8 @@ if __name__ == "__main__":
     start = time()
     mx = min(len(files), args.limit) if args.limit != -1 else len(files)
     for file in files:
-        print("{} of {}".format(idx, mx))
+        sys.stdout.write("{} of {}\n".format(idx, mx))
+        sys.stdout.flush()
         if idx >= args.limit and not args.limit == -1:
             break
         if file.endswith("json"):
