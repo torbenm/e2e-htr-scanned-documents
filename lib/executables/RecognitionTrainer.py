@@ -49,5 +49,5 @@ class RecognitionTrainer(Executable):
 
     def summarize(self, summary):
         summary.update({
-            "trans loss": self.training_loss
+            "{}trans loss".format(self.prefix): self.training_loss
         })
