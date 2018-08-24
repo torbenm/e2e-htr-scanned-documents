@@ -66,14 +66,14 @@ if __name__ == "__main__":
     start = time()
     mx = min(len(files), args.limit) if args.limit != -1 else len(files)
     for file in files:
-        sys.stdout.write("{} of {}\n".format(idx, mx))
         sys.stdout.flush()
         if idx >= args.limit and not args.limit == -1:
             break
         if file.endswith("json"):
+            sys.stdout.write("\r{} of {}".format(idx, mx))
             num = get_num(file)
             exc.paper_notes(basepath, num)
             idx += 1
     total_time = time() - start
-    print("Took {:.2f}s".format(total_time))
+    print("\nTook {:.2f}s".format(total_time))
     print("That's {:.2f}s per image".format(total_time/idx))
