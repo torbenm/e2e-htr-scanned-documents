@@ -2,7 +2,7 @@
   "name": "otf-iam-paper",
   "dataset": "iam-both1-raw",
   "algorithm": "htrnet",
-  "save": 5,
+  "save": 3,
   "batch": 50,
   "epochs": 1000,
   "max_batches": {

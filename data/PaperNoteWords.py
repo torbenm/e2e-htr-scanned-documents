@@ -20,6 +20,7 @@ class PaperNoteWords(Dataset):
         self.meta = Configuration(kwargs.get('meta', {}))
         self.data_config = Configuration(kwargs.get('data_config', {}))
         self.vocab = kwargs.get('vocab', {})
+        self.pure = kwargs.get('pure', True)
 
         self.max_length = kwargs.get('max_length')
         self._load_data()
@@ -39,10 +40,11 @@ class PaperNoteWords(Dataset):
         self._compile_set("test")
 
     def _load_data(self):
+        prefix = "pure_" if self.pure else ""
         self.data = {
-            "dev": self._load_wordlist("dev"),
-            "train": self._load_wordlist("train"),
-            "test": self._load_wordlist("test"),
+            "dev": self._load_wordlist("{}dev".format(prefix)),
+            "train": self._load_wordlist("{}train".format(prefix)),
+            "test": self._load_wordlist("{}test".format(prefix)),
             "print_dev": self._load_classlist("dev"),
             "print_test": self._load_classlist("test"),
             "print_train": self._load_classlist("train"),
