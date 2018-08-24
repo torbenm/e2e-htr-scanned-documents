@@ -59,7 +59,6 @@ if __name__ == "__main__":
     exc = RegionExecutor()
 
     files = os.listdir(basepath)
-    files = list(map(lambda num: "{}-truth.json".format(num), filenums))
 
     idx = 0
     scores = []
