@@ -69,7 +69,7 @@ if __name__ == "__main__":
         sys.stdout.flush()
         if idx >= args.limit and not args.limit == -1:
             break
-        if file.endswith("json"):
+        if file.endswith("paper.png"):
             sys.stdout.write("\r{} of {}".format(idx, mx))
             num = get_num(file)
             exc.paper_notes(basepath, num)

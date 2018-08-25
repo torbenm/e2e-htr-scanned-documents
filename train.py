@@ -18,6 +18,8 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--no-class', help='Don\'t train classifier',
                         action='store_true', default=False)
+    parser.add_argument('--only-paper', help='Train only on paper notes data',
+                        action='store_true', default=False)
     parser.add_argument('--paper-notes', help='Add training on paper notes',
                         action='store_true', default=False)
     parser.add_argument('--timeline', default='')
@@ -37,16 +39,18 @@ if __name__ == "__main__":
         paper_note_dataset = PaperNoteWords(
             meta=qe.dataset.meta, vocab=qe.dataset.vocab, data_config=qe.dataset.data_config, max_length=qe.dataset.max_length)
     if not args.no_trans:
-        qe.add_train_transcriber()
-        qe.add_transcription_validator()
-        if args.paper_notes:
+        if not args.only_paper:
+            qe.add_train_transcriber()
+            qe.add_transcription_validator()
+        if args.paper_notes or args.only_paper:
             qe.add_train_transcriber(dataset=paper_note_dataset, prefix='pn ')
             qe.add_transcription_validator(
                 dataset=paper_note_dataset, prefix='pn ')
     if not args.no_class:
-        qe.add_train_classifier()
-        qe.add_class_validator()
-        if args.paper_notes:
+        if not args.only_paper:
+            qe.add_train_classifier()
+            qe.add_class_validator()
+        if args.paper_notes or args.only_paper:
             qe.add_train_classifier(dataset=paper_note_dataset, prefix='pn ')
             qe.add_class_validator(
                 dataset=paper_note_dataset, prefix='pn ')
