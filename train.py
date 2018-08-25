@@ -35,7 +35,7 @@ if __name__ == "__main__":
     qe.configure(softplacement=not args.hardplacement,
                  logplacement=args.logplacement, device=args.gpu)
 
-    if args.paper_notes:
+    if args.paper_notes or args.only_paper:
         paper_note_dataset = PaperNoteWords(
             meta=qe.dataset.meta, vocab=qe.dataset.vocab, data_config=qe.dataset.data_config, max_length=qe.dataset.max_length)
     if not args.no_trans:
