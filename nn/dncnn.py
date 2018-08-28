@@ -78,7 +78,7 @@ class DnCNN(AlgorithmBaseV2):
         with tf.name_scope('conv_n'):
             output = log_1d(conv2d(net, self.channels,
                                    self['conv_n.kernel'], padding='same'))
-
+            output = x - output
         ##################
         # PHASE IV: Loss & Optomizer
         #################

@@ -7,7 +7,7 @@ import numpy as np
 from data.PaperNoteSlices import PaperNoteSlices
 from lib.Executor import Executor
 from lib.Configuration import Configuration
-from lib.Constants import Constants
+from lib import Constants
 from lib.Logger import Logger
 from lib.executables import DnCNNRunner, Saver
 from nn.dncnn import DnCNN
@@ -18,10 +18,11 @@ MODEL_EPOCH = 19
 
 def visualize(outputs, X):
     for i in range(len(X)):
+        mn = np.min(outputs[i])
+        mx = np.max(outputs[i]) - mn
         print(i)
-        print(np.mean(outputs[i]))
         cv2.imshow('x', X[i])
-        cv2.imshow('y', outputs[i])
+        cv2.imshow('y', ((outputs[i] - mn)/mx)*255)
         cv2.waitKey(0)
 
 
