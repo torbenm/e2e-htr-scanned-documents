@@ -9,10 +9,9 @@ DEFAULTS = {
         "kernel": [3, 3],
         "features": 64
     },
-    "convs": {
-        "num": 16,
-        "kernel": [3, 3],
-        "features": 64
+    "downconv": {
+        "layers": [False, True, True, True, True],
+        "filters": [8, 8]
     },
     "conv_n": {
         "kernel": [3, 3],
@@ -21,17 +20,35 @@ DEFAULTS = {
 }
 
 
-class DnCNN(AlgorithmBaseV2):
+class Unet(AlgorithmBaseV2):
 
     def __init__(self, config):
-        super(DnCNN, self).__init__(config, DEFAULTS)
+        super(Unet, self).__init__(config, DEFAULTS)
 
-    def _conv_bn_layer(self, net, index, train):
-        with tf.name_scope('conv{}'.format(index)):
-            net = conv2d(net, self['convs.features'], self['convs.kernel'],
-                         padding='same', activation=None, use_bias=False)
-            net = batch_normalization(net, training=train)
-            return tf.nn.relu(net)
+    def down_conv(self, net, index, prepool, is_train):
+        with tf.variable_scope("down_{}".format(index)):
+            if prepool:
+                net = tf.layers.max_pooling2d(net, (2, 2), strides=(
+                    2, 2), name="prepool_{}".format(index))
+            for i, f in enumerate(self['downconv.filters']):
+                # regularizer?
+                net = conv2d(net, filters ** (index+1),
+                             activation=None, name="conv_{}".format(i))
+                net = batch_normalization(net, training=train)
+                net = tf.nn.relu(net)
+        return net
+
+    def up_conv(self, net, copy, index, is_train):
+        net = tf.layers.conv2d_transpose(
+            net,
+            filters=self['upconv.filters'] ** (index+1),
+            kernel_size=2,
+            strides=2,
+            # regularizer?
+            # kernel_regularizer=tf.contrib.layers.l2_regularizer(flags.reg),
+            name="upsample_{}".format(name))
+
+        return tf.concat([net, copy], axis=-1, name="concat_{}".format(index))
 
     def _scale(self, val):
         return (val / tf.constant(255.0)) * tf.constant(2.0) - tf.constant(1.0)
@@ -87,7 +104,7 @@ class DnCNN(AlgorithmBaseV2):
         #################
         loss = tf.nn.l2_loss(output - y)
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
-        #output = self._unscale(output)
+        # output = self._unscale(output)
         return dict(
             x=x,
             y=y,

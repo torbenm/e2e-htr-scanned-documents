@@ -5,7 +5,7 @@ import time
 from data.PaperNoteSlices import PaperNoteSlices
 from lib.Executor import Executor
 from lib.Configuration import Configuration
-from lib.Constants import Constants
+from lib import Constants
 from lib.Logger import Logger
 from lib.executables import DnCNNTrainer, Saver
 from nn.dncnn import DnCNN
@@ -30,11 +30,15 @@ if __name__ == "__main__":
     config = Configuration({
         "name": "dncnn",
         "save": 5,
-        "max_batches": 10000,
-        "batch": 7
+        "max_batches": 1000,
+        "batch": 7,
+        "learning_rate": })
+    algorithm = DnCNN({
+        "conv_n": {
+            "activation": "tanh"
+        }
     })
-    algorithm = DnCNN({})
-    algorithm.configure()
+    algorithm.configure(learning_rate=config['learning_rate'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices()
 
