@@ -80,6 +80,7 @@ class DnCNN(AlgorithmBaseV2):
             output = log_1d(conv2d(net, self.channels,
                                    self['conv_n.kernel'], padding='same'))
             if self['conv_n.activation'] == 'tanh':
+                print('tanh activation')
                 output = tf.tanh(output)
             output = x - output
         ##################
