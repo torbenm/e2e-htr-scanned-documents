@@ -31,7 +31,8 @@ if __name__ == "__main__":
         "name": "dncnn",
         "save": 5,
         "max_batches": 1000,
-        "batch": 7})
+        "batch": 7,
+        "learning_rate": 0.001})
     algorithm = DnCNN({
         "conv_n": {
             "activation": "tanh"
