@@ -9,6 +9,7 @@ from lib import Constants
 from lib.Logger import Logger
 from lib.executables import DnCNNTrainer, Saver
 from nn.dncnn import DnCNN
+from nn.unet import Unet
 
 if __name__ == "__main__":
 
@@ -30,14 +31,15 @@ if __name__ == "__main__":
     config = Configuration({
         "name": "dncnn",
         "save": 5,
-        "max_batches": 1000,
+        "max_batches": 100,
         "batch": 7,
         "learning_rate": 0.001})
-    algorithm = DnCNN({
-        "conv_n": {
-            "activation": "tanh"
-        }
-    })
+    # algorithm = DnCNN({
+    #     "conv_n": {
+    #         "activation": "tanh"
+    #     }
+    # })
+    algorithm = Unet({})
     algorithm.configure(learning_rate=config['learning_rate'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices()

@@ -23,8 +23,8 @@ class PaperNoteSlices(Dataset):
     def __init__(self, **kwargs):
         self.paper_note_path = kwargs.get(
             'paper_note_path', '../paper-notes/data/final')
-        self.slice_width = kwargs.get('slice_width', 300)
-        self.slice_height = kwargs.get('slice_height', 300)
+        self.slice_width = kwargs.get('slice_width', 320)
+        self.slice_height = kwargs.get('slice_height', 320)
         self.meta = Configuration({})
         self.vocab = {}
         self._load_filelists()
@@ -71,6 +71,9 @@ class PaperNoteSlices(Dataset):
     def _load_file(self, fileobj):
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
+        _, stripped = cv2.threshold(stripped, 127, 255, cv2.THRESH_BINARY)
+        # cv2.imshow('stripped', stripped)
+        # cv2.waitKey(0)
         return self._slice(paper), self._slice(stripped)
 
     def _get_slices(self, paper, stripped, free):
