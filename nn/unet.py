@@ -45,10 +45,10 @@ class Unet(AlgorithmBaseV2):
         self.n_class = 2
         super(Unet, self).__init__(config, DEFAULTS)
 
-    def down_conv(self, net, index, prepool, is_train):
+    def down_conv(self, net, index, prepool, is_train, dropout=False):
         with tf.variable_scope("down_{}".format(index)):
             net = self.side_conv(
-                net, self['downconv.filters'] * 2 ** (index), is_train)
+                net, self['downconv.filters'] * 2 ** (index), is_train, dropout=dropout)
         return net
 
     def pool(self, net, index):
