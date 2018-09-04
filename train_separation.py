@@ -30,7 +30,7 @@ if __name__ == "__main__":
     config = Configuration({
         "name": "separation",
         "save": 5,
-        "max_batches": 5,
+        "max_batches": 10000,
         "batch": 7,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
