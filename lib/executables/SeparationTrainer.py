@@ -23,9 +23,13 @@ class SeparationTrainer(Executable):
             graph['is_train']: True
         }
 
+    def max_batches(self):
+        return self.config.defaultchain(
+            'max_batches.sep.train', 'max_batches.sep', 'max_batches')
+
     def get_batches(self):
         return self.dataset.generateBatch(
-            self.config['batch'], max_batches=self.config['max_batches'], dataset=self.subset)
+            self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
 
     def get_graph_executables(self, graph):
         return [graph['loss'], graph['train_step']]

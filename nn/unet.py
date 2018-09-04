@@ -123,7 +123,7 @@ class Unet(AlgorithmBaseV2):
                                None, self.slice_height, self.slice_width, self.channels], name="y")
             # y = self._scale(y)
             _y = tf.cast(tf.reshape(y/tf.constant(255.0),
-                            [-1, self.slice_height, self.slice_width]), tf.int32)
+                                    [-1, self.slice_height, self.slice_width]), tf.int32)
             _y = log_1d(tf.one_hot(_y, self.n_class))
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 

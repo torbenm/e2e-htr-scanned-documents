@@ -30,8 +30,13 @@ if __name__ == "__main__":
     config = Configuration({
         "name": "separation",
         "save": 5,
-        "max_batches": 10000,
-        "batch": 7,
+        "max_batches": {
+            "sep": {
+                "train": 700,
+                "val": 50
+            }
+        },
+        "batch": 100,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
     #     "conv_n": {
