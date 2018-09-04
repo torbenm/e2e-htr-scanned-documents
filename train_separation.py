@@ -29,7 +29,7 @@ if __name__ == "__main__":
     logger = Logger()
     config = Configuration({
         "name": "separation",
-        "save": 5,
+        "save": 1,
         "max_batches": {
             "sep": {
                 "train": 1400,
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         },
         "slice_width": 1024,
         "slice_height": 1024,
-        "batch": 14,
+        "batch": 7,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
     #     "conv_n": {

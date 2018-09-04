@@ -10,6 +10,10 @@ DEFAULTS = {
         "prepool": [False, True, True, True, True],
         "filters": 8,
     },
+    "dropout": {
+        "active": True,
+        "prob": 0.5
+    },
     "upconv": {
         "filters": 8,
         "activation": "",
@@ -22,8 +26,7 @@ DEFAULTS = {
     "conv": {
         "activation": "relu",
         "padding": "same"
-    },
-    "regularizer": 0.1
+    }
 }
 
 
@@ -52,11 +55,14 @@ class Unet(AlgorithmBaseV2):
         return log_1d(tf.layers.max_pooling2d(net, (2, 2), strides=(
             2, 2), name="pool_{}".format(index)))
 
-    def side_conv(self, net, filters, is_train):
+    def side_conv(self, net, filters, is_train, dropout=False):
         for num in range(2):
+            if dropout and self['dropout.active']:
+                net = log_1d(tf.layers.dropout(
+                    net, self['dropout.prob'], training=is_train, name='dropout'))
             with tf.variable_scope("conv_{}".format(num)):
-                net = conv2d(net, filters, kernel_size=(3, 3), padding=self['conv.padding'],
-                             kernel_regularizer=tf.contrib.layers.l2_regularizer(self['regularizer']))
+                net = conv2d(net, filters, kernel_size=(
+                    3, 3), padding=self['conv.padding'])
                 net = batch_normalization(net, training=is_train)
                 net = log_1d(activation(net, self['conv.activation']))
         return net
@@ -71,9 +77,6 @@ class Unet(AlgorithmBaseV2):
                 kernel_size=2,
                 strides=2,
                 padding=self['conv.padding'],
-                # regularizer?
-                kernel_regularizer=tf.contrib.layers.l2_regularizer(
-                    self['regularizer']),
                 name="upsample_{}".format(index))
             net = log_1d(activation(net, self['upconv.activation']))
             return tf.concat([net, copy], axis=-1, name="concat_{}".format(index))
@@ -97,15 +100,16 @@ class Unet(AlgorithmBaseV2):
         with tf.name_scope('down'):
             for idx in range(self['depth']):
                 net = self.down_conv(
-                    net, idx, self["downconv.prepool"][idx], is_train)
+                    net, idx, self["downconv.prepool"][idx], is_train, dropout=(idx != 0))
                 convs.append(net)
                 net = self.pool(net, idx)
 
         with tf.name_scope('up'):
             for idx in reversed(range(self['depth'])):
-                net = log_1d(self.up_conv(net, convs[idx], idx+1, is_train))
+                net = log_1d(self.up_conv(
+                    net, convs[idx], idx+1, is_train, dropout=True))
 
-        net = self.side_conv(net, self['upconv.filters'], is_train)
+        net = self.side_conv(net, self['upconv.filters'], is_train, True)
         net = conv2d(net, self.n_class, (1, 1), name='final',
                      activation=None, padding=self['final.padding'])
         return log_1d(activation(net, self['final.activation']))
