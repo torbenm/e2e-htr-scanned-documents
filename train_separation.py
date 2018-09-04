@@ -36,8 +36,8 @@ if __name__ == "__main__":
                 "val": 50
             }
         },
-        "slice_width": 1000,
-        "slice_height": 1000
+        "slice_width": 1024,
+        "slice_height": 1024,
         "batch": 14,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
