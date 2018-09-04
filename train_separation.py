@@ -32,11 +32,13 @@ if __name__ == "__main__":
         "save": 5,
         "max_batches": {
             "sep": {
-                "train": 700,
+                "train": 1400,
                 "val": 50
             }
         },
-        "batch": 100,
+        "slice_width": 1000,
+        "slice_height": 1000
+        "batch": 14,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
     #     "conv_n": {
@@ -44,9 +46,11 @@ if __name__ == "__main__":
     #     }
     # })
     algorithm = Unet({})
-    algorithm.configure(learning_rate=config['learning_rate'])
+    algorithm.configure(learning_rate=config['learning_rate'],
+                        slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PaperNoteSlices()
+    dataset = PaperNoteSlices(
+        slice_width=config['slice_width'], slice_height=config['slice_height'])
 
     log_name = '{}-{}'.format(config["name"],
                               time.strftime("%Y-%m-%d-%H-%M-%S"))
