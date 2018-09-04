@@ -67,10 +67,10 @@ class Unet(AlgorithmBaseV2):
                 net = log_1d(activation(net, self['conv.activation']))
         return net
 
-    def up_conv(self, net, copy, index, is_train):
+    def up_conv(self, net, copy, index, is_train, dropout=False):
         with tf.variable_scope("up_{}".format(index)):
             net = self.side_conv(
-                net, self['upconv.filters'] * 2 ** (index), is_train)
+                net, self['upconv.filters'] * 2 ** (index), is_train, dropout=dropout)
             net = tf.layers.conv2d_transpose(
                 net,
                 filters=self['upconv.filters'] * 2 ** (index-1),
