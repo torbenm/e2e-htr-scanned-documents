@@ -9,7 +9,7 @@ from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
-from lib.executables import DnCNNRunner, Saver
+from lib.executables import SeparationRunner, Saver
 from nn.dncnn import DnCNN
 
 MODEL_DATE = "2018-08-14-17-18-59"

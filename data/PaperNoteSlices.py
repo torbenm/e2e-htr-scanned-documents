@@ -111,7 +111,7 @@ class PaperNoteSlices(Dataset):
                 else:
                     yield batch_paper, batch_stripped, []
                 total_batches += 1
-                if max_batches > 0 and total_batches > max_batches:
+                if max_batches > 0 and total_batches >= max_batches:
                     break
                 batch_paper = []
                 batch_stripped = []

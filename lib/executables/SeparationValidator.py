@@ -4,22 +4,22 @@ import numpy as np
 from . import Extendable, Executable
 
 
-class DnCNNRunner(Executable):
+class SeparationValidator(Executable):
 
-    outputs = []
+    training_loss = 0
 
     def __init__(self, **kwargs):
-        kwargs.setdefault('subset', 'train')
+        kwargs.setdefault('subset', 'dev')
         super().__init__(**kwargs)
-        self.after_iter = kwargs.get('after_iter')
 
     def get_logger_prefix(self, epoch):
-        return "Epoch {:4d}".format(epoch)
+        return "Validating"
 
     def get_feed_dict(self, batch, graph):
-        X, _, _ = batch
+        X, Y, _ = batch
         return {
-            graph['x']: X
+            graph['x']: X,
+            graph['y']: Y,
         }
 
     def get_batches(self):
@@ -27,22 +27,20 @@ class DnCNNRunner(Executable):
             self.config['batch'], max_batches=self.config['max_batches'], dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        return graph['output']
+        return graph['loss']
 
     def before_call(self):
-        self.outputs = []
+        self.all_training_loss = []
 
     def after_iteration(self, batch, execution_results):
-        output = execution_results
-        self.outputs.extend(output)
-        if self.after_iter is not None:
-            self.after_iter(output, batch[0])
+        training_loss = execution_results
+        self.all_training_loss.append(training_loss/len(batch[0]))
 
     def after_call(self):
-        pass
+        self.training_loss = np.ma.masked_invalid(
+            self.all_training_loss).mean()
 
     def summarize(self, summary):
-        pass
-
-    def will_continue(self, epoch):
-        return epoch == 0
+        summary.update({
+            "sep val loss": self.training_loss
+        })

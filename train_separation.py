@@ -7,8 +7,7 @@ from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
-from lib.executables import DnCNNTrainer, Saver
-from nn.dncnn import DnCNN
+from lib.executables import SeparationTrainer, Saver, SeparationValidator
 from nn.unet import Unet
 
 if __name__ == "__main__":
@@ -29,9 +28,9 @@ if __name__ == "__main__":
     # TRAINING
     logger = Logger()
     config = Configuration({
-        "name": "dncnn",
+        "name": "separation",
         "save": 5,
-        "max_batches": 100,
+        "max_batches": 5,
         "batch": 7,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
@@ -51,7 +50,8 @@ if __name__ == "__main__":
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)
     executables = [
-        DnCNNTrainer(logger=logger, config=config, dataset=dataset),
+        SeparationTrainer(logger=logger, config=config, dataset=dataset),
+        SeparationValidator(logger=logger, config=config, dataset=dataset),
         Saver(logger=Logger,
               foldername=models_path,
               config=config,
