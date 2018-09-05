@@ -39,6 +39,14 @@ def activation(x, name):
         return tf.nn.relu(x)
 
 
+def pixel_wise_softmax(output_map):
+    with tf.name_scope("pixel_wise_softmax"):
+        max_axis = tf.reduce_max(output_map, axis=3, keepdims=True)
+        exponential_map = tf.exp(output_map - max_axis)
+        normalize = tf.reduce_sum(exponential_map, axis=3, keepdims=True)
+        return exponential_map / normalize
+
+
 class Unet(AlgorithmBaseV2):
 
     def __init__(self, config):
@@ -143,6 +151,7 @@ class Unet(AlgorithmBaseV2):
 
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
         # output = self._unscale(output)
+        output = pixel_wise_softmax(output)
 
         return dict(
             x=x,

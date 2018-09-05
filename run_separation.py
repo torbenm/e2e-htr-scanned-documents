@@ -9,21 +9,23 @@ from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
-from lib.executables import SeparationRunner, Saver
-from nn.dncnn import DnCNN
+from lib.executables import SeparationRunner, Saver, SeparationValidator
+from nn.unet import Unet
 
-MODEL_DATE = "2018-08-14-17-18-59"
-MODEL_EPOCH = 19
+MODEL_DATE = "2018-09-05-11-07-15"
+MODEL_EPOCH = 11
 
 
 def visualize(outputs, X):
-    for i in range(len(X)):
-        mn = np.min(outputs[i])
-        mx = np.max(outputs[i]) - mn
-        print(i)
-        cv2.imshow('x', X[i])
-        cv2.imshow('y', ((outputs[i] - mn)/mx)*255)
-        cv2.waitKey(0)
+    pass
+    # for i in range(len(X)):
+    #     img = np.argmax(outputs[i], 2)*255.0
+    #     img = np.reshape(img, (img.shape[0], img.shape[1], 1))
+    #     print(np.min(img))
+    #     # print(img)
+    #     cv2.imshow('x', X[i])
+    #     cv2.imshow('y', img)
+    #     cv2.waitKey(0)
 
 
 if __name__ == "__main__":
@@ -44,15 +46,28 @@ if __name__ == "__main__":
     # TRAINING
     logger = Logger()
     config = Configuration({
-        "name": "dncnn",
+        "name": "separation",
         "save": 5,
-        "max_batches": 10,
-        "batch": 5
+        "max_batches": 1,
+        "batch": 5,
+        "slice_width": 1024,
+        "slice_height": 1024,
+
     })
-    algorithm = DnCNN({})
-    algorithm.configure()
+    algorithm = Unet({
+        "depth": 3,
+        "downconv": {
+            "filters": 2
+        },
+        "upconv": {
+            "filters": 2
+        }
+    })
+    algorithm.configure(
+        slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PaperNoteSlices()
+    dataset = PaperNoteSlices(
+        slice_width=config['slice_width'], slice_height=config['slice_height'])
 
     log_name = '{}-{}'.format(config["name"], args.model_date)
     models_path = os.path.join(
@@ -64,8 +79,8 @@ if __name__ == "__main__":
     executor.restore(models_path)
 
     executables = [
-        DnCNNRunner(logger=logger, config=config,
-                    dataset=dataset, after_iter=visualize, subset="train")
+        SeparationValidator(logger=logger, config=config,
+                            dataset=dataset, after_iter=visualize, subset="dev")
     ]
 
     executor(executables)

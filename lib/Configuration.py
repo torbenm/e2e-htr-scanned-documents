@@ -66,6 +66,8 @@ class Configuration(object):
                 return self[key]
             except KeyError:
                 continue
+            except TypeError:
+                continue
         raise KeyError(
             'Found no matching entries for any of {}'.format(', '.join(keys)))
 

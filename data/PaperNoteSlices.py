@@ -71,10 +71,18 @@ class PaperNoteSlices(Dataset):
     def _load_file(self, fileobj):
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
-        _, stripped = cv2.threshold(stripped, 127, 255, cv2.THRESH_BINARY)
-        # cv2.imshow('stripped', stripped)
+        _, stripped = cv2.threshold(stripped, 250, 255, cv2.THRESH_BINARY)
+        # cv2.imshow('stripped', cv2.resize(stripped, (600, 800)))
         # cv2.waitKey(0)
-        return self._slice(paper), self._slice(stripped)
+        slices_paper, slices_stripped = self._slice(
+            paper), self._slice(stripped)
+        final_paper, final_stripped = [], []
+        for i in range(len(slices_paper)):
+            m = np.min(slices_stripped[i])
+            if m < 125:
+                final_paper.append(slices_paper[i])
+                final_stripped.append(slices_stripped[i])
+        return final_paper, final_stripped
 
     def _get_slices(self, paper, stripped, free):
         if free > len(paper):

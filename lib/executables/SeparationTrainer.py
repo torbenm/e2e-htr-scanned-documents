@@ -39,7 +39,7 @@ class SeparationTrainer(Executable):
 
     def after_iteration(self, batch, execution_results):
         training_loss, _ = execution_results
-        self.all_training_loss.append(training_loss/len(batch[0]))
+        self.all_training_loss.append(training_loss)
 
     def after_call(self):
         self.training_loss = np.ma.masked_invalid(

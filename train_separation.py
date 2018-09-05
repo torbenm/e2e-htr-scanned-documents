@@ -32,8 +32,8 @@ if __name__ == "__main__":
         "save": 1,
         "max_batches": {
             "sep": {
-                "train": 1400,
-                "val": 50
+                "train": 300,
+                "val": 100
             }
         },
         "slice_width": 1024,
@@ -45,7 +45,15 @@ if __name__ == "__main__":
     #         "activation": "tanh"
     #     }
     # })
-    algorithm = Unet({})
+    algorithm = Unet({
+        "depth": 3,
+        "downconv": {
+            "filters": 2
+        },
+        "upconv": {
+            "filters": 2
+        }
+    })
     algorithm.configure(learning_rate=config['learning_rate'],
                         slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
