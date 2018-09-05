@@ -72,7 +72,6 @@ class PaperNoteSlices(Dataset):
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
         _, stripped = cv2.threshold(stripped, 250, 255, cv2.THRESH_BINARY)
-        print(1 - np.average(stripped)/255)
         # cv2.imshow('stripped', cv2.resize(stripped, (600, 800)))
         # cv2.waitKey(0)
         slices_paper, slices_stripped = self._slice(
