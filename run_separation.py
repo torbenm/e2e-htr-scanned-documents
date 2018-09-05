@@ -64,7 +64,7 @@ if __name__ == "__main__":
         }
     })
     algorithm.configure(
-        slice_width=config['slice_width'], slice_height=config['slice_height'])
+        slice_width=config['slice_width'], slice_height=config['slice_height'], class_weights=[100, 1])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
         slice_width=config['slice_width'], slice_height=config['slice_height'])

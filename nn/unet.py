@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 from nn.layer.algorithmBaseV2 import AlgorithmBaseV2
 from nn.util import log_1d
 from nn.layer.histogrammed import conv2d, batch_normalization
@@ -100,6 +101,7 @@ class Unet(AlgorithmBaseV2):
         self.channels = kwargs.get('channels', 1)
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
+        self.class_weights = kwargs.get('class_weights', None)
 
     def network(self, input_, is_train):
         convs = []
@@ -146,8 +148,22 @@ class Unet(AlgorithmBaseV2):
         #################
         flat_logits = tf.reshape(output, [-1, self.n_class])
         flat_labels = tf.reshape(_y, [-1, self.n_class])
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
-                                                                         labels=flat_labels))
+
+        if self.class_weights is not None:
+            class_weights = tf.constant(
+                np.array(self.class_weights, dtype=np.float32))
+
+            weight_map = tf.multiply(flat_labels, class_weights)
+            weight_map = tf.reduce_sum(weight_map, axis=1)
+
+            loss_map = tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
+                                                                  labels=flat_labels)
+            weighted_loss = tf.multiply(loss_map, weight_map)
+
+            loss = tf.reduce_mean(weighted_loss)
+        else:
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
+                                                                             labels=flat_labels))
 
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
         # output = self._unscale(output)
