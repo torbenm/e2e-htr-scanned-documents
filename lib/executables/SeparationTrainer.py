@@ -4,7 +4,7 @@ import numpy as np
 from . import Extendable, Executable
 
 
-class SeparationTrainer(Executable):
+class SeparationTrainer(Executable, Extendable):
 
     training_loss = 0
 
