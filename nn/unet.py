@@ -167,7 +167,7 @@ class Unet(AlgorithmBaseV2):
 
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
         # output = self._unscale(output)
-        output = pixel_wise_softmax(output)
+        #output = pixel_wise_softmax(output)
 
         return dict(
             x=x,
