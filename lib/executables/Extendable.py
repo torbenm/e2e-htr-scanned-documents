@@ -58,7 +58,7 @@ class Extendable(object):
             self._accuracy = tf.reduce_mean(tf.cast(equality, tf.float32))
         return self._accuracy
 
- def build_tp(self, graph):
+    def build_tp(self, graph):
         if self._tp is None:
             pred_res = self.build_pred_res(graph)
             y_res = self.build_y_res(graph)
