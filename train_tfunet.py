@@ -3,6 +3,7 @@ import os
 from nn.layer.tf_unet import unet
 from data.PaperNoteSlices import PaperNoteSlices
 import numpy as np
+import sklearn.preprocessing
 
 
 class DataProvider(object):
@@ -11,6 +12,16 @@ class DataProvider(object):
         self.data = PaperNoteSlices(slice_width=512, slice_height=512)
         self.val_call = True
         self.generator = None
+
+    def _process_labels(self, label):
+        label = np.asarray(label)
+        label = np.int32(label/255.0)
+        nx = label.shape[1]
+        ny = label.shape[0]
+        labels = np.zeros((ny, nx, 2), dtype=np.float32)
+        labels[..., 1] = label
+        labels[..., 0] = ~label
+        return label
 
     def __call__(self, batch_size):
         if self.val_call:
@@ -27,7 +38,10 @@ class DataProvider(object):
             except StopIteration:
                 self.generator = None
                 return self(batch_size)
-        return np.asarray(X), np.asarray(Y)/255.0
+        Y_ = []
+        for y in Y:
+            Y_.append(self._process_labels(y))
+        return np.asarray(X), np.asarray(Y_)
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(3)
