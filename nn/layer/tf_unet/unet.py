@@ -472,8 +472,8 @@ class Trainer(object):
                                                                                                       prediction.shape)),
                                                                         loss))
 
-        # img = util.combine_img_prediction(batch_x, batch_y, prediction)
-        # util.save_image(img, "%s/%s.jpg" % (self.prediction_path, name))
+        img = util.combine_img_prediction(batch_x, batch_y, prediction)
+        util.save_image(img, "%s/%s.jpg" % (self.prediction_path, name))
 
         return pred_shape
 

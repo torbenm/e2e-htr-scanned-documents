@@ -15,7 +15,7 @@ class DataProvider(object):
 
     def _process_labels(self, label):
         label = np.asarray(label)
-        label = label/255.0
+        label = np.int32(label/255.0)
         nx = label.shape[1]
         ny = label.shape[0]
         label = np.reshape(label, (nx, ny))
@@ -53,7 +53,7 @@ with tf.device("/device:GPU:3"):
 
     net = unet.Unet(channels=1,
                     n_class=2,
-                    layers=5,
+                    layers=3,
                     features_root=8,
                     cost_kwargs=dict(regularizer=0.001),
                     )
@@ -62,6 +62,6 @@ with tf.device("/device:GPU:3"):
                            opt_kwargs=dict(momentum=0.5))
     path = trainer.train(data_provider, "./tfunet_ex",
                          training_iters=32,
-                         epochs=10,
+                         epochs=100,
                          dropout=0.5,
                          display_step=2)
