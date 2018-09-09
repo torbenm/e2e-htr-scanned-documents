@@ -18,6 +18,7 @@ class DataProvider(object):
         label = np.int32(label/255.0)
         nx = label.shape[1]
         ny = label.shape[0]
+        label = np.reshape(label, (nx, ny))
         labels = np.zeros((ny, nx, 2), dtype=np.float32)
         labels[..., 1] = label
         labels[..., 0] = ~label
