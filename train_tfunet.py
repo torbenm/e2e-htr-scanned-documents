@@ -55,12 +55,13 @@ with tf.device("/device:GPU:3"):
                     n_class=2,
                     layers=3,
                     features_root=8,
-                    cost_kwargs=dict(regularizer=0.001),
+                    cost_kwargs=dict(regularizer=0.001,
+                                     class_weights=[167, 1]),
                     padding='SAME'
                     )
-
-    trainer = unet.Trainer(net, optimizer="momentum",
-                           opt_kwargs=dict(momentum=0.2, learning_rate=0.5, decay_rate=0.97))
+    # adam 0.001
+    trainer = unet.Trainer(net, optimizer="adam",
+                           opt_kwargs=dict(learning_rate=0.002))
     path = trainer.train(data_provider, "./tfunet_ex",
                          training_iters=32,
                          epochs=100,
