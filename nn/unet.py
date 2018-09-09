@@ -7,6 +7,7 @@ from nn.layer.histogrammed import conv2d, batch_normalization
 
 DEFAULTS = {
     "depth": 5,
+    "sigmoid": False,
     "downconv": {
         "prepool": [False, True, True, True, True],
         "filters": 8,
@@ -51,8 +52,11 @@ def pixel_wise_softmax(output_map):
 class Unet(AlgorithmBaseV2):
 
     def __init__(self, config):
-        self.n_class = 2
         super(Unet, self).__init__(config, DEFAULTS)
+        if not self['sigmoid']:
+            self.n_class = 2
+        else:
+            self.n_class = 1
 
     def down_conv(self, net, index, prepool, is_train, dropout=False):
         with tf.variable_scope("down_{}".format(index)):
@@ -136,9 +140,12 @@ class Unet(AlgorithmBaseV2):
             y = tf.placeholder(tf.float32, shape=[
                                None, self.slice_height, self.slice_width, self.channels], name="y")
             # y = self._scale(y)
-            _y = tf.cast(tf.reshape(y/tf.constant(255.0),
-                                    [-1, self.slice_height, self.slice_width]), tf.int32)
-            _y = log_1d(tf.one_hot(_y, self.n_class))
+            if not self['sigmoid']:
+                _y = tf.cast(tf.reshape(y/tf.constant(255.0),
+                                        [-1, self.slice_height, self.slice_width]), tf.int32)
+                _y = log_1d(tf.one_hot(_y, self.n_class))
+            else:
+                _y = y/tf.constant(255.0)
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
         output = self.network(x, is_train)
@@ -146,24 +153,33 @@ class Unet(AlgorithmBaseV2):
         ##################
         # Loss & Optomizer
         #################
-        flat_logits = tf.reshape(output, [-1, self.n_class])
-        flat_labels = tf.reshape(_y, [-1, self.n_class])
+        if not self['sigmoid']:
+            flat_logits = tf.reshape(output, [-1, self.n_class])
+            flat_labels = tf.reshape(_y, [-1, self.n_class])
 
-        if self.class_weights is not None:
-            class_weights = tf.constant(
-                np.array(self.class_weights, dtype=np.float32))
+            if self.class_weights is not None:
+                class_weights = tf.constant(
+                    np.array(self.class_weights, dtype=np.float32))
 
-            weight_map = tf.multiply(flat_labels, class_weights)
-            weight_map = tf.reduce_sum(weight_map, axis=1)
+                weight_map = tf.multiply(flat_labels, class_weights)
+                weight_map = tf.reduce_sum(weight_map, axis=1)
 
-            loss_map = tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
-                                                                  labels=flat_labels)
-            weighted_loss = tf.multiply(loss_map, weight_map)
+                loss_map = tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
+                                                                      labels=flat_labels)
+                weighted_loss = tf.multiply(loss_map, weight_map)
 
-            loss = tf.reduce_mean(weighted_loss)
+                loss = tf.reduce_mean(weighted_loss)
+            else:
+                loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
+                                                                                 labels=flat_labels))
         else:
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=flat_logits,
-                                                                             labels=flat_labels))
+
+            output = tf.nn.sigmoid(output)
+            flat_logits = tf.reshape(output, [-1, self.n_class])
+            flat_labels = tf.reshape(_y, [-1, self.n_class])
+
+            loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+                logits=flat_logits, labels=flat_labels))
 
         train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
         # output = self._unscale(output)

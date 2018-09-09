@@ -32,7 +32,7 @@ if __name__ == "__main__":
         "save": 1,
         "max_batches": {
             "sep": {
-                "train": 300,
+                "train": 10,
                 "val": 100
             }
         },
@@ -46,6 +46,7 @@ if __name__ == "__main__":
     #     }
     # })
     algorithm = Unet({
+        "sigmoid": True,
         "depth": 3,
         "downconv": {
             "filters": 2

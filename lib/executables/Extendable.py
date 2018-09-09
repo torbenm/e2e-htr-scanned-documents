@@ -92,13 +92,19 @@ class Extendable(object):
 
     def build_pred_res(self, graph):
         if self._pred_res is None:
-            self._pred_res = tf.argmax(graph['output'], 3)
+            # todo: make this parameterized
+            #self._pred_res = tf.argmax(graph['output'], 3)
+            self._pred_res = tf.to_int32(
+                graph['output'] > self.config.default('threshold', 0.5))
         return self._pred_res
 
     def build_y_res(self, graph):
         if self._y_res is None:
-            _y = tf.cast(tf.reshape(graph['y']/tf.constant(255.0),
-                                    [-1, graph['y'].shape[1], graph['y'].shape[2]]), tf.int32)
-            _y = tf.one_hot(_y, 2)
-            self._y_res = tf.argmax(_y, 3)
+            # todo: make this parameterized
+            # _y = tf.cast(tf.reshape(graph['y']/tf.constant(255.0),
+            #                         [-1, graph['y'].shape[1], graph['y'].shape[2]]), tf.int32)
+            # _y = tf.one_hot(_y, 2)
+            # self._y_res = tf.argmax(_y, 3)
+            self._y_res = tf.to_int32(
+                graph['y']/tf.constant(255.0) > self.config.default('threshold', 0.5))
         return self._y_res
