@@ -172,7 +172,6 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
     for b1, b2 in biases:
         variables.append(b1)
         variables.append(b2)
-    print(in_size, size)
     return output_map, variables, int(in_size - size)
 
 
@@ -463,7 +462,6 @@ class Trainer(object):
                                                              self.net.y: batch_y,
                                                              self.net.keep_prob: 1.})
         pred_shape = prediction.shape
-        print(pred_shape)
         loss = sess.run(self.net.cost, feed_dict={self.net.x: batch_x,
                                                   self.net.y: util.crop_to_shape(batch_y, pred_shape),
                                                   self.net.keep_prob: 1.})

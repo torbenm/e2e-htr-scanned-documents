@@ -106,13 +106,11 @@ def combine_img_prediction(data, gt, pred):
     """
     ny = pred.shape[2]
     ch = data.shape[3]
-    print(to_rgb(pred[..., 1].reshape(-1, ny, 1)).shape)
-    preds = to_rgb(np.argmax(pred, 3).reshape(-1, ny, 1), False)
-    print(preds.shape)
     img = np.concatenate((to_rgb(crop_to_shape(data, pred.shape).reshape(-1, ny, ch)),
                           to_rgb(crop_to_shape(
                               gt[..., 1], pred.shape).reshape(-1, ny, 1)),
-                          preds,
+                          to_rgb(np.argmax(pred, 3).reshape(-1, ny, 1), False),
+                          to_rgb(pred[..., 1].reshape(-1, ny, 1))
                           to_rgb(pred[..., 1].reshape(-1, ny, 1))), axis=1)
     return img
 
