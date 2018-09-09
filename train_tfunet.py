@@ -59,8 +59,8 @@ with tf.device("/device:GPU:3"):
                     padding='SAME'
                     )
 
-    trainer = unet.Trainer(net, optimizer="momentum",
-                           opt_kwargs=dict(momentum=0.5))
+    trainer = unet.Trainer(net, optimizer="adam",
+                           opt_kwargs=dict(learning_rate=0.001))
     path = trainer.train(data_provider, "./tfunet_ex",
                          training_iters=32,
                          epochs=100,
