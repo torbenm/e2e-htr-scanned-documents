@@ -53,13 +53,13 @@ with tf.device("/device:GPU:3"):
 
     net = unet.Unet(channels=1,
                     n_class=2,
-                    layers=3,
-                    features_root=64,
+                    layers=5,
+                    features_root=8,
                     cost_kwargs=dict(regularizer=0.001),
                     )
 
     trainer = unet.Trainer(net, optimizer="momentum",
-                           opt_kwargs=dict(momentum=0.2))
+                           opt_kwargs=dict(momentum=0.5))
     path = trainer.train(data_provider, "./tfunet_ex",
                          training_iters=32,
                          epochs=10,
