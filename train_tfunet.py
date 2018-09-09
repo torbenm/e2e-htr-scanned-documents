@@ -2,6 +2,7 @@ import tensorflow as tf
 import os
 from nn.layer.tf_unet import unet
 from data.PaperNoteSlices import PaperNoteSlices
+import numpy as np
 
 
 class DataProvider(object):
@@ -26,7 +27,7 @@ class DataProvider(object):
             except StopIteration:
                 self.generator = None
                 return self(batch_size)
-        return X/255.0, Y/255.0
+        return np.asarray(X), np.asarray(Y)/255.0
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(3)
