@@ -22,7 +22,7 @@ class DataProvider(object):
         labels = np.zeros((ny, nx, 2), dtype=np.float32)
         labels[..., 1] = label
         labels[..., 0] = ~label
-        return label
+        return labels
 
     def __call__(self, batch_size):
         if self.val_call:
