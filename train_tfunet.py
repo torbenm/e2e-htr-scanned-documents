@@ -53,7 +53,7 @@ with tf.device("/device:GPU:3"):
 
     net = unet.Unet(channels=1,
                     n_class=2,
-                    layers=3,
+                    layers=5,
                     features_root=8,
                     cost_kwargs=dict(regularizer=0.001),
                     padding='SAME'
@@ -62,7 +62,7 @@ with tf.device("/device:GPU:3"):
     trainer = unet.Trainer(net, optimizer="adam", batch_size=8,
                            opt_kwargs=dict(learning_rate=0.002))
     path = trainer.train(data_provider, "./tfunet_ex",
-                         training_iters=320
+                         training_iters=320,
                          epochs=500,
                          dropout=0.5,
                          display_step=5)
