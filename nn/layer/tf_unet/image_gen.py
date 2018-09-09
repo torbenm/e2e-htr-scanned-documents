@@ -22,7 +22,7 @@ author: jakeret
 from __future__ import print_function, division, absolute_import, unicode_literals
 
 import numpy as np
-from tf_unet.image_util import BaseDataProvider
+from .image_util import BaseDataProvider
 
 class GrayScaleDataProvider(BaseDataProvider):
     channels = 1

@@ -23,7 +23,7 @@ class DataProvider(object):
                     batch_size=batch_size, dataset="train")
             try:
                 X, Y, _ = next(vals)
-            except StopIteration e:
+            except StopIteration:
                 self.generator = None
                 return self(batch_size)
         return X/255.0, Y/255.0

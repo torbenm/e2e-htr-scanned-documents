@@ -27,8 +27,8 @@ import logging
 
 import tensorflow as tf
 
-from tf_unet import util
-from tf_unet.layers import (weight_variable, weight_variable_devonc, bias_variable,
+from . import util
+from .layers import (weight_variable, weight_variable_devonc, bias_variable,
                             conv2d, deconv2d, max_pool, crop_and_concat, pixel_wise_softmax,
                             cross_entropy)
 
