@@ -15,7 +15,7 @@ class DataProvider(object):
 
     def _process_labels(self, label):
         label = np.asarray(label)
-        label = np.int32(label/255.0)
+        label = label/255.0
         nx = label.shape[1]
         ny = label.shape[0]
         label = np.reshape(label, (nx, ny))
@@ -42,7 +42,7 @@ class DataProvider(object):
         Y_ = []
         for y in Y:
             Y_.append(self._process_labels(y))
-        return np.asarray(X), np.asarray(Y_)
+        return np.asarray(X)/255.0, np.asarray(Y_)
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(3)
@@ -62,6 +62,6 @@ with tf.device("/device:GPU:3"):
                            opt_kwargs=dict(momentum=0.2))
     path = trainer.train(data_provider, "./tfunet_ex",
                          training_iters=32,
-                         epochs=1,
+                         epochs=10,
                          dropout=0.5,
                          display_step=2)
