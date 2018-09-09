@@ -56,6 +56,7 @@ with tf.device("/device:GPU:3"):
                     layers=3,
                     features_root=8,
                     cost_kwargs=dict(regularizer=0.001),
+                    padding='SAME'
                     )
 
     trainer = unet.Trainer(net, optimizer="momentum",

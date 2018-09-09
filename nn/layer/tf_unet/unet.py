@@ -36,7 +36,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 
 
 def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16, filter_size=3, pool_size=2,
-                    summaries=True):
+                    summaries=True, padding='VALID'):
     """
     Creates a new convolutional unet for the given parametrization.
 
@@ -90,18 +90,18 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
             b1 = bias_variable([features], name="b1")
             b2 = bias_variable([features], name="b2")
 
-            conv1 = conv2d(in_node, w1, b1, keep_prob)
+            conv1 = conv2d(in_node, w1, b1, keep_prob, padding)
             tmp_h_conv = tf.nn.relu(conv1)
-            conv2 = conv2d(tmp_h_conv, w2, b2, keep_prob)
+            conv2 = conv2d(tmp_h_conv, w2, b2, keep_prob, padding)
             dw_h_convs[layer] = tf.nn.relu(conv2)
 
             weights.append((w1, w2))
             biases.append((b1, b2))
             convs.append((conv1, conv2))
-
-            size -= 4
+            if padding == 'VALID':
+                size -= 4
             if layer < layers - 1:
-                pools[layer] = max_pool(dw_h_convs[layer], pool_size)
+                pools[layer] = max_pool(dw_h_convs[layer], pool_size, padding)
                 in_node = pools[layer]
                 size /= 2
 
@@ -115,8 +115,8 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
 
             wd = weight_variable_devonc([pool_size, pool_size, features // 2, features], stddev, name="wd")
             bd = bias_variable([features // 2], name="bd")
-            h_deconv = tf.nn.relu(deconv2d(in_node, wd, pool_size) + bd)
-            h_deconv_concat = crop_and_concat(dw_h_convs[layer], h_deconv)
+            h_deconv = tf.nn.relu(deconv2d(in_node, wd, pool_size, padding) + bd)
+            h_deconv_concat = crop_and_concat(dw_h_convs[layer], h_deconv, padding)
             deconv[layer] = h_deconv_concat
 
             w1 = weight_variable([filter_size, filter_size, features, features // 2], stddev, name="w1")
@@ -124,9 +124,9 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
             b1 = bias_variable([features // 2], name="b1")
             b2 = bias_variable([features // 2], name="b2")
 
-            conv1 = conv2d(h_deconv_concat, w1, b1, keep_prob)
+            conv1 = conv2d(h_deconv_concat, w1, b1, keep_prob, padding)
             h_conv = tf.nn.relu(conv1)
-            conv2 = conv2d(h_conv, w2, b2, keep_prob)
+            conv2 = conv2d(h_conv, w2, b2, keep_prob, padding)
             in_node = tf.nn.relu(conv2)
             up_h_convs[layer] = in_node
 
@@ -135,13 +135,14 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
             convs.append((conv1, conv2))
 
             size *= 2
-            size -= 4
+            if padding == 'VALID':
+                size -= 4
 
     # Output Map
     with tf.name_scope("output_map"):
         weight = weight_variable([1, 1, features_root, n_class], stddev)
         bias = bias_variable([n_class], name="bias")
-        conv = conv2d(in_node, weight, bias, tf.constant(1.0))
+        conv = conv2d(in_node, weight, bias, tf.constant(1.0), padding)
         output_map = tf.nn.relu(conv)
         up_h_convs["out"] = output_map
 
@@ -171,7 +172,7 @@ def create_conv_net(x, keep_prob, channels, n_class, layers=3, features_root=16,
     for b1, b2 in biases:
         variables.append(b1)
         variables.append(b2)
-
+    print(in_size, size)
     return output_map, variables, int(in_size - size)
 
 
@@ -195,7 +196,7 @@ class Unet(object):
         self.y = tf.placeholder("float", shape=[None, None, None, n_class], name="y")
         self.keep_prob = tf.placeholder(tf.float32, name="dropout_probability")  # dropout (keep probability)
 
-        logits, self.variables, self.offset = create_conv_net(self.x, self.keep_prob, channels, n_class, **kwargs)
+        logits, self.variables, _ = create_conv_net(self.x, self.keep_prob, channels, n_class, **kwargs)
 
         self.cost = self._get_cost(logits, cost, cost_kwargs)
 
@@ -462,12 +463,12 @@ class Trainer(object):
                                                              self.net.y: batch_y,
                                                              self.net.keep_prob: 1.})
         pred_shape = prediction.shape
-
+        print(pred_shape)
         loss = sess.run(self.net.cost, feed_dict={self.net.x: batch_x,
                                                   self.net.y: util.crop_to_shape(batch_y, pred_shape),
                                                   self.net.keep_prob: 1.})
 
-        logging.info("Verification error= {:.1f}%, loss= {:.4f}".format(error_rate(prediction,
+        logging.info("Verification error= {:.10f}%, loss= {:.4f}".format(error_rate(prediction,
                                                                                    util.crop_to_shape(batch_y,
                                                                                                       prediction.shape)),
                                                                         loss))
@@ -493,7 +494,7 @@ class Trainer(object):
         summary_writer.add_summary(summary_str, step)
         summary_writer.flush()
         logging.info(
-            "Iter {:}, Minibatch Loss= {:.4f}, Training Accuracy= {:.4f}, Minibatch error= {:.1f}%".format(step,
+            "Iter {:}, Minibatch Loss= {:.4f}, Training Accuracy= {:.10f}, Minibatch error= {:.10f}%".format(step,
                                                                                                            loss,
                                                                                                            acc,
                                                                                                            error_rate(
