@@ -35,7 +35,7 @@ class DataProvider(object):
                 self.generator = self.data.generateBatch(
                     batch_size=batch_size, dataset="train")
             try:
-                X, Y, _ = next(vals)
+                X, Y, _ = next(self.generator)
             except StopIteration:
                 self.generator = None
                 return self(batch_size)
