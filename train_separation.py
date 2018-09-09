@@ -32,12 +32,12 @@ if __name__ == "__main__":
         "save": 1,
         "max_batches": {
             "sep": {
-                "train": 10,
+                "train": 300,
                 "val": 100
             }
         },
-        "slice_width": 1024,
-        "slice_height": 1024,
+        "slice_width": 512,
+        "slice_height": 512,
         "batch": 7,
         "learning_rate": 0.001})
     # algorithm = DnCNN({
@@ -47,12 +47,12 @@ if __name__ == "__main__":
     # })
     algorithm = Unet({
         "sigmoid": True,
-        "depth": 3,
+        "depth": 5,
         "downconv": {
-            "filters": 2
+            "filters": 4
         },
         "upconv": {
-            "filters": 2
+            "filters": 4
         }
     })
     algorithm.configure(learning_rate=config['learning_rate'],
