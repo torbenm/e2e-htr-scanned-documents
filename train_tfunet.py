@@ -21,7 +21,7 @@ class DataProvider(object):
         label = np.reshape(label, (nx, ny))
         labels = np.zeros((ny, nx, 2), dtype=np.float32)
         labels[..., 1] = label
-        labels[..., 0] = ~label
+        labels[..., 0] = 1 - label
         return labels
 
     def __call__(self, batch_size):
