@@ -57,7 +57,7 @@ def plot_prediction(x_test, y_test, prediction, save=False):
         plt.show()
 
 
-def to_rgb(img):
+def to_rgb(img, scale=True):
     """
     Converts the given array into a RGB image. If the number of channels is not
     3 the array is tiled such that it has 3 channels. Finally, the values are
@@ -73,8 +73,9 @@ def to_rgb(img):
         img = np.tile(img, 3)
 
     img[np.isnan(img)] = 0
-    img -= np.amin(img)
-    img /= np.amax(img)
+    if scale:
+        img -= np.amin(img)
+        img /= np.amax(img)
     img *= 255
     return img
 
@@ -105,10 +106,13 @@ def combine_img_prediction(data, gt, pred):
     """
     ny = pred.shape[2]
     ch = data.shape[3]
+    print(to_rgb(pred[..., 1].reshape(-1, ny, 1)).shape)
+    preds = to_rgb(np.argmax(pred, 3).reshape(-1, ny, 1), False)
+    print(preds.shape)
     img = np.concatenate((to_rgb(crop_to_shape(data, pred.shape).reshape(-1, ny, ch)),
                           to_rgb(crop_to_shape(
                               gt[..., 1], pred.shape).reshape(-1, ny, 1)),
-                          to_rgb(pred[..., 0].reshape(-1, ny, 1)),
+                          preds,
                           to_rgb(pred[..., 1].reshape(-1, ny, 1))), axis=1)
     return img
 
