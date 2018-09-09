@@ -110,7 +110,7 @@ def combine_img_prediction(data, gt, pred):
                           to_rgb(crop_to_shape(
                               gt[..., 1], pred.shape).reshape(-1, ny, 1)),
                           to_rgb(np.argmax(pred, 3).reshape(-1, ny, 1), False),
-                          to_rgb(pred[..., 1].reshape(-1, ny, 1))
+                          to_rgb(pred[..., 1].reshape(-1, ny, 1)),
                           to_rgb(pred[..., 1].reshape(-1, ny, 1))), axis=1)
     return img
 
