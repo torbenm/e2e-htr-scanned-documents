@@ -47,27 +47,27 @@ class SeparationValidator(Executable, Extendable):
 
     def before_call(self):
         self.all_training_loss = []
-        # self.tn_total = []
-        # self.fn_total = []
+        self.tn_total = []
+        self.fn_total = []
         self.tp_total = []
         self.fp_total = []
 
     def after_iteration(self, batch, execution_results):
-        # training_loss, tp, fn, tn, fp = execution_results
-        training_loss, tp, fp = execution_results
+        training_loss, tp, fn, tn, fp = execution_results
+        # training_loss, tp, fp = execution_results
         self.all_training_loss.append(training_loss)
-        # self.tn_total.append(tn)
+        self.tn_total.append(tn)
         self.tp_total.append(tp)
         self.fp_total.append(fp)
-        # self.fn_total.append(fn)
+        self.fn_total.append(fn)
 
     def after_call(self):
         self.training_loss = np.ma.masked_invalid(
             self.all_training_loss).mean()
-        # self.mean_tn = np.ma.masked_invalid(
-        #     self.tn_total).mean()
-        # self.mean_fn = np.ma.masked_invalid(
-        #     self.fn_total).mean()
+        self.mean_tn = np.ma.masked_invalid(
+            self.tn_total).mean()
+        self.mean_fn = np.ma.masked_invalid(
+            self.fn_total).mean()
         self.mean_tp = np.ma.masked_invalid(
             self.tp_total).mean()
         self.mean_fp = np.ma.masked_invalid(
