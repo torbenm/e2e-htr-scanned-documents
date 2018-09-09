@@ -9,7 +9,7 @@ import sklearn.preprocessing
 class DataProvider(object):
 
     def __init__(self):
-        self.data = PaperNoteSlices(slice_width=512, slice_height=512)
+        self.data = PaperNoteSlices(slice_width=-1, slice_height=-1)
         self.val_call = True
         self.generator = None
 
@@ -18,7 +18,7 @@ class DataProvider(object):
         label = np.int32(label/255.0)
         nx = label.shape[1]
         ny = label.shape[0]
-        label = np.reshape(label, (nx, ny))
+        label = np.reshape(label, (ny, nx))
         labels = np.zeros((ny, nx, 2), dtype=np.float32)
         labels[..., 1] = label
         labels[..., 0] = 1 - label
@@ -55,15 +55,15 @@ with tf.device("/device:GPU:3"):
                     n_class=2,
                     layers=3,
                     features_root=8,
-                    cost_kwargs=dict(regularizer=0.001,
-                                     class_weights=[167, 1]),
-                    padding='SAME'
+                    cost_kwargs=dict(regularizer=0.001),
+                    padding='VALID'
                     )
     # adam 0.001
-    trainer = unet.Trainer(net, optimizer="adam",
+    trainer = unet.Trainer(net, optimizer="adam", batch_size=8,
                            opt_kwargs=dict(learning_rate=0.002))
     path = trainer.train(data_provider, "./tfunet_ex",
-                         training_iters=32,
-                         epochs=100,
+                         training_iters=320,
+
+                         epochs=500,
                          dropout=0.5,
-                         display_step=2)
+                         display_step=5)

@@ -74,6 +74,10 @@ class PaperNoteSlices(Dataset):
         _, stripped = cv2.threshold(stripped, 250, 255, cv2.THRESH_BINARY)
         # cv2.imshow('stripped', cv2.resize(stripped, (600, 800)))
         # cv2.waitKey(0)
+        if self.slice_height == -1 and self.slice_width == -1:
+            paper = np.reshape(paper, [paper.shape[0], paper.shape[1], 1])
+            stripped = np.reshape(stripped, [stripped.shape[0], stripped.shape[1], 1])
+            return [paper], [stripped]
         slices_paper, slices_stripped = self._slice(
             paper), self._slice(stripped)
         final_paper, final_stripped = [], []
@@ -99,19 +103,24 @@ class PaperNoteSlices(Dataset):
         batch_paper = []
         batch_stripped = []
         total_batches = 0
+        batch_size = batch_size if self.slice_height != - \
+            1 or self.slice_width != -1 else 1
         for file in files:
-            if len(surplus_paper) > 0 and len(batch_paper) < batch_size:
-                new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
-                    surplus_paper, surplus_stripped, batch_size - len(batch_paper))
-                batch_paper.extend(new_paper)
-                batch_stripped.extend(new_stripped)
+            if self.slice_height == -1 and self.slice_width == -1:
+                batch_paper, batch_stripped = self._load_file(file)
+            else:
+                if len(surplus_paper) > 0 and len(batch_paper) < batch_size:
+                    new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
+                        surplus_paper, surplus_stripped, batch_size - len(batch_paper))
+                    batch_paper.extend(new_paper)
+                    batch_stripped.extend(new_stripped)
 
-            if len(batch_paper) < batch_size:
-                paper, stripped = self._load_file(file)
-                new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
-                    paper, stripped, batch_size - len(batch_paper))
-                batch_paper.extend(new_paper)
-                batch_stripped.extend(new_stripped)
+                if len(batch_paper) < batch_size:
+                    paper, stripped = self._load_file(file)
+                    new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
+                        paper, stripped, batch_size - len(batch_paper))
+                    batch_paper.extend(new_paper)
+                    batch_stripped.extend(new_stripped)
 
             if len(batch_paper) >= batch_size:
                 if with_filepath:
@@ -131,8 +140,13 @@ class PaperNoteSlices(Dataset):
 
     # override
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
-        num_batches = np.floor(float(np.prod(self.average_sizes[dataset]))/np.prod(
-            [self.slice_height, self.slice_width]))*len(self.data[dataset])
+        batch_size = batch_size if self.slice_height != - \
+            1 or self.slice_width != -1 else 1
+        if self.slice_height == -1 and self.slice_width == -1:
+            num_batches = len(self.data[dataset])
+        else:
+            num_batches = np.floor(float(np.prod(self.average_sizes[dataset]))/np.prod(
+                [self.slice_height, self.slice_width]))*len(self.data[dataset])
         batch_count = np.ceil(num_batches/batch_size)
         return batch_count if max_batches == 0 else min(max_batches, batch_count)
 
