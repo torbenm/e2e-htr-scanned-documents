@@ -32,7 +32,7 @@ if __name__ == "__main__":
         "save": 5,
         "max_batches": {
             "sep": {
-                "train": 30,
+                "train": 300,
                 "val": 10
             }
         },
