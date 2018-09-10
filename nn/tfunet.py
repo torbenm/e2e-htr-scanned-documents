@@ -14,6 +14,7 @@ DEFAULTS = {
     "features_root": 16,
     "filter_size": 3,
     "pool_size": 2,
+    "batch_norm": False,
     "cost": {
         "type": "cross_entropy",
         "class_weights": None,
@@ -107,6 +108,7 @@ class TFUnet(AlgorithmBaseV2):
             layers=self['layers'],
             features_root=self['features_root'],
             filter_size=self['filter_size'],
+            batch_norm=self['batch_norm'],
             pool_size=self['pool_size'])
 
         loss = self._get_cost(logits,  y, variables, self['cost.type'], dict(

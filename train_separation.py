@@ -29,18 +29,20 @@ if __name__ == "__main__":
     logger = Logger()
     config = Configuration({
         "name": "separation",
-        "save": 5,
+        "save": 3,
         "max_batches": {
             "sep": {
-                "train": 300,
-                "val": 10
+                "train": 1000,
+                "val": 100
             }
         },
         "slice_width": 512,
         "slice_height": 512,
-        "batch": 8,
+        "batch": 4,
         "learning_rate": 0.001})
-    algorithm = TFUnet({})
+    algorithm = TFUnet({
+        "features_root": 32
+    })
     algorithm.configure(learning_rate=config['learning_rate'],
                         slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)

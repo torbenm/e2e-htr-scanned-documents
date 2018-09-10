@@ -18,6 +18,8 @@ class Extendable(object):
     _y_res = None
 
     _sep_acc = None
+    _sep_prec = None
+    _sep_rec = None
 
     def __init__(self, **kwargs):
         self.config = Configuration(kwargs.get('config', {}))
@@ -99,6 +101,28 @@ class Extendable(object):
             self._sep_acc = tf.reduce_mean(
                 tf.cast(tf.equal(pred_res, y_res), tf.float32))
         return self._sep_acc
+
+    def build_sep_recall(self, graph):
+        if self._sep_rec is None:
+            pred_res = self.build_pred_res(graph)
+            y_res = self.build_y_res(graph)
+            tp = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 0)), 0), tf.float32))
+            fn = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 0)), 1), tf.float32))
+            self._sep_rec = tp / (tp+fn)
+        return self._sep_rec
+
+    def build_sep_precision(self, graph):
+        if self._sep_prec is None:
+            pred_res = self.build_pred_res(graph)
+            y_res = self.build_y_res(graph)
+            tp = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 0)), 0), tf.float32))
+            fp = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 1)), 0), tf.float32))
+            self._sep_prec = tp / (tp+fp)
+        return self._sep_prec
 
     def build_pred_res(self, graph):
         if self._pred_res is None:

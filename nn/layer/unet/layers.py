@@ -36,13 +36,14 @@ def bias_variable(shape, name="bias"):
     return tf.Variable(initial, name=name)
 
 
-def conv2d(x, W, b, dropout, is_train, padding):
+def conv2d(x, W, b, dropout, is_train, padding, batch_norm=False):
     with tf.name_scope("conv2d"):
-        conv_2d = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
-        conv_2d_b = tf.nn.bias_add(conv_2d, b)
-        batch_normed = tf.layers.batch_normalization(
-            conv_2d_b, training=is_train)
-        return tf.layers.dropout(batch_normed, dropout, training=is_train)
+        net = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
+        net = tf.nn.bias_add(net, b)
+        if batch_norm:
+            net = tf.layers.batch_normalization(
+                net, training=is_train)
+        return tf.layers.dropout(net, dropout, training=is_train)
 
 
 def deconv2d(x, W, stride, padding):

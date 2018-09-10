@@ -19,12 +19,15 @@ class PaperNoteSlices(Dataset):
         "test": [3066, 2206],
         "train": [3079, 2225]
     }
+    file_iter = None
 
     def __init__(self, **kwargs):
         self.paper_note_path = kwargs.get(
             'paper_note_path', '../paper-notes/data/final')
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
+        self.filter = kwargs.get('filter', True)
+        self.single_page = kwargs.get('single_page', False)
         self.meta = Configuration({})
         self.vocab = {}
         self._load_filelists()
@@ -55,11 +58,15 @@ class PaperNoteSlices(Dataset):
     def _slice(self, img):
         slices = []
         img = np.reshape(img, [img.shape[0], img.shape[1], 1])
-        for w_i in range(int(img.shape[1]/self.slice_width)):
-            for h_i in range(int(img.shape[0]/self.slice_height)):
-                slc = img[(h_i*self.slice_height):((h_i+1)*self.slice_height),
-                          (w_i*self.slice_width):((w_i+1)*self.slice_width), :]
+        for w_i in range(int(np.ceil(img.shape[1]/self.slice_width))):
+            for h_i in range(int(np.ceil(img.shape[0]/self.slice_height))):
+                slc = np.full(
+                    (self.slice_height, self.slice_width, 1), fill_value=255.0)
+                slc_ = img[(h_i*self.slice_height):min((h_i+1)*self.slice_height, img.shape[0]),
+                           (w_i*self.slice_width):min((w_i+1)*self.slice_width, img.shape[1]), :]
+                slc[:slc_.shape[0], :slc_.shape[1], :] = slc_
                 slices.append(slc)
+
         return slices
 
     def compile(self, text):
@@ -67,6 +74,20 @@ class PaperNoteSlices(Dataset):
 
     def decompile(self, values):
         return values
+
+    def merge_slices(self, slices, original_shape):
+        rows = (original_shape[0] // self.slice_height)+1
+        cols = (original_shape[1] // self.slice_width)+1
+
+        merged_shape = np.zeros(
+            (rows*self.slice_height, cols*self.slice_width))
+        for idx, slc in enumerate(slices):
+            row = idx % rows
+            col = idx // rows
+            merged_shape[row*self.slice_height:(
+                row+1)*self.slice_height, col*self.slice_width:(col+1)*self.slice_width] = slc
+
+        return merged_shape[:original_shape[0], :original_shape[1]]
 
     def _load_file(self, fileobj):
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
@@ -84,7 +105,7 @@ class PaperNoteSlices(Dataset):
         final_paper, final_stripped = [], []
         for i in range(len(slices_paper)):
             m = np.min(slices_stripped[i])
-            if m < 125:
+            if m < 125 or not self.filter:
                 final_paper.append(slices_paper[i])
                 final_stripped.append(slices_stripped[i])
         return final_paper, final_stripped
@@ -107,9 +128,18 @@ class PaperNoteSlices(Dataset):
         return labels
 
     # override
+    def next_file(self, dataset):
+        if self.file_iter is None:
+            files = self.data[dataset]
+            shuffle(files)
+            self.file_iter = iter(files)
+        try:
+            self.file = next(self.file_iter)
+            return True
+        except StopIteration:
+            return False
+
     def generateBatch(self, batch_size=0, max_batches=0, dataset="train", with_filepath=False):
-        files = self.data[dataset]
-        shuffle(files)
         surplus_paper = []
         surplus_stripped = []
         batch_paper = []
@@ -117,9 +147,18 @@ class PaperNoteSlices(Dataset):
         total_batches = 0
         batch_size = batch_size if self.slice_height != - \
             1 or self.slice_width != -1 else 1
-        for file in files:
+        cf = None
+        last_batch = False
+        while True:
             if self.slice_height == -1 and self.slice_width == -1:
-                batch_paper, batch_stripped = self._load_file(file)
+                if not self.single_page:
+                    if not self.next_file(dataset):
+                        self.file_iter = None
+                        break
+                else:
+                    if cf == self.file:
+                        break
+                batch_paper, batch_stripped = self._load_file(self.file)
             else:
                 if len(surplus_paper) > 0 and len(batch_paper) < batch_size:
                     new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
@@ -128,13 +167,25 @@ class PaperNoteSlices(Dataset):
                     batch_stripped.extend(new_stripped)
 
                 if len(batch_paper) < batch_size:
-                    paper, stripped = self._load_file(file)
-                    new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
-                        paper, stripped, batch_size - len(batch_paper))
-                    batch_paper.extend(new_paper)
-                    batch_stripped.extend(new_stripped)
+                    if not self.single_page:
+                        if not self.next_file(dataset):
+                            self.file_iter = None
+                            break
+                    else:
+                        if cf == self.file:
+                            last_batch = True
+                        else:
+                            cf = self.file
+                    if not last_batch:
+                        paper, stripped = self._load_file(self.file)
+                        new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
+                            paper, stripped, batch_size - len(batch_paper))
+                        batch_paper.extend(new_paper)
+                        batch_stripped.extend(new_stripped)
 
-            if len(batch_paper) >= batch_size:
+            if len(batch_paper) >= batch_size or last_batch:
+                if len(batch_paper) == 0:
+                    break
                 batch_paper = np.asarray(batch_paper)/255.0
                 Y_ = []
                 for y in batch_stripped:
@@ -144,7 +195,7 @@ class PaperNoteSlices(Dataset):
                 else:
                     yield batch_paper, Y_, []
                 total_batches += 1
-                if max_batches > 0 and total_batches >= max_batches:
+                if max_batches > 0 and total_batches >= max_batches or last_batch:
                     break
                 batch_paper = []
                 batch_stripped = []
