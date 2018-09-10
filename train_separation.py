@@ -41,7 +41,8 @@ if __name__ == "__main__":
         "batch": 4,
         "learning_rate": 0.001})
     algorithm = TFUnet({
-        "features_root": 32
+        "features_root": 32,
+        "batch_norm": True
     })
     algorithm.configure(learning_rate=config['learning_rate'],
                         slice_width=config['slice_width'], slice_height=config['slice_height'])
