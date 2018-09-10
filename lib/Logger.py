@@ -11,7 +11,7 @@ class Logger(object):
         sys.stdout.flush()
 
     def summary(self, prefix, summary):
-        summary_part = "{} {:11.6f}"
+        summary_part = "{} {:8.4f}"
         summary_parts = [summary_part.format(
             key, summary[key]) for key in summary]
         msg = "{} | {}".format(prefix, " | ".join(summary_parts))

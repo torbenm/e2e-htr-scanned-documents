@@ -8,11 +8,6 @@ class SeparationValidator(Executable, Extendable):
 
     training_loss = 0
 
-    tp_total = []
-    tn_total = []
-    fn_total = []
-    fp_total = []
-
     def __init__(self, **kwargs):
         kwargs.setdefault('subset', 'dev')
         super().__init__(**kwargs)
@@ -29,9 +24,8 @@ class SeparationValidator(Executable, Extendable):
 
     def extend_graph(self, graph):
         self.build_tp(graph)
-        self.build_fp(graph)
-        # self.build_tn(graph)
-        # self.build_fn(graph)
+        self.build_tn(graph)
+        self.build_sep_accuracy(graph)
 
     def max_batches(self):
         return self.config.defaultchain(
@@ -42,42 +36,35 @@ class SeparationValidator(Executable, Extendable):
             self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        # return [graph['loss'], self._tp, self._fn, self._tn, self._fp]
-        return [graph['loss'], self._tp, self._fp]
+        return [graph['loss'], self._sep_acc, self._tp, self._tn]
 
     def before_call(self):
         self.all_training_loss = []
-        self.tn_total = []
-        self.fn_total = []
+        self.ac_total = []
         self.tp_total = []
-        self.fp_total = []
+        self.tn_total = []
 
     def after_iteration(self, batch, execution_results):
-        training_loss, tp, fn, tn, fp = execution_results
-        # training_loss, tp, fp = execution_results
+        training_loss, ac, tp, tn = execution_results
         self.all_training_loss.append(training_loss)
-        self.tn_total.append(tn)
+        self.ac_total.append(ac)
         self.tp_total.append(tp)
-        self.fp_total.append(fp)
-        self.fn_total.append(fn)
+        self.tn_total.append(tn)
 
     def after_call(self):
         self.training_loss = np.ma.masked_invalid(
             self.all_training_loss).mean()
-        self.mean_tn = np.ma.masked_invalid(
-            self.tn_total).mean()
-        self.mean_fn = np.ma.masked_invalid(
-            self.fn_total).mean()
+        self.mean_ac = np.ma.masked_invalid(
+            self.ac_total).mean()
         self.mean_tp = np.ma.masked_invalid(
             self.tp_total).mean()
-        self.mean_fp = np.ma.masked_invalid(
-            self.fp_total).mean()
+        self.mean_tn = np.ma.masked_invalid(
+            self.tn_total).mean()
 
     def summarize(self, summary):
         summary.update({
             "sep val loss": self.training_loss,
-            # "sep tn": self.mean_tn,
+            "sep val ac": self.mean_ac,
             "sep val tp": self.mean_tp,
-            "sep val fp": self.mean_fp,
-            # "sep fn": self.mean_fn,
+            "sep val tn": self.mean_tn,
         })

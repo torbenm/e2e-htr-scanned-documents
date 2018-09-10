@@ -17,6 +17,8 @@ class Extendable(object):
     _pred_res = None
     _y_res = None
 
+    _sep_acc = None
+
     def __init__(self, **kwargs):
         self.config = Configuration(kwargs.get('config', {}))
 
@@ -90,21 +92,20 @@ class Extendable(object):
                 tf.cast(tf.equal(tf.boolean_mask(pred_res, tf.equal(y_res, 1)), 1), tf.float32))
         return self._tn
 
+    def build_sep_accuracy(self, graph):
+        if self._sep_acc is None:
+            pred_res = self.build_pred_res(graph)
+            y_res = self.build_y_res(graph)
+            self._sep_acc = tf.reduce_mean(
+                tf.cast(tf.equal(pred_res, y_res), tf.float32))
+        return self._sep_acc
+
     def build_pred_res(self, graph):
         if self._pred_res is None:
-            # todo: make this parameterized
-            #self._pred_res = tf.argmax(graph['output'], 3)
-            self._pred_res = tf.to_int32(
-                graph['output'] > self.config.default('threshold', 0.5))
+            self._pred_res = tf.argmax(graph['output'], 3)
         return self._pred_res
 
     def build_y_res(self, graph):
         if self._y_res is None:
-            # todo: make this parameterized
-            # _y = tf.cast(tf.reshape(graph['y']/tf.constant(255.0),
-            #                         [-1, graph['y'].shape[1], graph['y'].shape[2]]), tf.int32)
-            # _y = tf.one_hot(_y, 2)
-            # self._y_res = tf.argmax(_y, 3)
-            self._y_res = tf.to_int32(
-                graph['y']/tf.constant(255.0) > self.config.default('threshold', 0.5))
+            self._y_res = tf.argmax(graph['y'], 3)
         return self._y_res

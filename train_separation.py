@@ -8,7 +8,7 @@ from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
 from lib.executables import SeparationTrainer, Saver, SeparationValidator
-from nn.unet import Unet
+from nn.tfunet import TFUnet
 
 if __name__ == "__main__":
 
@@ -29,35 +29,20 @@ if __name__ == "__main__":
     logger = Logger()
     config = Configuration({
         "name": "separation",
-        "save": 1,
+        "save": 5,
         "max_batches": {
             "sep": {
-                "train": 300,
-                "val": 100
+                "train": 30,
+                "val": 10
             }
         },
         "slice_width": 512,
         "slice_height": 512,
-        "batch": 7,
+        "batch": 8,
         "learning_rate": 0.001})
-    # algorithm = DnCNN({
-    #     "conv_n": {
-    #         "activation": "tanh"
-    #     }
-    # })
-    algorithm = Unet({
-        "sigmoid": True,
-        "depth": 5,
-        "downconv": {
-            "filters": 4
-        },
-        "upconv": {
-            "filters": 4
-        }
-    })
+    algorithm = TFUnet({})
     algorithm.configure(learning_rate=config['learning_rate'],
-                        slice_width=config['slice_width'], slice_height=config['slice_height'],
-                        class_weights=[100, 1])
+                        slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
         slice_width=config['slice_width'], slice_height=config['slice_height'])

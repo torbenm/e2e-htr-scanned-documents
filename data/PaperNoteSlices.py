@@ -76,7 +76,8 @@ class PaperNoteSlices(Dataset):
         # cv2.waitKey(0)
         if self.slice_height == -1 and self.slice_width == -1:
             paper = np.reshape(paper, [paper.shape[0], paper.shape[1], 1])
-            stripped = np.reshape(stripped, [stripped.shape[0], stripped.shape[1], 1])
+            stripped = np.reshape(
+                stripped, [stripped.shape[0], stripped.shape[1], 1])
             return [paper], [stripped]
         slices_paper, slices_stripped = self._slice(
             paper), self._slice(stripped)
@@ -93,6 +94,17 @@ class PaperNoteSlices(Dataset):
             return paper, stripped, [], []
         else:
             return paper[:free], stripped[:free], paper[free:], stripped[free:]
+
+    def _process_labels(self, label):
+        label = np.asarray(label)
+        label = np.int32(label/255.0)
+        nx = label.shape[1]
+        ny = label.shape[0]
+        label = np.reshape(label, (ny, nx))
+        labels = np.zeros((ny, nx, 2), dtype=np.float32)
+        labels[..., 1] = label
+        labels[..., 0] = 1 - label
+        return labels
 
     # override
     def generateBatch(self, batch_size=0, max_batches=0, dataset="train", with_filepath=False):
@@ -123,10 +135,14 @@ class PaperNoteSlices(Dataset):
                     batch_stripped.extend(new_stripped)
 
             if len(batch_paper) >= batch_size:
+                batch_paper = np.asarray(batch_paper)/255.0
+                Y_ = []
+                for y in batch_stripped:
+                    Y_.append(self._process_labels(y))
                 if with_filepath:
-                    yield batch_paper, batch_stripped, [], []
+                    yield batch_paper, Y_, [], []
                 else:
-                    yield batch_paper, batch_stripped, []
+                    yield batch_paper, Y_, []
                 total_batches += 1
                 if max_batches > 0 and total_batches >= max_batches:
                     break
