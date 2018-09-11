@@ -71,7 +71,7 @@ if __name__ == "__main__":
     if args.model_epoch != "":
         restore_log = '{}-{}'.format(config["name"], args.model_date)
         restore_path = os.path.join(
-            Constants.MODELS_PATH, log_name, 'model-{}'.format(args.model_epoch))
+            Constants.MODELS_PATH, restore_log, 'model-{}'.format(args.model_epoch))
         executor.restore(models_path)
 
     executor(executables)
