@@ -9,10 +9,14 @@ from lib import Constants
 from lib.Logger import Logger
 from lib.executables import SeparationTrainer, Saver, SeparationValidator
 from nn.tfunet import TFUnet
+from lib.Constants import CONFIG_PATH
+
+SEP_CONFIG_PATH = os.path.join(CONFIG_PATH, "separation")
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--config')
     parser.add_argument(
         '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     parser.add_argument('--hardplacement', help='Disallow Softplacement, default is False',
@@ -27,31 +31,14 @@ if __name__ == "__main__":
 
     # TRAINING
     logger = Logger()
-    config = Configuration({
-        "name": "separation",
-        "save": 3,
-        "max_batches": {
-            "sep": {
-                "train": 1000,
-                "val": 100
-            }
-        },
-        "slice_width": 512,
-        "slice_height": 512,
-        "batch": 8,
-        "learning_rate": 0.0005})
-    algorithm = TFUnet({
-        "features_root": 16,
-        "batch_norm": False,
-        "cost": {
-            "class_weights": [10, 1]
-        }
-    })
+    config = Configuration.load(SEP_CONFIG_PATH, args.config)
+    config()
+    algorithm = TFUnet(config['algo_config'])
     algorithm.configure(learning_rate=config['learning_rate'],
-                        slice_width=config['slice_width'], slice_height=config['slice_height'])
+                        slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PaperNoteSlices(filter=False,
-                              slice_width=config['slice_width'], slice_height=config['slice_height'])
+    dataset = PaperNoteSlices(filter=config['data_config.filter'],
+                              slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
 
     log_name = '{}-{}'.format(config["name"],
                               time.strftime("%Y-%m-%d-%H-%M-%S"))
@@ -68,10 +55,11 @@ if __name__ == "__main__":
               dataset=dataset,
               every_epoch=config['save'])
     ]
-    if args.model_epoch != "":
+    if args.model_date != "":
         restore_log = '{}-{}'.format(config["name"], args.model_date)
         restore_path = os.path.join(
             Constants.MODELS_PATH, restore_log, 'model-{}'.format(args.model_epoch))
+        print("Restoring {}".format(restore_path))
         executor.restore(restore_path)
 
     executor(executables)

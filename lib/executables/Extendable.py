@@ -20,6 +20,7 @@ class Extendable(object):
     _sep_acc = None
     _sep_prec = None
     _sep_rec = None
+    _sep_f = None
 
     def __init__(self, **kwargs):
         self.config = Configuration(kwargs.get('config', {}))
@@ -124,10 +125,20 @@ class Extendable(object):
             self._sep_prec = tp / (tp+fp)
         return self._sep_prec
 
+    
+    def build_sep_fmeasure(self, graph):
+        if self._sep_f is None:
+            prec = self.build_sep_precision(graph)
+            rec = self.build_sep_recall(graph)
+            self._sep_f = (tf.constant(2.0) * prec * rec)/ (prec+rec)
+        return self._sep_f
+
     def build_pred_res(self, graph):
         if self._pred_res is None:
             self._pred_res = tf.argmax(graph['output'], 3)
         return self._pred_res
+    
+
 
     def build_y_res(self, graph):
         if self._y_res is None:

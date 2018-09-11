@@ -75,6 +75,9 @@ class Configuration(object):
         return np.random.choice(self[key]) if isinstance(self[key], (list,)) else self[key]
 
     def __call__(self, name='Configuration', keyLen=20, valueLen=30):
+        self.info(name=name, keyLen=keyLen, valueLen=valueLen)
+
+    def info(self, name='Configuration', keyLen=20, valueLen=30):
         totalLen = (keyLen + valueLen + 1)
         divider = '-' * totalLen
         print(divider)
