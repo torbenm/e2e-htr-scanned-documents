@@ -38,17 +38,20 @@ if __name__ == "__main__":
         },
         "slice_width": 512,
         "slice_height": 512,
-        "batch": 4,
-        "learning_rate": 0.001})
+        "batch": 8,
+        "learning_rate": 0.0005})
     algorithm = TFUnet({
-        "features_root": 32,
-        "batch_norm": True
+        "features_root": 16,
+        "batch_norm": False,
+        "cost": {
+            "class_weights": [10, 1]
+        }
     })
     algorithm.configure(learning_rate=config['learning_rate'],
                         slice_width=config['slice_width'], slice_height=config['slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PaperNoteSlices(
-        slice_width=config['slice_width'], slice_height=config['slice_height'])
+    dataset = PaperNoteSlices(filter=False,
+                              slice_width=config['slice_width'], slice_height=config['slice_height'])
 
     log_name = '{}-{}'.format(config["name"],
                               time.strftime("%Y-%m-%d-%H-%M-%S"))
@@ -65,5 +68,10 @@ if __name__ == "__main__":
               dataset=dataset,
               every_epoch=config['save'])
     ]
+    if args.model_epoch != "":
+        restore_log = '{}-{}'.format(config["name"], args.model_date)
+        restore_path = os.path.join(
+            Constants.MODELS_PATH, log_name, 'model-{}'.format(args.model_epoch))
+        executor.restore(models_path)
 
     executor(executables)
