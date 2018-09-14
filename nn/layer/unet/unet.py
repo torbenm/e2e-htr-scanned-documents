@@ -30,7 +30,7 @@ from .layers import (weight_variable, weight_variable_devonc, bias_variable,
 
 
 def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, filter_size=3, pool_size=2,
-                    is_train=False, batch_norm=False, padding='VALID'):
+                    is_train=False, batch_norm=False, with_dropout=True, padding='VALID'):
     """
     Creates a new convolutional unet for the given parametrization.
 
@@ -78,10 +78,10 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             b2 = bias_variable([features], name="b2")
 
             conv1 = conv2d(in_node, w1, b1, dropout,
-                           is_train, padding, batch_norm)
+                           is_train, padding, batch_norm, with_dropout)
             tmp_h_conv = tf.nn.relu(conv1)
             conv2 = conv2d(tmp_h_conv, w2, b2, dropout,
-                           is_train, padding, batch_norm)
+                           is_train, padding, batch_norm, with_dropout)
             dw_h_convs[layer] = tf.nn.relu(conv2)
 
             weights.append((w1, w2))
@@ -116,10 +116,10 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             b2 = bias_variable([features // 2], name="b2")
 
             conv1 = conv2d(h_deconv_concat, w1, b1, dropout,
-                           is_train, padding, batch_norm)
+                           is_train, padding, batch_norm, with_dropout)
             h_conv = tf.nn.relu(conv1)
             conv2 = conv2d(h_conv, w2, b2, dropout,
-                           is_train, padding, batch_norm)
+                           is_train, padding, batch_norm, with_dropout)
             in_node = tf.nn.relu(conv2)
             up_h_convs[layer] = in_node
 
@@ -131,7 +131,8 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
     with tf.name_scope("output_map"):
         weight = weight_variable([1, 1, features_root, n_class], stddev)
         bias = bias_variable([n_class], name="bias")
-        conv = conv2d(in_node, weight, bias, 0, is_train, padding, batch_norm)
+        conv = conv2d(in_node, weight, bias, 0, is_train,
+                      padding, batch_norm, False)
         output_map = tf.nn.relu(conv)
         up_h_convs["out"] = output_map
 

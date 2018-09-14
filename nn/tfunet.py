@@ -15,6 +15,7 @@ DEFAULTS = {
     "filter_size": 3,
     "pool_size": 2,
     "batch_norm": False,
+    "dropout_enabled": True,
     "cost": {
         "type": "cross_entropy",
         "class_weights": None,
@@ -107,6 +108,7 @@ class TFUnet(AlgorithmBaseV2):
             features_root=self['features_root'],
             filter_size=self['filter_size'],
             batch_norm=self['batch_norm'],
+            with_dropout=self['dropout_enabled'],
             pool_size=self['pool_size'])
 
         loss = self._get_cost(logits,  y, variables, self['cost.type'], dict(
