@@ -55,7 +55,7 @@ class ImageAugmenter(object):
         if "blur" in self.config["otf_augmentations"]:
             if np.random.uniform() < self.config['otf_augmentations.blur.prob']:
                 img = cv2.GaussianBlur(
-                    img, self.config['otf_augmentations.blur.kernel'], self.config['otf_augmentations.blur.sigma'])
+                    img, tuple(self.config['otf_augmentations.blur.kernel']), self.config['otf_augmentations.blur.sigma'])
                 augmentation_settings["blur"] = {
                     "kernel": self.config['otf_augmentations.blur.kernel'],
                     "sigma": self.config['otf_augmentations.blur.sigma']
@@ -63,7 +63,7 @@ class ImageAugmenter(object):
         if "sharpen" in self.config["otf_augmentations"]:
             if np.random.uniform() < self.config['otf_augmentations.sharpen.prob']:
                 img = self._unsharp_mask_filter(
-                    img, self.config['otf_augmentations.sharpen.kernel'], self.config['otf_augmentations.sharpen.sigma'])
+                    img, tuple(self.config['otf_augmentations.sharpen.kernel']), self.config['otf_augmentations.sharpen.sigma'])
                 augmentation_settings["sharpen"] = {
                     "kernel": self.config['otf_augmentations.sharpen.kernel'],
                     "sigma": self.config['otf_augmentations.sharpen.sigma']
@@ -87,9 +87,9 @@ class ImageAugmenter(object):
                     "factor": factor
                 }
         if not get_settings:
-            return img
+            return self.add_graychannel(img)
         else:
-            return img, Configuration(augmentation_settings)
+            return self.add_graychannel(img), Configuration(augmentation_settings)
 
     def apply_augmentation(self, img, settings):
         if settings.default("warp", False):
@@ -119,24 +119,26 @@ class ImageAugmenter(object):
             img = binarize._binarize(img)
         if settings.default("blur", False):
             img = cv2.GaussianBlur(
-                img, settings['blur.kernel'], settings['blur.sigma'])
+                img, tuple(settings['blur.kernel']), settings['blur.sigma'])
         if settings.default("sharpen", False):
             img = self._unsharp_mask_filter(
-                img, settings['sharpen.kernel'], settings['sharpen.sigma'])
+                img, tuple(settings['sharpen.kernel']), settings['sharpen.sigma'])
         if settings.default("brighten", False):
             img = np.uint8(
                 np.clip(img * settings["brighten.factor"], 0.0, 255.0))
         if settings.default("darken", False):
             img = 255 - np.uint8(
                 np.clip((255 - img) * settings["darken.factor"], 0.0, 255.0))
-        return img
+        return self.add_graychannel(img)
 
     def _unsharp_mask_filter(self, image, kernel, sigma):
         gaussian_3 = cv2.GaussianBlur(image, kernel, sigma)
         return cv2.addWeighted(image, 1.5, gaussian_3, -0.5, 0, image)
 
     def add_graychannel(self, img):
-        return np.reshape(img, [img.shape[0], img.shape[1], 1])
+        if len(img.shape) == 2:
+            return np.reshape(img, [img.shape[0], img.shape[1], 1])
+        return img
 
     def pad_to_size(self, img, height, width):
         return self._pad(img, (height, width))

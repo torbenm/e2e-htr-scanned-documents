@@ -36,6 +36,7 @@ class PaperNoteSlices(Dataset):
         self.augmenter = ImageAugmenter(kwargs.get('config', {
             "otf_augmentations": {}
         }))
+        self.otf_mentioned = False
 
     def info(self):
         pass
@@ -70,7 +71,6 @@ class PaperNoteSlices(Dataset):
         return self.slicer.merge(slices, original_shape)
 
     def _load_file(self, fileobj, augmentable=False):
-        print(fileobj["paper"])
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
         if self.slice_height == -1 and self.slice_width == -1:
@@ -95,14 +95,8 @@ class PaperNoteSlices(Dataset):
         return final_paper, final_stripped
 
     def _augment_slice(self, paper, stripped):
-        cv2.imshow('b_paper', paper)
-        cv2.imshow('b_stripped', stripped)
         paper, settings = self.augmenter.augment(paper, True)
         stripped = self.augmenter.apply_augmentation(stripped, settings)
-        cv2.imshow('paper', paper)
-        cv2.imshow('stripped', stripped)
-        print(settings)
-        cv2.waitKey(0)
         return paper, stripped
 
     def _get_slices(self, paper, stripped, free):
