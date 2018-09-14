@@ -7,9 +7,10 @@ import numpy as np
 import cv2
 import sys
 from random import shuffle
-from data.steps.pipes import warp, morph, convert
 from .Dataset import Dataset
-from data.steps.pipes import crop, threshold, invert, padding
+from data.Slicer import Slicer
+from data.steps.pipes import crop, threshold, invert, padding, warp, morph, convert
+from data.ImageAugmenter import ImageAugmenter
 
 
 class PaperNoteSlices(Dataset):
@@ -28,9 +29,13 @@ class PaperNoteSlices(Dataset):
         self.slice_height = kwargs.get('slice_height', 320)
         self.filter = kwargs.get('filter', True)
         self.single_page = kwargs.get('single_page', False)
+        self.slicer = Slicer(**kwargs)
         self.meta = Configuration({})
         self.vocab = {}
         self._load_filelists()
+        self.augmenter = ImageAugmenter(kwargs.get('config', {
+            "otf_augmentations": {}
+        }))
 
     def info(self):
         pass
@@ -55,20 +60,6 @@ class PaperNoteSlices(Dataset):
             "stripped": os.path.join(basepath, "{}-stripped.png".format(num)),
         }
 
-    def _slice(self, img):
-        slices = []
-        img = np.reshape(img, [img.shape[0], img.shape[1], 1])
-        for w_i in range(int(np.ceil(img.shape[1]/self.slice_width))):
-            for h_i in range(int(np.ceil(img.shape[0]/self.slice_height))):
-                slc = np.full(
-                    (self.slice_height, self.slice_width, 1), fill_value=255.0)
-                slc_ = img[(h_i*self.slice_height):min((h_i+1)*self.slice_height, img.shape[0]),
-                           (w_i*self.slice_width):min((w_i+1)*self.slice_width, img.shape[1]), :]
-                slc[:slc_.shape[0], :slc_.shape[1], :] = slc_
-                slices.append(slc)
-
-        return slices
-
     def compile(self, text):
         return text
 
@@ -76,39 +67,43 @@ class PaperNoteSlices(Dataset):
         return values
 
     def merge_slices(self, slices, original_shape):
-        rows = (original_shape[0] // self.slice_height)+1
-        cols = (original_shape[1] // self.slice_width)+1
+        return self.slicer.merge(slices, original_shape)
 
-        merged_shape = np.zeros(
-            (rows*self.slice_height, cols*self.slice_width))
-        for idx, slc in enumerate(slices):
-            row = idx % rows
-            col = idx // rows
-            merged_shape[row*self.slice_height:(
-                row+1)*self.slice_height, col*self.slice_width:(col+1)*self.slice_width] = slc
-
-        return merged_shape[:original_shape[0], :original_shape[1]]
-
-    def _load_file(self, fileobj):
+    def _load_file(self, fileobj, augmentable=False):
+        print(fileobj["paper"])
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
-        _, stripped = cv2.threshold(stripped, 250, 255, cv2.THRESH_BINARY)
-        # cv2.imshow('stripped', cv2.resize(stripped, (600, 800)))
-        # cv2.waitKey(0)
         if self.slice_height == -1 and self.slice_width == -1:
             paper = np.reshape(paper, [paper.shape[0], paper.shape[1], 1])
             stripped = np.reshape(
                 stripped, [stripped.shape[0], stripped.shape[1], 1])
             return [paper], [stripped]
-        slices_paper, slices_stripped = self._slice(
-            paper), self._slice(stripped)
+        slices_paper, slices_stripped = self.slicer(
+            paper), self.slicer(stripped)
         final_paper, final_stripped = [], []
         for i in range(len(slices_paper)):
             m = np.min(slices_stripped[i])
             if m < 125 or not self.filter:
-                final_paper.append(slices_paper[i])
-                final_stripped.append(slices_stripped[i])
+                p_slice = slices_paper[i]
+                s_slice = slices_stripped[i]
+                if augmentable:
+                    p_slice, s_slice = self._augment_slice(p_slice, s_slice)
+                _, s_slice = cv2.threshold(
+                    s_slice, 254, 255, cv2.THRESH_BINARY)
+                final_paper.append(p_slice)
+                final_stripped.append(s_slice)
         return final_paper, final_stripped
+
+    def _augment_slice(self, paper, stripped):
+        cv2.imshow('b_paper', paper)
+        cv2.imshow('b_stripped', stripped)
+        paper, settings = self.augmenter.augment(paper, True)
+        stripped = self.augmenter.apply_augmentation(stripped, settings)
+        cv2.imshow('paper', paper)
+        cv2.imshow('stripped', stripped)
+        print(settings)
+        cv2.waitKey(0)
+        return paper, stripped
 
     def _get_slices(self, paper, stripped, free):
         if free > len(paper):
@@ -139,7 +134,7 @@ class PaperNoteSlices(Dataset):
         except StopIteration:
             return False
 
-    def generateBatch(self, batch_size=0, max_batches=0, dataset="train", with_filepath=False):
+    def generateBatch(self, batch_size=0, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         surplus_paper = []
         surplus_stripped = []
         batch_paper = []
@@ -153,12 +148,14 @@ class PaperNoteSlices(Dataset):
             if self.slice_height == -1 and self.slice_width == -1:
                 if not self.single_page:
                     if not self.next_file(dataset):
+                        self.file_iter.close()
                         self.file_iter = None
                         break
                 else:
                     if cf == self.file:
                         break
-                batch_paper, batch_stripped = self._load_file(self.file)
+                batch_paper, batch_stripped = self._load_file(
+                    self.file, augmentable)
             else:
                 if len(surplus_paper) > 0 and len(batch_paper) < batch_size:
                     new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
@@ -169,6 +166,7 @@ class PaperNoteSlices(Dataset):
                 if len(batch_paper) < batch_size:
                     if not self.single_page:
                         if not self.next_file(dataset):
+                            self.file_iter.close()
                             self.file_iter = None
                             break
                     else:
@@ -177,7 +175,8 @@ class PaperNoteSlices(Dataset):
                         else:
                             cf = self.file
                     if not last_batch:
-                        paper, stripped = self._load_file(self.file)
+                        paper, stripped = self._load_file(
+                            self.file, augmentable)
                         new_paper, new_stripped, surplus_paper, surplus_stripped = self._get_slices(
                             paper, stripped, batch_size - len(batch_paper))
                         batch_paper.extend(new_paper)
@@ -199,6 +198,7 @@ class PaperNoteSlices(Dataset):
                     break
                 batch_paper = []
                 batch_stripped = []
+        self.file_iter = None
         pass
 
     # override
@@ -227,10 +227,39 @@ class PaperNoteSlices(Dataset):
 
 
 if __name__ == "__main__":
-    pns = PaperNoteSlices(paper_note_path='../paper-notes/data/final')
-    for X, Y, _ in pns.generateBatch(50):
+    config = {
+        "otf_augmentations": {
+            "warp": {
+                "prob": 0.2,
+                "deviation": 1.35,
+                "gridsize": [15, 15]
+            },
+            "affine": {},
+            "blur": {
+                "prob": 0.2,
+                'kernel': (3, 3),
+                'sigma': 1
+            },
+            "sharpen": {
+                "prob": 0.2,
+                'kernel': (3, 3),
+                'sigma': 1
+            },
+            "brighten": {
+                "prob": 0.1,
+                "center": 1.5,
+                "stdv": 0.2
+            },
+            "darken": {
+                "prob": 0.4,
+                "center": 1.5,
+                "stdv": 0.2
+            }
+        }
+    }
+    pns = PaperNoteSlices(config=config, filter=True,
+                          slice_height=512, slice_width=512)
+    for X, Y, _ in pns.generateBatch(50, augmentable=False):
         for x in X:
             print(x.shape)
-            cv2.imshow('x', x)
-            cv2.waitKey(0)
     # pns.generateBatch()

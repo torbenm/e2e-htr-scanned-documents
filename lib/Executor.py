@@ -27,6 +27,7 @@ class Executor(object):
     session = None
     graph = None
     restore_model = None
+    g = None
 
     def __init__(self, algorithm: AlgorithmBaseV2, verbose=False, config={}, logger=None):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -51,13 +52,17 @@ class Executor(object):
 
     def __call__(self, executables, new_session=False, auto_close=True):
         with tf.device(self._get_device()):
-            self._create_graph()
-            [executable.extend_graph(self.graph) for executable in executables]
-            self._get_session(new_session)
-            self._initialize_session()
-            self._run(executables)
-            if auto_close:
-                self.close()
+            if self.g is None:
+                self.g = tf.Graph()
+            with self.g.as_default():
+                self._create_graph()
+                [executable.extend_graph(self.graph)
+                 for executable in executables]
+                self._get_session(new_session)
+                self._initialize_session()
+                self._run(executables)
+                if auto_close:
+                    self.close()
 
     def close(self):
         if self.session is not None:

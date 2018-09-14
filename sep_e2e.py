@@ -7,6 +7,12 @@ from segmentation.WordRegionExtractor import RegionExtractor
 from data.RegionDataset import RegionDataset
 from data.util import loadJson, rmkdir
 from eval.evaluate import evaluate
+from lib.Constants import MODELS_PATH
+from lib.Configuration import Configuration
+from data.PaperNoteSlicesSingle import PaperNoteSlicesSingle
+from nn.tfunet import TFUnet
+from lib.Executor import Executor
+from lib.executables.SeparationRunner import SeparationRunner
 import executor
 import os
 import re
@@ -19,8 +25,10 @@ MODEL_DATE = "2018-08-28-23-10-33"
 # 800  # 65
 MODEL_EPOCH = 74
 
-SEP_MODEL_DATE = ""
-SEP_MODEL_EPOCH = 86
+# SEP_MODEL_DATE = "2018-09-10-23-05-06"
+# SEP_MODEL_EPOCH = 86
+SEP_MODEL_DATE = "2018-09-13-00-44-56"
+SEP_MODEL_EPOCH = 23
 
 DATAPATH = "../paper-notes/data/final"
 SUBSET = "dev"
@@ -32,11 +40,45 @@ REGULAR_REGEX = re.compile(r"[|]")
 HTR_THRESHOLD = 0.8
 
 
-class End2End(object):
-
-    def __init__(self, config, model_date, model_epoch, gpu=-1):
+class Separator(object):
+    def __init__(self, model_date, model_epoch, gpu=-1):
         self.model_date = model_date
         self.model_epoch = model_epoch
+        self.log_name = '{}-{}'.format("separation", model_date)
+        self.models_path = os.path.join(
+            MODELS_PATH, self.log_name, 'model-{}'.format(model_epoch))
+        self.config = Configuration.load(
+            os.path.join(MODELS_PATH, self.log_name), "algorithm")
+        self.algorithm = TFUnet(self.config['algo_config'])
+        self.algorithm.configure(
+            slice_width=self.config['data_config.slice_width'], slice_height=self.config['data_config.slice_height'])
+        self.executor = Executor(self.algorithm, True, self.config)
+        self.dataset = PaperNoteSlicesSingle(
+            slice_width=self.config['data_config.slice_width'], slice_height=self.config['data_config.slice_height'])
+        self.executor.configure(
+            device=gpu, softplacement=True, logplacement=False)
+        self.executor.restore(self.models_path)
+        self.runner = SeparationRunner(config=self.config,
+                                       dataset=self.dataset, subset="")
+        self.executables = [self.runner]
+
+    def __call__(self, filepath):
+        original = self.dataset.load_file(filepath)
+        self.executor(self.executables,  auto_close=False)
+        outputs = np.argmax(np.asarray(self.runner.outputs), 3)
+        merged = self.dataset.merge_slices(outputs, original.shape)
+        return (255-(1-merged)*(255-original)), original
+
+    def close(self):
+        self.executor.close()
+
+
+class End2End(object):
+
+    def __init__(self, config, model_date, model_epoch, gpu=-1, separator: Separator=None):
+        self.model_date = model_date
+        self.model_epoch = model_epoch
+        self.separator = separator
         self.models_path = os.path.join(
             executor.MODELS_PATH, '{}-{}'.format(config, model_date))
         self.dataset = RegionDataset(None, self.models_path)
@@ -103,7 +145,11 @@ class End2End(object):
                         1, (0, 0, 255), 1)
 
     def __call__(self, imgpath: str, truthpath: str, viz=False, class_scores=False):
-        img = cv2.imread(imgpath)
+        img, original = self.separator(imgpath)
+        # cv2.imwrite('intermediate.png', np.concatenate(
+        #     [img, original], axis=1))
+        img = cv2.cvtColor(np.uint8(img), cv2.COLOR_GRAY2BGR)
+        original = cv2.cvtColor(np.uint8(original), cv2.COLOR_GRAY2BGR)
         regions = self._regions(img)
         self.dataset.set_regions(regions)
         transcriptions = self.executor.transcribe(
@@ -115,13 +161,13 @@ class End2End(object):
 
         if viz:
             for pair in pairs:
-                self._viz(img, pair["gt"], False, (0, 255, 0))
+                self._viz(original, pair["gt"], False, (0, 255, 0))
             for nonht in nonhts:
-                self._viz(img, nonht, False, (255, 0, 0))
+                self._viz(original, nonht, False, (255, 0, 0))
             for pred in preds:
-                self._viz(img, pred, True)
+                self._viz(original, pred, True)
 
-        return preds, pairs, score, None if not viz else img
+        return preds, pairs, score, None if not viz else original
 
     def close(self):
         self.executor.close()
@@ -159,6 +205,10 @@ if __name__ == "__main__":
         '--model-date', help='date to continue for', default=MODEL_DATE)
     parser.add_argument('--model-epoch', help='epoch to continue for',
                         default=MODEL_EPOCH, type=int)
+    parser.add_argument(
+        '--sep-model-date', help='date to continue for', default=SEP_MODEL_DATE)
+    parser.add_argument('--sep-model-epoch', help='epoch to continue for',
+                        default=SEP_MODEL_EPOCH, type=int)
     parser.add_argument('--limit', default=-1, type=int)
 
     parser.add_argument('--datapath', default=DATAPATH)
@@ -169,7 +219,9 @@ if __name__ == "__main__":
 
     os.makedirs("./outputs", exist_ok=True)
 
-    e2e = End2End(args.config, args.model_date, args.model_epoch, args.gpu)
+    separator = Separator(args.sep_model_date, args.sep_model_epoch, args.gpu)
+    e2e = End2End(args.config, args.model_date,
+                  args.model_epoch, args.gpu, separator)
 
     # files = os.listdir(basepath)
     filenums = [
@@ -200,5 +252,6 @@ if __name__ == "__main__":
             idx += 1
 
     e2e.close()
+    separator.close()
     print("Average score: {:6.2f}%".format(np.mean(scores)*100))
     print("Took {:.2f}s".format(time() - start))

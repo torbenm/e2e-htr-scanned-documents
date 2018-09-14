@@ -12,8 +12,8 @@ from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
 from nn.tfunet import TFUnet
 
-MODEL_DATE = "2018-09-10-23-05-06"
-MODEL_EPOCH = 86
+MODEL_DATE = "2018-09-13-00-44-56"
+MODEL_EPOCH = 23
 
 
 def visualize(outputs, X):

@@ -186,8 +186,6 @@ class Unet(object):
     """
 
     def __init__(self, channels=3, n_class=2, cost="cross_entropy", cost_kwargs={}, **kwargs):
-        tf.reset_default_graph()
-
         self.n_class = n_class
         self.summaries = kwargs.get("summaries", True)
 

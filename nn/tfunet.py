@@ -90,8 +90,6 @@ class TFUnet(AlgorithmBaseV2):
         return optimizer
 
     def build_graph(self):
-        tf.reset_default_graph()
-
         x = tf.placeholder(
             "float", shape=[None, None, None, self.channels], name="x")
         y = tf.placeholder(

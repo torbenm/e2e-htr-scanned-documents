@@ -22,7 +22,7 @@ def RandomWarpGridDistortion(images, count, gridsize, deviation):
     return images
 
 
-def _warp(img, gridsize=None, deviation=None):
+def _warp(img, gridsize=None, deviation=None, mat=None, return_mat=False):
     gridsize = gridsize or (26, 26)
     deviation = deviation or 3
     (w, h) = img.size
@@ -30,7 +30,8 @@ def _warp(img, gridsize=None, deviation=None):
     num_x = w // gridsize[0] + 1
     num_y = h // gridsize[1] + 1
 
-    mat = np.random.normal(scale=deviation, size=(num_y + 1, num_x + 1, 2))
+    mat = mat if mat is not None else np.random.normal(
+        scale=deviation, size=(num_y + 1, num_x + 1, 2))
 
     mesh = []
     # BUILD MESH
@@ -54,7 +55,12 @@ def _warp(img, gridsize=None, deviation=None):
 
             mesh.append((target, source))
 
-    return img.transform(
+    img_transformed = img.transform(
         img.size,
         method=Image.MESH,
         data=mesh)
+
+    if return_mat:
+        return img_transformed, mat
+    else:
+        return img_transformed

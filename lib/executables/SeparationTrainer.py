@@ -34,7 +34,7 @@ class SeparationTrainer(Executable, Extendable):
 
     def get_batches(self):
         return self.dataset.generateBatch(
-            self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
+            self.config['batch'], max_batches=self.max_batches(), dataset=self.subset, augmentable=True)
 
     def get_graph_executables(self, graph):
         return [graph['loss'], graph['train_step'], self._sep_f, self._sep_rec, self._sep_prec, graph['gradients']]

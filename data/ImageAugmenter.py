@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 from lib.Configuration import Configuration
-from data.steps.pipes import warp, morph, convert, affine, crop, invert, padding
+from data.steps.pipes import warp, morph, convert, affine, crop, invert, padding, binarize
 
 
 class ImageAugmenter(object):
@@ -10,20 +10,130 @@ class ImageAugmenter(object):
     def __init__(self, config):
         self.config = Configuration(config)
 
-    def augment(self, img):
+    def augment(self, img, get_settings=False):
+        augmentation_settings = {}
         if "warp" in self.config["otf_augmentations"]:
             if np.random.uniform() < self.config['otf_augmentations.warp.prob']:
+                if(not self.config.default('preprocess.invert', False)):
+                    img = 255 - img
+                reshaped = False
+                if len(img.shape) > 2:
+                    reshaped = True
+                    img = np.reshape(img, (img.shape[0], img.shape[1]))
                 img = convert._cv2pil(img)
-                img = warp._warp(
-                    img, gridsize=self.config['otf_augmentations.warp.gridsize'], deviation=self.config['otf_augmentations.warp.deviation'])
+                img, mat = warp._warp(
+                    img,
+                    gridsize=self.config['otf_augmentations.warp.gridsize'],
+                    deviation=self.config['otf_augmentations.warp.deviation'],
+                    return_mat=True)
+                augmentation_settings["warp"] = {
+                    "gridsize": self.config['otf_augmentations.warp.gridsize'],
+                    "mat": mat
+                }
                 img = convert._pil2cv2(img)
+                if reshaped:
+                    img = np.reshape(img, (img.shape[0], img.shape[1], 1))
+                if(not self.config.default('preprocess.invert', False)):
+                    img = 255 - img
         if "affine" in self.config["otf_augmentations"]:
-            img = affine._affine(
-                img, self.config["otf_augmentations.affine"])
+            img, mat = affine._affine(
+                img, self.config["otf_augmentations.affine"], return_mat=True)
+            augmentation_settings["affine"] = {
+                "mat": mat
+            }
         if "morph" in self.config["otf_augmentations"]:
-            img = morph._random_morph(
-                img, self.config["otf_augmentations.morph"], True)
+            img, op_name, op_values = morph._random_morph(
+                img, self.config["otf_augmentations.morph"], self.config.default('preprocess.invert', False), True)
+            augmentation_settings["affine"] = {
+                "op_name": op_name,
+                "op_values": op_values
+            }
+        if "binarize" in self.config["otf_augmentations"]:
+            if np.random.uniform() < self.config['otf_augmentations.binarize.prob']:
+                img = binarize._binarize(img)
+                augmentation_settings["binarize"] = {}
+        if "blur" in self.config["otf_augmentations"]:
+            if np.random.uniform() < self.config['otf_augmentations.blur.prob']:
+                img = cv2.GaussianBlur(
+                    img, self.config['otf_augmentations.blur.kernel'], self.config['otf_augmentations.blur.sigma'])
+                augmentation_settings["blur"] = {
+                    "kernel": self.config['otf_augmentations.blur.kernel'],
+                    "sigma": self.config['otf_augmentations.blur.sigma']
+                }
+        if "sharpen" in self.config["otf_augmentations"]:
+            if np.random.uniform() < self.config['otf_augmentations.sharpen.prob']:
+                img = self._unsharp_mask_filter(
+                    img, self.config['otf_augmentations.sharpen.kernel'], self.config['otf_augmentations.sharpen.sigma'])
+                augmentation_settings["sharpen"] = {
+                    "kernel": self.config['otf_augmentations.sharpen.kernel'],
+                    "sigma": self.config['otf_augmentations.sharpen.sigma']
+                }
+        if "brighten" in self.config["otf_augmentations"]:
+            if np.random.uniform() < self.config['otf_augmentations.brighten.prob']:
+                factor = np.random.normal(
+                    self.config['otf_augmentations.brighten.center'], self.config['otf_augmentations.brighten.stdv'])
+                factor = factor if factor >= 1 else 1
+                img = np.uint8(np.clip(img * factor, 0, 255))
+                augmentation_settings["brighten"] = {
+                    "factor": factor
+                }
+        if "darken" in self.config["otf_augmentations"]:
+            if np.random.uniform() < self.config['otf_augmentations.darken.prob']:
+                factor = np.random.normal(
+                    self.config['otf_augmentations.darken.center'], self.config['otf_augmentations.darken.stdv'])
+                factor = factor if factor >= 1 else 1
+                img = 255 - np.uint8(np.clip((255 - img) * factor, 0.0, 255.0))
+                augmentation_settings["darken"] = {
+                    "factor": factor
+                }
+        if not get_settings:
+            return img
+        else:
+            return img, Configuration(augmentation_settings)
+
+    def apply_augmentation(self, img, settings):
+        if settings.default("warp", False):
+            if(not self.config.default('preprocess.invert', False)):
+                img = 255 - img
+            reshaped = False
+            if len(img.shape) > 2:
+                reshaped = True
+                img = np.reshape(img, (img.shape[0], img.shape[1]))
+            img = convert._cv2pil(img)
+            img = warp._warp(
+                img,
+                gridsize=settings['warp.gridsize'],
+                mat=settings['warp.mat'])
+            img = convert._pil2cv2(img)
+            if reshaped:
+                img = np.reshape(img, (img.shape[0], img.shape[1], 1))
+            if(not self.config.default('preprocess.invert', False)):
+                img = 255 - img
+        if settings.default("affine", False):
+            img = affine._affine(
+                img, mat=settings["affine.mat"], background=255.0)
+        if settings.default("morph", False):
+            img = morph._morph(img, settings['morph.op_name'], settings['morph.op_values'], self.config.default(
+                'preprocess.invert', False))
+        if settings.default("binarize", False):
+            img = binarize._binarize(img)
+        if settings.default("blur", False):
+            img = cv2.GaussianBlur(
+                img, settings['blur.kernel'], settings['blur.sigma'])
+        if settings.default("sharpen", False):
+            img = self._unsharp_mask_filter(
+                img, settings['sharpen.kernel'], settings['sharpen.sigma'])
+        if settings.default("brighten", False):
+            img = np.uint8(
+                np.clip(img * settings["brighten.factor"], 0.0, 255.0))
+        if settings.default("darken", False):
+            img = 255 - np.uint8(
+                np.clip((255 - img) * settings["darken.factor"], 0.0, 255.0))
         return img
+
+    def _unsharp_mask_filter(self, image, kernel, sigma):
+        gaussian_3 = cv2.GaussianBlur(image, kernel, sigma)
+        return cv2.addWeighted(image, 1.5, gaussian_3, -0.5, 0, image)
 
     def add_graychannel(self, img):
         return np.reshape(img, [img.shape[0], img.shape[1], 1])
