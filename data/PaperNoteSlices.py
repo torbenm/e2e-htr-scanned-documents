@@ -100,7 +100,7 @@ class PaperNoteSlices(Dataset):
                     p_slice, s_slice = self._augment_slice(p_slice, s_slice)
                 s_slice = self.binarization(s_slice)
                 if self.binarize:
-                    p_slice = self.binarization(p_slice)/255.0
+                    p_slice = self.binarization(p_slice)
                 final_paper.append(p_slice)
                 final_stripped.append(s_slice)
         return final_paper, final_stripped
