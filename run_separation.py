@@ -12,8 +12,8 @@ from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
 from nn.tfunet import TFUnet
 
-MODEL_DATE = "2018-09-13-00-44-56"
-MODEL_EPOCH = 23
+MODEL_DATE = "2018-09-19-17-04-46"
+MODEL_EPOCH = 207
 
 
 def visualize(outputs, X):
@@ -47,26 +47,34 @@ if __name__ == "__main__":
     logger = Logger()
     config = Configuration({
         "name": "separation",
-        "save": 5,
+        "save": 2,
         "max_batches": {
             "sep": {
-                "train": 300,
-                "val": 10,
+                "train": 1000,
+                "val": 1000,
                 "pred": 0
             }
         },
-        "slice_width": 512,
-        "slice_height": 512,
+        "data_config": {
+            "slice_width": 512,
+            "slice_height": 512,
+            "filter": True,
+            "otf_augmentations": {}
+        },
         "batch": 8,
-        "learning_rate": 0.001
+        "learning_rate": 0.0005,
+        "algo_config": {
+            "features_root": 32,
+            "batch_norm": False
+        }
     })
-    algorithm = TFUnet({})
+    algorithm = TFUnet(config['algo_config'])
 
     algorithm.configure(
-        slice_width=config['slice_width'], slice_height=config['slice_height'])
+        slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
-        slice_width=config['slice_width'], slice_height=config['slice_height'], filter=False, single_page=True)
+        slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'], filter=False, single_page=True)
     log_name = '{}-{}'.format(config["name"], args.model_date)
     models_path = os.path.join(
         Constants.MODELS_PATH, log_name, 'model-{}'.format(args.model_epoch))
@@ -79,7 +87,7 @@ if __name__ == "__main__":
                               dataset=dataset, subset="dev")
     executables = [runner]
 
-    for idx in range(10):
+    for idx in range(100):
         dataset.next_file("dev")
         executor(executables,  auto_close=False)
         original = cv2.imread(dataset.file['paper'], cv2.IMREAD_GRAYSCALE)

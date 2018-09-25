@@ -28,6 +28,7 @@ class PaperNoteSlices(Dataset):
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
         self.filter = kwargs.get('filter', True)
+        self.binarize = kwargs.get('binarize', False)
         self.single_page = kwargs.get('single_page', False)
         self.slicer = Slicer(**kwargs)
         self.meta = Configuration({})
@@ -70,6 +71,15 @@ class PaperNoteSlices(Dataset):
     def merge_slices(self, slices, original_shape):
         return self.slicer.merge(slices, original_shape)
 
+    def binarization(self, img):
+        _, out = cv2.threshold(img, 254, 255, cv2.THRESH_BINARY)
+        return self.graychannel(out)
+
+    def graychannel(self, img):
+        if len(img.shape) > 2:
+            return img
+        return np.reshape(img, [img.shape[0], img.shape[1], 1])
+
     def _load_file(self, fileobj, augmentable=False):
         paper = cv2.imread(fileobj["paper"], cv2.IMREAD_GRAYSCALE)
         stripped = cv2.imread(fileobj["stripped"], cv2.IMREAD_GRAYSCALE)
@@ -88,8 +98,9 @@ class PaperNoteSlices(Dataset):
                 s_slice = slices_stripped[i]
                 if augmentable:
                     p_slice, s_slice = self._augment_slice(p_slice, s_slice)
-                _, s_slice = cv2.threshold(
-                    s_slice, 254, 255, cv2.THRESH_BINARY)
+                s_slice = self.binarization(s_slice)
+                if self.binarize:
+                    p_slice = self.binarization(p_slice)/255.0
                 final_paper.append(p_slice)
                 final_stripped.append(s_slice)
         return final_paper, final_stripped
@@ -142,7 +153,6 @@ class PaperNoteSlices(Dataset):
             if self.slice_height == -1 and self.slice_width == -1:
                 if not self.single_page:
                     if not self.next_file(dataset):
-                        self.file_iter.close()
                         self.file_iter = None
                         break
                 else:
@@ -160,7 +170,6 @@ class PaperNoteSlices(Dataset):
                 if len(batch_paper) < batch_size:
                     if not self.single_page:
                         if not self.next_file(dataset):
-                            self.file_iter.close()
                             self.file_iter = None
                             break
                     else:

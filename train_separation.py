@@ -38,7 +38,10 @@ if __name__ == "__main__":
                         slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(filter=config['data_config.filter'],
-                              slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'], config=config['data_config'])
+                              slice_width=config['data_config.slice_width'],
+                              slice_height=config['data_config.slice_height'],
+                              binarize=config.default('binary', False),
+                              config=config['data_config'])
 
     log_name = '{}-{}'.format(config["name"],
                               time.strftime("%Y-%m-%d-%H-%M-%S"))
