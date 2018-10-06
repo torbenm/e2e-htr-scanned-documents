@@ -15,6 +15,7 @@ DEFAULTS = {
     "filter_size": 3,
     "pool_size": 2,
     "batch_norm": False,
+    "group_norm": False,
     "dropout_enabled": True,
     "cost": {
         "type": "cross_entropy",
@@ -86,9 +87,11 @@ class TFUnet(AlgorithmBaseV2):
             return loss
 
     def _get_optimizer(self, loss):
-        optimizer = tf.train.AdamOptimizer(
-            learning_rate=self.learning_rate,).minimize(loss)
-        return optimizer
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(update_ops):
+            optimizer = tf.train.AdamOptimizer(
+                learning_rate=self.learning_rate).minimize(loss)
+            return optimizer
 
     def build_graph(self):
         x = tf.placeholder(
