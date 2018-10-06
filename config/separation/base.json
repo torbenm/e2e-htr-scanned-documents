@@ -14,10 +14,12 @@
     "filter": true,
     "otf_augmentations": {}
   },
-  "batch": 8,
+  "batch": 3,
   "learning_rate": 0.0005,
   "algo_config": {
-    "features_root": 32,
-    "batch_norm": false
+    "filter_size": 5,
+    "features_root": 64,
+    "batch_norm": false,
+    "group_norm": 32
   }
 }
