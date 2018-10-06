@@ -23,8 +23,7 @@ class SeparationRunner(Executable):
         }
 
     def max_batches(self):
-        return self.config.defaultchain(
-            'max_batches.sep.pred', 'max_batches.sep', 'max_batches')
+        return self.config.default('max_batches.sep.pred', 0)
 
     def get_batches(self):
         return self.dataset.generateBatch(

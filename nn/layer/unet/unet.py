@@ -16,6 +16,9 @@
 Created on Jul 28, 2016
 
 author: jakeret
+
+Modified by torbenm, taken from https://github.com/jakeret/tf_unet
+Modifications include optional dropout, batch norm, and valid padding as well as removing some unneeded functions.
 '''
 from __future__ import print_function, division, absolute_import, unicode_literals
 

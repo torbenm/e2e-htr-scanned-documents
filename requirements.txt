@@ -4,3 +4,6 @@ tensorflow-gpu
 PyPDF2
 Wand
 pylev
+scikit-image
+peakutils==1.3.0
+astar

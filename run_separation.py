@@ -12,8 +12,8 @@ from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
 from nn.tfunet import TFUnet
 
-MODEL_DATE = "2018-09-19-17-04-46"
-MODEL_EPOCH = 207
+MODEL_DATE = "2018-10-03-21-19-05"
+MODEL_EPOCH = 93
 
 
 def visualize(outputs, X):
@@ -44,30 +44,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # TRAINING
+    log_name = '{}-{}'.format("separation", args.model_date)
+    model_folder = os.path.join(Constants.MODELS_PATH, log_name)
+    models_path = os.path.join(
+        model_folder, 'model-{}'.format(args.model_epoch))
     logger = Logger()
-    config = Configuration({
-        "name": "separation",
-        "save": 2,
-        "max_batches": {
-            "sep": {
-                "train": 1000,
-                "val": 1000,
-                "pred": 0
-            }
-        },
-        "data_config": {
-            "slice_width": 512,
-            "slice_height": 512,
-            "filter": True,
-            "otf_augmentations": {}
-        },
-        "batch": 8,
-        "learning_rate": 0.0005,
-        "algo_config": {
-            "features_root": 32,
-            "batch_norm": False
-        }
-    })
+    config = Configuration.load(model_folder, "algorithm")
     algorithm = TFUnet(config['algo_config'])
 
     algorithm.configure(
@@ -75,9 +57,6 @@ if __name__ == "__main__":
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
         slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'], filter=False, single_page=True)
-    log_name = '{}-{}'.format(config["name"], args.model_date)
-    models_path = os.path.join(
-        Constants.MODELS_PATH, log_name, 'model-{}'.format(args.model_epoch))
 
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)
