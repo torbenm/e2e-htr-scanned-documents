@@ -1,17 +1,24 @@
 from lib.Executor import Executor
 from lib.Configuration import Configuration
+from lib.executables.RecClassRunner import RecClassRunner
 from nn.htrnet import HtrNet
+from data.RegionDataset import RegionDataset
 
 DEFAULTS = {
     "classify": False,
     "model_path": "",
-    "model_epich": 0,
+    "model_epoch": 0,
+    "scaling": 2.15,
+    "max_height": 123,
+    "max_width": 1049,
+    "max_batches": 0
 }
 
 GLOBAL_DEFAULTS = {
     "hardplacement": False,
     "logplacement": False,
     "gpu": -1,
+    "allowGrowth": True
 }
 
 
@@ -26,12 +33,7 @@ class TranscriptionAndClassification(object):
         ################
         # EXECUTOR
         #################
-        self.executor = Executor() QuickExecutor(
-            dataset=None, configName="", verbose=False)
-        self.executor.configure(softplacement=not self["hardplacement"],
-                                logplacement=self["logplacement"], device=self.globalConfig["gpu"])
-        self.transcriber = self.executor.add_transcriber("")
-        self.executor.restore(args.model_date, args.model_epoch)  # TODO
+        self.executor = Executor(alg)
 
     def _configure_algorithm(self):
         self.algorithm = HtrNet(self.modelConfig["algo_config"])
@@ -43,13 +45,23 @@ class TranscriptionAndClassification(object):
             class_learning_rate=self.algoConfig.default('class_learning_rate', self.algoConfig['learning_rate']))
 
     def _configure_dataset(self):
-        pass
+        self.dataset = RegionDataset(None,  self.config["model_path"])
+        self.dataset.scaling(
+            self.config["scaling"], self.config["max_height"], self.config["max_width"])
 
     def _configure_executor(self):
-        pass
+        self.executor = Executor(self.algorithm, False, self.globalConfig)
+        self.executor.configure(softplacement=not self.globalConfig["hardplacement"],
+                                logplacement=self.globalConfig["logplacement"], device=self.globalConfig["gpu"])
+        self.executor.restore(os.path.join(
+            self.config["model_path"], "model-{}".format(self.config["model_epoch"])))
+        self.transcriber = RecClassRunner(self.dataset, config=self.config)
+        self.executables = [self.transcriber]
 
     def __call__(self, images):
-        pass
+        self.dataset.set_regions(images)
+        self.executor(self.executables, auto_close=False)
+        # TODO: returning...
 
     def close(self):
-        pass
+        self.executor.close()

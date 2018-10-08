@@ -24,6 +24,8 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 
 import tensorflow as tf
 
+from nn.layer.general.group_norm import group_norm
+
 
 def weight_variable(shape, stddev=0.1, name="weight"):
     initial = tf.truncated_normal(shape, stddev=stddev)
@@ -39,15 +41,15 @@ def bias_variable(shape, name="bias"):
     return tf.Variable(initial, name=name)
 
 
-def conv2d(x, W, b, dropout, is_train, padding, batch_norm=False, group_norm=False, with_dropout=True):
+def conv2d(x, W, b, dropout, is_train, padding, batch_norm=False, group_norm_size=False, with_dropout=True):
     with tf.name_scope("conv2d"):
         net = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=padding)
         net = tf.nn.bias_add(net, b)
         if batch_norm:
             net = tf.layers.batch_normalization(
                 net, training=is_train)
-        if group_norm:
-            net = tf.contrib.layers.group_norm(net, group_norm)
+        if group_norm_size:
+            net = group_norm(net, group_norm_size)
         if with_dropout:
             net = tf.layers.dropout(net, dropout, training=is_train)
         return net

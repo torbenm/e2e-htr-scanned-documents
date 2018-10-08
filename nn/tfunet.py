@@ -111,6 +111,7 @@ class TFUnet(AlgorithmBaseV2):
             features_root=self['features_root'],
             filter_size=self['filter_size'],
             batch_norm=self['batch_norm'],
+            group_norm=self['group_norm'],
             with_dropout=self['dropout_enabled'],
             pool_size=self['pool_size'])
 

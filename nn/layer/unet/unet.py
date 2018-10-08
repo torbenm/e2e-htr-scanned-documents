@@ -93,7 +93,6 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             if layer < layers - 1:
                 pools[layer] = max_pool(dw_h_convs[layer], pool_size, padding)
                 in_node = pools[layer]
-
     in_node = dw_h_convs[layers - 1]
 
     # up layers
@@ -135,7 +134,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
         weight = weight_variable([1, 1, features_root, n_class], stddev)
         bias = bias_variable([n_class], name="bias")
         conv = conv2d(in_node, weight, bias, 0, is_train,
-                      padding, batch_norm, group_norm, False)
+                      padding, batch_norm, False, False)
         output_map = tf.nn.relu(conv)
         up_h_convs["out"] = output_map
 
