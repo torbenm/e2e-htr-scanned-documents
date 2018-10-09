@@ -10,6 +10,8 @@ DEFAULTS = {
     "extractor": {}
 }
 
+# TODO: AStarPathFinder config
+
 
 class LineSegmentation(object):
 

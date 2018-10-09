@@ -22,11 +22,19 @@ class PaperNoteSlicesSingle(Dataset):
     def __init__(self, **kwargs):
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
+        self.binarize = kwargs.get('binarize', False)
         self.slicer = Slicer(**kwargs)
 
     def load_file(self, filepath):
-        self.img = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
+        return self.set_image(cv2.imread(filepath, cv2.IMREAD_GRAYSCALE))
+
+    def set_image(self, image):
+        if len(image.shape) > 2 and image.shape[2] == 3:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        self.img = image
         self.slices = self.slicer(self.img)
+        if self.binarize:
+            self.slices = [self.binarization(slc) for slc in self.slices]
         return self.img
 
     def info(self):
@@ -40,6 +48,15 @@ class PaperNoteSlicesSingle(Dataset):
 
     def merge_slices(self, slices, original_shape):
         return self.slicer.merge(slices, original_shape)
+
+    def binarization(self, img):
+        _, out = cv2.threshold(img, 254, 255, cv2.THRESH_BINARY)
+        return self.graychannel(out)
+
+    def graychannel(self, img):
+        if len(img.shape) > 2:
+            return img
+        return np.reshape(img, [img.shape[0], img.shape[1], 1])
 
     def generateBatch(self, batch_size=0, max_batches=0, dataset="", with_filepath=False):
         for idx in range(self.getBatchCount(batch_size, max_batches)):

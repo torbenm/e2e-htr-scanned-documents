@@ -12,8 +12,8 @@ from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
 from nn.tfunet import TFUnet
 
-MODEL_DATE = "2018-10-03-21-19-05"
-MODEL_EPOCH = 93
+MODEL_DATE = "2018-10-08-19-53-15"
+MODEL_EPOCH = 27
 
 
 def visualize(outputs, X):
@@ -56,7 +56,10 @@ if __name__ == "__main__":
         slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
-        slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'], filter=False, single_page=True)
+        slice_width=config['data_config.slice_width'],
+        slice_height=config['data_config.slice_height'],
+        binarize=config.default('binary', False),
+        filter=False, single_page=True)
 
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)

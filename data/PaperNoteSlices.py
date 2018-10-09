@@ -93,7 +93,7 @@ class PaperNoteSlices(Dataset):
         final_paper, final_stripped = [], []
         for i in range(len(slices_paper)):
             m = np.min(slices_stripped[i])
-            if m < 125 or not self.filter:
+            if m < 125 or not self.filter or (isinstance(self.filter, float) and np.random.uniform() < self.filter):
                 p_slice = slices_paper[i]
                 s_slice = slices_stripped[i]
                 if augmentable:

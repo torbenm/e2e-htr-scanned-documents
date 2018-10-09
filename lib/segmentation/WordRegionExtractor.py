@@ -17,6 +17,8 @@ class Region(object):
         self.img = img
         self.pos = pos
         self.size = size
+        self.text = None
+        self._class = None
 
 
 class WordRegionExtractor(object):

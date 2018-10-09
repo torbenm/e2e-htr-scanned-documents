@@ -7,6 +7,7 @@ from lib.segmentation.WordRegionExtractor import WordRegionExtractor
 DEFAULTS = {
     "extractor": {}
 }
+# TODO: configuration via config
 
 
 class WordSegmentation(object):

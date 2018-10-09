@@ -20,6 +20,7 @@ class RecClassRunner(Executable, Extendable):
 
     def get_feed_dict(self, batch, graph):
         # X, Y, L, F = batch
+        print("batch", len(batch[0]))
         X = batch[0]
         return {
             graph['x']: X,
@@ -34,6 +35,7 @@ class RecClassRunner(Executable, Extendable):
         self.transcriptions['class'].extend(class_)
         self.transcriptions['files'].extend(batch[3])
         self.transcriptions['trans'].extend(results_)
+        print(results_)
 
     def before_call(self):
         self.transcriptions = {

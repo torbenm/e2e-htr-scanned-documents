@@ -1,102 +1,112 @@
-import argparse
-import cv2
-from segmentation.MSERRegionExtractor import RegionExtractor
-from data.RegionDataset import RegionDataset
-import executor
 import os
-import re
+import cv2
+import numpy as np
 
-# "htrnet-pc-iam-print"
-ALGORITHM_CONFIG = "otf-iam-print"
-# "2018-07-07-14-59-06"  # "2018-07-02-23-46-51"
-MODEL_DATE = "2018-07-12-08-58-10"
-# 800  # 65
-MODEL_EPOCH = 999
+from lib.Configuration import Configuration
+from lib.buildingblocks.TextSeparation import TextSeparation
+from lib.buildingblocks.WordSegmentation import WordSegmentation
+from lib.buildingblocks.LineSegmentation import LineSegmentation
+from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
+from lib.buildingblocks.visualizer.RegionVisualizer import RegionVisualizer
 
-PUNCTUATION_REGEX = re.compile(r"([|])(?=[,.;:!?])")
-REGULAR_REGEX = re.compile(r"[|]")
+EXAMPLE_CONFIG = {
+    "blocks": [
+        # {
+        #     "type": "TextSeparation",
+        #     "model_path": "models/separation-2018-09-19-17-04-46",
+        #     "model_epoch": 207
+        # },
+        # {
+        #     "type": "LineSegmentation"
+        # },
+        {
+            "type": "WordSegmentation"
+        },
+        {
+            "type": "TranscriptionAndClassification",
+            "classify": True,
+            "model_path": "models/otf-iam-paper-2018-08-28-23-10-33",
+            "model_epoch": 74
+        }
+        # ... building blocks
+    ],
+    "eval": [
+        # ... evaluators
+    ],
+    "viz": {
+        "type": "RegionVisualizer"
+    },
+    "data": {
+        # array of files or object with path + ending
+        "path": "../paper-notes/data/final/dev/",
+        "ending": "-stripped.png",
+        "limit": 1
+    }
+}
+
+
+class E2ERunner(object):
+
+    def __init__(self, config={}, globalConfig={}):
+        self.config = Configuration(config)
+        self.globalConfig = Configuration(globalConfig)
+        self._parse_blocks(self.config["blocks"])
+        self.viz = self._parse_visualizer(self.config.default("viz", None))
+
+    def _parse_blocks(self, blocks):
+        self.blocks = [self._parse_block(block) for block in blocks]
+
+    def _parse_block(self, block):
+        if block["type"] == "TextSeparation":
+            return TextSeparation(self.globalConfig, block)
+        elif block["type"] == "WordSegmentation":
+            return WordSegmentation(block)
+        elif block["type"] == "LineSegmentation":
+            return LineSegmentation(block)
+        elif block["type"] == "TranscriptionAndClassification":
+            return TranscriptionAndClassification(self.globalConfig, block)
+
+    def _parse_data(self, data_config):
+        if isinstance(data_config, list):
+            return data_config
+        else:
+            filenames = list(filter(lambda f: f.endswith(
+                data_config["ending"]), os.listdir(data_config["path"])))
+            if data_config["limit"] > 0:
+                filenames = filenames[:data_config["limit"]]
+            return [os.path.join(data_config["path"], filename) for filename in filenames]
+
+    def _parse_visualizer(self, viz_config):
+        if viz_config is None:
+            return None
+        if viz_config["type"] == "RegionVisualizer":
+            return RegionVisualizer(viz_config)
+
+    def __call__(self):
+        vizzed = []
+        results = [self._exec(file)
+                   for file in self._parse_data(self.config["data"])]
+        [block.close() for block in self.blocks]
+        if self.viz is not None:
+            vizzed = [self._viz(result) for result in results]
+        return results, vizzed
+
+    def _exec(self, file):
+        original = cv2.imread(file)
+        last_output = original.copy()
+        for block in self.blocks:
+            last_output = block(last_output)
+        return {
+            "file": file,
+            "original": original,
+            "result": last_output
+        }
+
+    def _viz(self, res):
+        return self.viz(res["original"], res["result"])
+
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input')
-    parser.add_argument('--config', default=ALGORITHM_CONFIG)
-    parser.add_argument(
-        '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
-    parser.add_argument(
-        '--model-date', help='date to continue for', default=MODEL_DATE)
-    parser.add_argument('--model-epoch', help='epoch to continue for',
-                        default=MODEL_EPOCH, type=int)
-    args = parser.parse_args()
-
-    #############################
-    # 1. EXTRACT REGIONS        #
-    #############################
-    print("Extracting Regions...")
-    img = cv2.imread(args.input)
-    re = RegionExtractor(img)
-    regions = re.extract()
-
-    #########################################
-    # 2. CLASSIFY PRINTED / HANDWRITTEN     #
-    #########################################
-    print("Classifying & Transcribing Regions...")
-    # TODO: this is not so nice...
-    models_path = os.path.join(
-        executor.MODELS_PATH, '{}-{}'.format(args.config, args.model_date))
-    dataset = RegionDataset(regions, models_path)
-
-    exc = executor.Executor(args.config, _dataset=dataset, verbose=False)
-    exc.configure(args.gpu, True, False)
-    transcriptions = exc.transcribe("", args.model_date, args.model_epoch)
-    exc.close()
-    # print(transcriptions)
-
-    print('\n')
-    print('Transcriptions for {} lines'.format(len(transcriptions['trans'])))
-    max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
-    line_format = '{0:'+str(max_trans_l+10)+'} {1:30} {2}'
-    heading = line_format.format('Transcription', 'Classification', 'File')
-    print(heading)
-    print("-"*len(heading))
-    for i in range(len(transcriptions['trans'])):
-        decompiled = exc.dataset.decompile(transcriptions['trans'][i])
-        filename = os.path.basename("")
-        if len(transcriptions['class']) > i:
-            is_ht = 'Handwritten' if transcriptions['class'][i][0] > 0.25 else 'Printed'
-            is_ht = '{:12} ({:05.2f} %)'.format(
-                is_ht, transcriptions['class'][i][0]*100)
-
-        else:
-            is_ht = '?'
-
-        print(line_format.format(decompiled, is_ht, filename))
-
-    #########################################
-    # 4. VISUALIZE TRANSCRIPTIONS           #
-    #########################################
-    print("Visualizing Transcriptions...")
-
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    bottomLeftCornerOfText = (10, 500)
-    fontScale = 1
-    fontColor = (0, 255, 0)
-    lineType = 2
-
-    for idx, region in enumerate(regions):
-        x, y = region.pos
-        w, h = region.size
-        decompiled = exc.dataset.decompile(
-            transcriptions['trans'][idx])
-        decompiled = PUNCTUATION_REGEX.sub('', decompiled)
-        decompiled = REGULAR_REGEX.sub(' ', decompiled)
-        if transcriptions['class'][idx] > 0.25:
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 1)
-            cv2.putText(img, decompiled, (x, y-5), cv2.FONT_HERSHEY_PLAIN,
-                        1, (0, 0, 255), 1)
-        else:
-            cv2.rectangle(img, (x, y), (x + w, y + h), (125, 125, 195), 1)
-
-    cv2.imwrite('output.png', img)
-    # cv2.imshow('All', cv2.resize(img, (533, 800)))
-    # cv2.waitKey(0)
+    e2e = E2ERunner(EXAMPLE_CONFIG)
+    res, viz = e2e()
+    cv2.imwrite("e2e_out.png", viz[0])
