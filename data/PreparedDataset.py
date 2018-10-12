@@ -159,8 +159,6 @@ class PreparedDataset(Dataset):
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose, augmentable=augmentable)
-            cv2.imshow('x', np.uint8(x))
-            cv2.waitKey(0)
             if x is not None:
                 X.append(x)
                 Y.append(y)
