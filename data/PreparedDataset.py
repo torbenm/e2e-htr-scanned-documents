@@ -140,12 +140,12 @@ class PreparedDataset(Dataset):
         l = len(line["truth"])
         y = np.asarray(line["compiled"])
         x = self.load_image(line["path"], augmentable=augmentable)
-        return x, y, l, line["path"]
+        return self.augmenter.postprocesss(x), y, l, line["path"]
 
     def _loadprintline(self, line, transpose=True, augmentable=False):
         y = line["truth"]
         x = self.load_image(line["path"], augmentable=augmentable)
-        return x, [y], 0, line["path"]
+        return self.augmenter.postprocesss(x), [y], 0, line["path"]
 
     def _load_batch(self, index, batch_size, dataset, with_filepath=False, augmentable=False):
         X = []
@@ -159,6 +159,8 @@ class PreparedDataset(Dataset):
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose, augmentable=augmentable)
+            cv2.imshow('x', np.uint8(x))
+            cv2.waitKey(0)
             if x is not None:
                 X.append(x)
                 Y.append(y)

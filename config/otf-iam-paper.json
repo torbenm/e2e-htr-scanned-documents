@@ -35,6 +35,9 @@
       "invert": true,
       "scale": 2.15,
       "padding": 5
+    },
+    "postprocess": {
+      "binarize": true
     }
   },
   "algo_config": {

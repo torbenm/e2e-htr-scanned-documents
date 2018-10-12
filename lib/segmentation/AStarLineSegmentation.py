@@ -8,6 +8,7 @@ from scipy.signal import argrelextrema
 
 from lib.Configuration import Configuration
 from lib.segmentation.AStarPathFinder import AStarPathFinder
+from lib.segmentation.Region import Region
 from data.steps.pipes.crop import _crop
 
 DEFAULT_CONFIG = {
@@ -16,24 +17,6 @@ DEFAULT_CONFIG = {
     "scale_factor": 4.0,
     "astar": {}
 }
-
-
-class Line(object):
-    def __init__(self, path, img):
-        self.img = img
-        self.path = path
-        self._boundingRect()
-
-    def _boundingRect(self):
-        np_path = np.array(self.path)
-        self.pos = (np.min(np_path[:, 0]), np.min(np_path[:, 1]))
-        end_pos = (np.max(np_path[:, 0]), np.max(np_path[:, 1]))
-        self.size = (end_pos[0] - self.pos[0], end_pos[1] - self.pos[1])
-
-    def translate(self, shift):
-        xshift, yshift = shift
-        self.pos = (self.pos[0]+xshift, self.pos[0]+yshift)
-        self.path = [(x+xshift, y+yshift) for x, y in self.path]
 
 
 class AStarLineSegmentation(object):
@@ -84,7 +67,7 @@ class AStarLineSegmentation(object):
         cropped = _crop(mask_applied)
         if cropped is None:
             return None
-        return Line(line, 255 - cropped)
+        return Region(path=line, img=255 - cropped)
 
     def _extract_lines(self, img, line_paths):
         lines = []
@@ -104,7 +87,8 @@ class AStarLineSegmentation(object):
         img = cv2.resize(
             img, (int(img.shape[1] * scaling), int(img.shape[0] * scaling)))
         img = 255 - self._binarize(img)
-        #img = self._enhance(img)
+        # TODO: make this conditional
+        img = self._enhance(img)
         y_hist = self._ink_density(img)
         maxima = self._local_maxima(y_hist)
         starting_points = self._line_start_from_maxima(maxima)

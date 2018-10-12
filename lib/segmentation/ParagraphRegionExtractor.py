@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from skimage.filters import threshold_sauvola
-
+from lib.segmentation.Region import Region
 from lib.Configuration import Configuration
 
 
@@ -11,13 +11,6 @@ DEFAULTS = {
     "dilate_kernel": [30, 30],
     "scaling": 5
 }
-
-
-class Region(object):
-    def __init__(self, pos, size, img):
-        self.img = img
-        self.pos = pos
-        self.size = size
 
 
 class ParagraphRegionExtractor():
@@ -49,7 +42,7 @@ class ParagraphRegionExtractor():
     def _extract_region(self, img, region):
         x, y, w, h = [a*self.config["scaling"] for a in region]
         return Region(
-            (x, y), (w, h), img[y:y+h, x:x+w])
+            pos=(x, y), size=(w, h), img=img[y:y+h, x:x+w])
 
     def _extract_regions(self, img, regions):
         return [self._extract_region(img, region) for region in regions]

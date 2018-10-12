@@ -10,7 +10,8 @@ from data.PaperNoteSlicesSingle import PaperNoteSlicesSingle
 DEFAULTS = {
     "model_path": "",
     "model_epoch": 0,
-    "subset": ""
+    "subset": "",
+    "binarize_method": ""
 }
 
 GLOBAL_DEFAULTS = {
@@ -44,7 +45,9 @@ class TextSeparation(object):
         self.dataset = PaperNoteSlicesSingle(
             slice_width=self.modelConfig['data_config.slice_width'],
             slice_height=self.modelConfig['data_config.slice_height'],
-            binarize=self.modelConfig.default("binary", False))
+            binarize=self.modelConfig.default("binary", False),
+            binarize_method=self.config["binarize_method"]
+        )
 
     def _configure_executor(self):
         self.executor = Executor(self.algorithm, False, self.globalConfig)

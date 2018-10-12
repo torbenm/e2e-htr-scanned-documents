@@ -8,40 +8,45 @@ from lib.buildingblocks.WordSegmentation import WordSegmentation
 from lib.buildingblocks.LineSegmentation import LineSegmentation
 from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
 from lib.buildingblocks.visualizer.RegionVisualizer import RegionVisualizer
+from lib.buildingblocks.visualizer.SeparatedVisualizer import SeparatedVisualizer
 
 EXAMPLE_CONFIG = {
     "blocks": [
-        # {
-        #     "type": "TextSeparation",
-        #     "model_path": "models/separation-2018-09-19-17-04-46",
-        #     "model_epoch": 207
-        # },
+        {
+            "type": "TextSeparation",
+            "model_path": "models/separation-2018-10-09-13-54-51",
+            "model_epoch": 1,
+            "binarize_method": "mean"
+        }
         # {
         #     "type": "LineSegmentation"
+        # }
+        # {
+        #     "type": "WordSegmentation"
         # },
-        {
-            "type": "WordSegmentation"
-        },
-        {
-            "type": "TranscriptionAndClassification",
-            "classify": True,
-            "model_path": "models/otf-iam-paper-2018-08-28-23-10-33",
-            "model_epoch": 74
-        }
+        # {
+        #     "type": "TranscriptionAndClassification",
+        #     "classify": True,
+        #     "model_path": "models/otf-iam-paper-2018-08-28-23-10-33",
+        #     "model_epoch": 74
+        # }
         # ... building blocks
     ],
     "eval": [
         # ... evaluators
     ],
     "viz": {
-        "type": "RegionVisualizer"
+        "type": "SeparatedVisualizer"
     },
-    "data": {
-        # array of files or object with path + ending
-        "path": "../paper-notes/data/final/dev/",
-        "ending": "-stripped.png",
-        "limit": 1
-    }
+    # "data": {
+    #     # array of files or object with path + ending
+    #     "path": "../paper-notes/data/final/dev/",
+    #     "ending": "-stripped.png",
+    #     "limit": 1
+    # }
+    "data": [
+        "/Users/torbenmeyer/Development/masterthesis/images/gaugin_fleurs/gauguin_fleurs_11.png"
+    ]
 }
 
 
@@ -81,26 +86,28 @@ class E2ERunner(object):
             return None
         if viz_config["type"] == "RegionVisualizer":
             return RegionVisualizer(viz_config)
+        elif viz_config["type"] == "SeparatedVisualizer":
+            return SeparatedVisualizer(viz_config)
 
     def __call__(self):
-        vizzed = []
         results = [self._exec(file)
                    for file in self._parse_data(self.config["data"])]
         [block.close() for block in self.blocks]
-        if self.viz is not None:
-            vizzed = [self._viz(result) for result in results]
-        return results, vizzed
+        return results
 
     def _exec(self, file):
         original = cv2.imread(file)
         last_output = original.copy()
         for block in self.blocks:
             last_output = block(last_output)
-        return {
+        res = {
             "file": file,
             "original": original,
             "result": last_output
         }
+        if self.viz is not None:
+            res["viz"] = self._viz(res)
+        return res
 
     def _viz(self, res):
         return self.viz(res["original"], res["result"])
@@ -108,5 +115,5 @@ class E2ERunner(object):
 
 if __name__ == "__main__":
     e2e = E2ERunner(EXAMPLE_CONFIG)
-    res, viz = e2e()
-    cv2.imwrite("e2e_out.png", viz[0])
+    res = e2e()[0]
+    cv2.imwrite("e2e_out.png", res["viz"])

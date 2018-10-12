@@ -10,6 +10,7 @@ from random import shuffle
 from .Dataset import Dataset
 from data.Slicer import Slicer
 from data.steps.pipes import crop, threshold, invert, padding, warp, morph, convert
+from skimage.filters import threshold_sauvola
 
 
 class PaperNoteSlicesSingle(Dataset):
@@ -23,6 +24,7 @@ class PaperNoteSlicesSingle(Dataset):
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
         self.binarize = kwargs.get('binarize', False)
+        self.binarize_method = kwargs.get('binarize_method', "fast_threshold")
         self.slicer = Slicer(**kwargs)
 
     def load_file(self, filepath):
@@ -50,8 +52,18 @@ class PaperNoteSlicesSingle(Dataset):
         return self.slicer.merge(slices, original_shape)
 
     def binarization(self, img):
-        _, out = cv2.threshold(img, 254, 255, cv2.THRESH_BINARY)
+        if(self.binarize_method == "fast_threshold"):
+            _, out = cv2.threshold(img, 254, 255, cv2.THRESH_BINARY)
+        elif(self.binarize_method == "sauvola"):
+            out = self._sauvola(img)
+        elif(self.binarize_method == "mean"):
+            out = np.uint8((img > np.mean(img))*255)
         return self.graychannel(out)
+
+    def _sauvola(self, img):
+        thresh_sauvola = threshold_sauvola(
+            img, window_size=19)  # todo: make configurable
+        return np.uint8((img > thresh_sauvola)*255)
 
     def graychannel(self, img):
         if len(img.shape) > 2:

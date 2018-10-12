@@ -66,10 +66,12 @@ class TranscriptionAndClassification(object):
         self.dataset.set_regions(images)
         self.executor(self.executables, auto_close=False)
         for idx in range(len(self.transcriber.transcriptions['trans'])):
-            images[idx].text = self.dataset.decompile(
-                self.transcriber.transcriptions['trans'][idx])
+            text = self.transcriber.transcriptions['trans'][idx]
+            images[idx].set_text(text, self.dataset.decompile(text))
             if self.config["classify"]:
-                images[idx]._class = self.transcriber.transcriptions['class'][idx] > self.config["class_thresh"]
+                score = self.transcriber.transcriptions['class'][idx]
+                images[idx].set_class(
+                    score, score > self.config["class_thresh"])
         return images
 
     def close(self):

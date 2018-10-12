@@ -3,22 +3,10 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from .metrics import x_by_height, y_by_height
 
+from lib.segmentation.Region import Region
+
 ORIENTATION_LANDSCAPE = 0
 ORIENTATION_PORTRAIT = 1
-
-##################
-# REGION DETECTION ALGORITHM
-#   1. Thresholding
-#
-
-
-class Region(object):
-    def __init__(self, pos, size, img):
-        self.img = img
-        self.pos = pos
-        self.size = size
-        self.text = None
-        self._class = None
 
 
 class WordRegionExtractor(object):
@@ -70,7 +58,7 @@ class WordRegionExtractor(object):
     def _extract_region(self, original, region):
         x1, y1, x2, y2 = region
         return Region(
-            (x1, y1), (x2-x1, y2-y1), original[y1:y2, x1:x2])
+            pos=(x1, y1), size=(x2-x1, y2-y1), img=original[y1:y2, x1:x2])
 
     def _combined_metric(self, rectA, rectB):
         if y_by_height(rectA, rectB) < self._cluster_y_eps and x_by_height(rectA, rectB) < self._cluster_x_eps:

@@ -36,11 +36,15 @@ class ImageAugmenter(object):
                 if(not self.config.default('preprocess.invert', False)):
                     img = 255 - img
         if "affine" in self.config["otf_augmentations"]:
+            if(self.config.default('preprocess.invert', False)):
+                img = 255 - img
             img, mat = affine._affine(
                 img, self.config["otf_augmentations.affine"], return_mat=True)
             augmentation_settings["affine"] = {
                 "mat": mat
             }
+            if(self.config.default('preprocess.invert', False)):
+                img = 255 - img
         if "morph" in self.config["otf_augmentations"]:
             img, op_name, op_values = morph._random_morph(
                 img, self.config["otf_augmentations.morph"], self.config.default('preprocess.invert', False), True)
@@ -90,6 +94,14 @@ class ImageAugmenter(object):
             return self.add_graychannel(img)
         else:
             return self.add_graychannel(img), Configuration(augmentation_settings)
+
+    def binarization(self, img):
+        if(self.config.default('preprocess.invert', False)):
+            img = 255 - img
+        _, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY)
+        if(self.config.default('preprocess.invert', False)):
+            img = 255 - img
+        return self.add_graychannel(img)
 
     def apply_augmentation(self, img, settings):
         if settings.default("warp", False):
@@ -141,7 +153,7 @@ class ImageAugmenter(object):
         return img
 
     def pad_to_size(self, img, height, width):
-        return self._pad(img, (height, width))
+        return self._pad(img, (height, width, 1))
 
     def _scale(self, img, factor, target_size=None):
         height = int(img.shape[0] / factor)
@@ -186,9 +198,15 @@ class ImageAugmenter(object):
                 target_size[0] +
                 (self.config.default('preprocess.padding', 0)*2),
                 target_size[1] +
-                (self.config.default('preprocess.padding', 0)*2)
+                (self.config.default('preprocess.padding', 0)*2),
+                1
             )
             img = self._pad(img, target_size)
+        return img
+
+    def postprocesss(self, img):
+        if self.config.default('postprocess.binarize', False):
+            img = self.binarization(img)
         return img
 
     def _pad(self, array, reference_shape, offsets=None):
@@ -199,7 +217,7 @@ class ImageAugmenter(object):
         will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
         """
         offsets = offsets if offsets is not None else [
-            0] * len(reference_shape)
+            0] * len(array.shape)
         # Create an array of zeros with the reference shape
         result = np.zeros(reference_shape)
         # Create a list of slices from offset to offset + shape in each dimension

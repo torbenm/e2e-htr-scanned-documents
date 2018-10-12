@@ -12,8 +12,8 @@ from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
 from nn.tfunet import TFUnet
 
-MODEL_DATE = "2018-10-08-19-53-15"
-MODEL_EPOCH = 27
+MODEL_DATE = "2018-10-10-17-58-01"
+MODEL_EPOCH = 19
 
 
 def visualize(outputs, X):
@@ -66,11 +66,11 @@ if __name__ == "__main__":
 
     executor.restore(models_path)
     runner = SeparationRunner(logger=logger, config=config,
-                              dataset=dataset, subset="dev")
+                              dataset=dataset, subset="test")
     executables = [runner]
 
     for idx in range(100):
-        dataset.next_file("dev")
+        dataset.next_file("test")
         executor(executables,  auto_close=False)
         original = cv2.imread(dataset.file['paper'], cv2.IMREAD_GRAYSCALE)
         outputs = np.argmax(np.asarray(runner.outputs), 3)
