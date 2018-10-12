@@ -116,6 +116,8 @@ class PreparedDataset(Dataset):
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if self.data_config.default("otf_augmentations", False) and augmentable:
             x = self.augmenter.augment(x)
+        else:
+            x = self.augmenter.add_graychannel(x)
         if transpose:
             try:
                 x = np.transpose(x, [1, 0])
