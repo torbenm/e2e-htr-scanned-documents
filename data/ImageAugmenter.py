@@ -192,7 +192,7 @@ class ImageAugmenter(object):
 
         if self.config.default('preprocess.padding', False):
             img = padding._pad_cv2(img, self.config['preprocess.padding'], bg)
-
+        img = self.add_graychannel(img)
         if target_size != None:
             target_size = (
                 target_size[0] +
