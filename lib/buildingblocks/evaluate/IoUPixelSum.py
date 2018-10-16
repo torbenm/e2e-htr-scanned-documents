@@ -34,4 +34,6 @@ class IoUPixelSum(IoU):
             gt_score = self._score_fn(hit["gt"].img)
             pred_score = self._score_fn(hit["pred"].img)
             hit_score += min(pred_score, gt_score)/max(pred_score, gt_score)
+        if total_len == 0:
+            return 1, hits, misfire, nofire
         return hit_score/total_len, hits, misfire, nofire
