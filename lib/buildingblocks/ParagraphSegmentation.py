@@ -6,7 +6,6 @@ from lib.segmentation.ParagraphRegionExtractor import ParagraphRegionExtractor
 DEFAULTS = {
     "extractor": {}
 }
-# TODO: configuration via config
 
 
 class ParagraphSegmentation(object):

@@ -14,7 +14,11 @@ from data.steps.pipes.crop import _crop
 DEFAULT_CONFIG = {
     "sauvola_window": 19,
     "relative_maxima_dist": 56,
+    "erode_kernel": [1, 20],
+    "dilate_kernel": [1, 20],
+    "gauss_kernel": [3, 3],
     "scale_factor": 4.0,
+    "enhance": True,
     "astar": {}
 }
 
@@ -49,10 +53,10 @@ class AStarLineSegmentation(object):
         return np.int32((maxima[1:] + maxima[:-1]) / 2)
 
     def _enhance(self, img):
-        img = cv2.GaussianBlur(img, (3, 3), 0)
-        img = cv2.dilate(img, np.ones((1, 20)))
-        img = cv2.erode(img, np.ones((1, 20)))
-        return img
+        img = cv2.GaussianBlur(img, tuple(self.config["gauss_kernel"]), 0)
+        img = cv2.dilate(img, np.ones(tuple(self.config["dilate_kernel"])))
+        img = cv2.erode(img, np.ones(tuple(self.config["erode_kernel"])))
+        return np.uint8(img)
 
     def _exec_astar(self, img, starting_points):
         astar = AStarPathFinder(img, self.config["astar"])
@@ -87,14 +91,14 @@ class AStarLineSegmentation(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         scaling = 1.0/self.config["scale_factor"]
         img = cv2.resize(
-            img, (int(img.shape[1] * scaling), int(img.shape[0] * scaling)))
+            np.uint8(img), (int(img.shape[1] * scaling), int(img.shape[0] * scaling)))
         img = 255 - self._binarize(img)
-        # TODO: make this conditional
-        img = self._enhance(img)
+        if self.config["enhance"]:
+            img = self._enhance(img)
+        # cv2.imshow('img', img)
+        # cv2.waitKey(0)
         y_hist = self._ink_density(img)
         maxima = self._local_maxima(y_hist)
         starting_points = self._line_start_from_maxima(maxima)
-        # starting_points = self._local_minima(y_hist)
-        # print(starting_points)
         lines = self._exec_astar(img, starting_points)
         return self._extract_lines(original, lines), lines

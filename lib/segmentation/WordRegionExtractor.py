@@ -4,28 +4,34 @@ from sklearn.cluster import DBSCAN
 from .metrics import x_by_height, y_by_height
 
 from lib.segmentation.Region import Region
+from lib.Configuration import Configuration
 
 ORIENTATION_LANDSCAPE = 0
 ORIENTATION_PORTRAIT = 1
 
 
+DEFAULT_CONFIG = {
+    "mser_min_area": 0,
+    "threshold_kernel": 51,
+    "cluster_y_eps": 0.1,
+    "cluster_x_eps": 0.3,
+    "min_wh_ratio": 0
+}
+
+
 class WordRegionExtractor(object):
 
     def __init__(self, config={}):
-        self._mser_min_area = 0
-        self._threshold_kernel = 51
-        self._cluster_y_eps = 0.1
-        self._cluster_x_eps = 0.3
-        self._min_wh_ratio = 0.0
+        self.config = Configuration(config, DEFAULT_CONFIG)
 
     def _threshold(self, img):
         mean = np.mean(img, axis=(0, 1))
         return cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                     cv2.THRESH_BINARY_INV, self._threshold_kernel, mean/4)
+                                     cv2.THRESH_BINARY_INV, self.config["threshold_kernel"], mean/4)
 
     def _mser(self, img, max_area=14400, min_area=0):
         mser = cv2.MSER_create(_max_area=self._mser_max_area,
-                               _min_area=self._mser_min_area)
+                               _min_area=self.config["mser_min_area"])
         regions, _ = mser.detectRegions(img)
         hulls = [cv2.convexHull(p.reshape(-1, 1, 2)) for p in regions]
         return hulls
@@ -61,7 +67,7 @@ class WordRegionExtractor(object):
             pos=(x1, y1), size=(x2-x1, y2-y1), img=original[y1:y2, x1:x2])
 
     def _combined_metric(self, rectA, rectB):
-        if y_by_height(rectA, rectB) < self._cluster_y_eps and x_by_height(rectA, rectB) < self._cluster_x_eps:
+        if y_by_height(rectA, rectB) < self.config["cluster_y_eps"] and x_by_height(rectA, rectB) < self.config["cluster_x_eps"]:
             return 0
         return 1
 
@@ -94,14 +100,14 @@ class WordRegionExtractor(object):
         #   4. Y-AXIS Clustering
         ########################
         # rect_groups = self._cluster(
-        #     rects, self._cluster_x_eps, x_by_height)
+        #     rects, self.config["cluster_x_eps"], x_by_height)
         rect_groups = self._cluster(
             rects, 0.5, self._combined_metric)
         #########################
         #   5. X-AXIS Clustering
         ########################
         # rect_super_groups = [self._cluster(
-        #     rect_group, self._cluster_y_eps, y_by_height) for rect_group in rect_groups]
+        #     rect_group, self.config["cluster_y_eps"], y_by_height) for rect_group in rect_groups]
         rect_super_groups = [rect_groups]
 
         #########################
@@ -116,7 +122,7 @@ class WordRegionExtractor(object):
                 v[2] = int(np.max(subgroup[:, 2]))
                 v[1] = int(np.min(subgroup[:, 1]))
                 v[3] = int(np.max(subgroup[:, 3]))
-                if (v[2]-v[0])*(v[3]-v[1]) > self._min_region_area and (v[2]-v[0])/(v[3]-v[1]) > self._min_wh_ratio:
+                if (v[2]-v[0])*(v[3]-v[1]) > self._min_region_area and (v[2]-v[0])/(v[3]-v[1]) > self.config["min_wh_ratio"]:
                     regions.append(v)
 
         #########################

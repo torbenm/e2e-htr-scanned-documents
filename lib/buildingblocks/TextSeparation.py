@@ -66,7 +66,6 @@ class TextSeparation(object):
         outputs = np.argmax(np.asarray(self.separator.outputs), 3)
         merged = self.dataset.merge_slices(outputs, original.shape)
         output = (255-(1-merged)*(255-original))
-        # cv2.imwrite("e2e_out_sep.png", output)
         return np.uint8(output)
 
     def close(self):

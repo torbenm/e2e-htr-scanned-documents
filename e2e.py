@@ -15,6 +15,8 @@ from lib.buildingblocks.evaluate.gtprovider.ParagraphRegionGTProvider import Par
 from lib.buildingblocks.evaluate.gtprovider.LineRegionGTProvider import LineRegionGTProvider
 from lib.buildingblocks.evaluate.IoU import IoU
 from lib.buildingblocks.evaluate.IoUPixelSum import IoUPixelSum
+from lib.buildingblocks.evaluate.IoUCER import IoUCER
+from lib.buildingblocks.evaluate.BagOfWords import BagOfWords
 from lib.Logger import Logger
 from time import time
 
@@ -32,7 +34,7 @@ class E2ERunner(object):
         self._parse_blocks(self.config["blocks"])
         self.viz = self._parse_visualizer(self.config.default("viz", None))
         self.gtprov = self._parse_gt(self.config.default("gt", None))
-        self.eval = self._parse_eval(self.config.default('eval', None))
+        self.evals = self._parse_evals(self.config.default('eval', []))
 
     def _parse_blocks(self, blocks):
         self.blocks = [self._parse_block(block) for block in blocks]
@@ -49,6 +51,9 @@ class E2ERunner(object):
         elif block["type"] == "TranscriptionAndClassification":
             return TranscriptionAndClassification(self.globalConfig, block)
 
+    def _parse_evals(self, eval_configs):
+        return [self._parse_eval(config) for config in eval_configs]
+
     def _parse_eval(self, config):
         if config is None:
             return None
@@ -56,6 +61,10 @@ class E2ERunner(object):
             return IoU(config)
         elif config["type"] == "IoUPixelSum":
             return IoUPixelSum(config)
+        elif config["type"] == "BagOfWords":
+            return BagOfWords(config)
+        elif config["type"] == "IoUCER":
+            return IoUCER(config)
 
     def _parse_data(self, data_config):
         if isinstance(data_config, list):
@@ -90,18 +99,20 @@ class E2ERunner(object):
             self.logger.write("Entering Range Execution Mode")
             return self._range_exec()
         start = time()
-        self.scores = []
+        self.scores = {}
         data = self._parse_data(self.config["data"])
         results = []
         for idx, file in enumerate(data):
             self.logger.progress(log_prefix, idx, len(data))
             results.append(self._exec(file))
         [block.close() for block in self.blocks]
-        if len(self.scores) > 0:
-            self.logger.summary(log_prefix, {
-                "avg. score": np.average(self.scores),
+        if len(self.evals) > 0:
+            final_scores = {
                 "time": time() - start
-            })
+            }
+            for score_key in self.scores:
+                final_scores[score_key] = np.average(self.scores[score_key])
+            self.logger.summary(log_prefix, final_scores)
         return results
 
     def _get_range(self):
@@ -142,10 +153,12 @@ class E2ERunner(object):
                 vizimage = self.viz(vizimage, res["result"], False)
             self.viz.store(vizimage, file)
             res["viz"] = vizimage
-        if self.eval is not None:
-            score = self.eval(res["result"], gt)
-            self.scores.append(score)
-            # print("Score for {} is {}".format(file, score))
+        if len(self.evals) > 0:
+            for evl in self.evals:
+                scores = evl(gt, res["result"])
+                for score_key in scores.keys():
+                    self.scores[score_key] = [scores[score_key]] if score_key not in self.scores else [
+                        scores[score_key], *self.scores[score_key]]
         return res
 
 
