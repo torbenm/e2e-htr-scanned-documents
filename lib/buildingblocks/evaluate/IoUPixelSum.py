@@ -35,5 +35,5 @@ class IoUPixelSum(IoU):
             pred_score = self._score_fn(hit["pred"].img)
             hit_score += min(pred_score, gt_score)/max(pred_score, gt_score)
         if total_len == 0:
-            return 1, hits, misfire, nofire
+            return {"lineiou": 1}, hits, misfire, nofire
         return {"lineiou": hit_score/total_len}, hits, misfire, nofire
