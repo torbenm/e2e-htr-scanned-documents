@@ -81,7 +81,9 @@ class IoU(object):
         total_len = len(hits) + len(nofire) + len(misfire)
         if total_len == 0:
             return 1, hits, nofire, misfire
-        return len(hits)/total_len, hits, nofire, misfire
+        return ({
+            "iou": len(hits)/total_len
+        }, hits, nofire, misfire)
 
     def withinfo(self, groundtruth, predictions):
         if self.config["filter_class"]:

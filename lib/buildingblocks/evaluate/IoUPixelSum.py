@@ -36,4 +36,4 @@ class IoUPixelSum(IoU):
             hit_score += min(pred_score, gt_score)/max(pred_score, gt_score)
         if total_len == 0:
             return 1, hits, misfire, nofire
-        return hit_score/total_len, hits, misfire, nofire
+        return {"lineiou": hit_score/total_len}, hits, misfire, nofire

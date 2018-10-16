@@ -28,23 +28,26 @@ def last_nonzero(arr, axis, invalid_val=-1):
 
 
 DEFAULTS = {
-            "d": 150,
-            "d2": 50,
-            "m": 50,
-            "v": 2,
-            "n": 1
-        }
+    "lookahead": 25,
+    "c": {
+        "d": 150,
+        "d2": 50,
+        "m": 50,
+        "v": 2,
+        "n": 1
+    }
+}
+
 
 class AStarPathFinder(AStar):
 
     def __init__(self, img, config={}):
         self.img = img
         self.step = 1
-        self.lookahead = 100
         self.start = None
         self.width = img.shape[1]
         self.height = img.shape[0]
-        self.c = Configuration(config, DEFAULTS)
+        self.config = Configuration(config, DEFAULTS)
 
     def heuristic_cost_estimate(self, current, goal):
         (y1, x1) = current
@@ -52,7 +55,7 @@ class AStarPathFinder(AStar):
         return math.hypot(x2 - x1, y2 - y1)
 
     def distance_between(self, n1, n2):
-        return self.c["d"] * self.D(n2) + self.c["d2"] * self.D2(n2) + self.c["m"] * self.M(n2) + self.c["v"] * self.V(n2) + self.c["n"] * self.N(n1, n2)
+        return self.config["c.d"] * self.D(n2) + self.config["c.d2"] * self.D2(n2) + self.config["c.m"] * self.M(n2) + self.config["c.v"] * self.V(n2) + self.config["c.n"] * self.N(n1, n2)
 
     def set_start(self, start):
         self.start = start
@@ -82,13 +85,13 @@ class AStarPathFinder(AStar):
 
     def d_u(self, n):
         x, y = np.int32(n)
-        s = int(np.clip(y-self.lookahead, 0.0, self.height))
+        s = int(np.clip(y-self.config["lookahead"], 0.0, self.height))
         dist = (y-s-1) - last_nonzero(self.img[s:y, x], 0)
         return np.abs(dist)
 
     def d_d(self, n):
         x, y = np.int32(n)
-        e = int(np.clip(y+self.lookahead, 0.0, self.height))
+        e = int(np.clip(y+self.config["lookahead"], 0.0, self.height))
         return np.abs(first_nonzero(self.img[y:e, x], 0))
 
     def find_path(self, y_start):

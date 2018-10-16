@@ -3,6 +3,7 @@ import os
 from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib.executables.RecClassRunner import RecClassRunner
+from lib.executables.RecognitionRunner import RecognitionRunner
 from nn.htrnet import HtrNet
 from data.RegionDataset import RegionDataset
 
@@ -23,8 +24,6 @@ GLOBAL_DEFAULTS = {
     "gpu": -1,
     "allowGrowth": True
 }
-
-# todo: move classify down to recClassrunner to not do unneccessary work
 
 
 class TranscriptionAndClassification(object):
@@ -48,7 +47,8 @@ class TranscriptionAndClassification(object):
             class_learning_rate=self.modelConfig.default('class_learning_rate', self.modelConfig['learning_rate']))
 
     def _configure_dataset(self):
-        self.dataset = RegionDataset(None,  self.config["model_path"])
+        self.dataset = RegionDataset(
+            None,  self.config["model_path"], data_config=self.modelConfig["data_config"])
         self.dataset.scaling(
             self.config["scaling"], self.config["max_height"], self.config["max_width"])
 
@@ -58,8 +58,12 @@ class TranscriptionAndClassification(object):
                                 logplacement=self.globalConfig["logplacement"], device=self.globalConfig["gpu"])
         self.executor.restore(os.path.join(
             self.config["model_path"], "model-{}".format(self.config["model_epoch"])))
-        self.transcriber = RecClassRunner(
-            self.dataset, config=self.modelConfig)
+        if self.config["classify"]:
+            self.transcriber = RecClassRunner(
+                self.dataset, config=self.modelConfig)
+        else:
+            self.transcriber = RecognitionRunner(
+                self.dataset, config=self.modelConfig)
         self.executables = [self.transcriber]
 
     def __call__(self, images):

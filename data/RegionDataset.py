@@ -12,6 +12,15 @@ from .Dataset import Dataset
 from data.steps.pipes import crop, threshold, invert, padding
 from data.ImageAugmenter import ImageAugmenter
 
+DEFAULT_DATACONFIG = {
+    "preprocess": {
+        "crop": True,
+        "invert": True,
+        "scale": 1,
+        "padding": 5
+    }
+}
+
 
 class RegionDataset(Dataset):
 
@@ -23,14 +32,7 @@ class RegionDataset(Dataset):
         self._max_height = 10000
         self._max_width = 10000
         self.set_regions(regions)
-        self.data_config = Configuration({
-            "preprocess": {
-                "crop": True,
-                "invert": True,
-                "scale": 1,
-                "padding": 5
-            }
-        })
+        self.data_config = Configuration(data_config, DEFAULT_DATACONFIG)
         self.augmenter = ImageAugmenter(self.data_config)
 
     def info(self):

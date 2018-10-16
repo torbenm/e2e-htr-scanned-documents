@@ -9,9 +9,6 @@ DEFAULTS = {
     "extractor": {}
 }
 
-# TODO: AStarPathFinder config
-
-
 class LineSegmentation(object):
 
     def __init__(self, config={}):
