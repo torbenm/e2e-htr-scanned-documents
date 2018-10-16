@@ -17,6 +17,10 @@ class Region(object):
             self.pos = kwargs.get('pos', (0, 0))
             self.size = kwargs.get('size', (0, 0))
         self.img = kwargs.get('img', None)
+        self.text = kwargs.get('text', None)
+        self.values = kwargs.get('values', None)
+        self.cls = kwargs.get('cls', None)
+        self.cls_score = kwargs.get('cls_score', None)
 
     def _pos_and_size_from_path(self):
         np_path = np.array(self.path)
@@ -26,7 +30,7 @@ class Region(object):
 
     def translate(self, shift):
         xshift, yshift = shift
-        self.pos = (self.pos[0]+xshift, self.pos[0]+yshift)
+        self.pos = (self.pos[0]+xshift, self.pos[1]+yshift)
         self.path = [(x+xshift, y+yshift) for x, y in self.path]
 
     def set_class(self, score, cls):

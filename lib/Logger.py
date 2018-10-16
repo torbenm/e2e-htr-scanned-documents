@@ -7,13 +7,16 @@ class Logger(object):
         percent = (float(step) / total) * 100
         out = '{0} [ {2:100} ] {1:02.2f}% '.format(
             prefix, percent, "|" * int(percent))
-        sys.stdout.write("\r" + out)
-        sys.stdout.flush()
+        self.write(out, False)
 
     def summary(self, prefix, summary):
         summary_part = "{} {:8.4f}"
         summary_parts = [summary_part.format(
             key, summary[key]) for key in summary]
         msg = "{} | {}".format(prefix, " | ".join(summary_parts))
-        sys.stdout.write('\r{:130}\n'.format(msg))
+        self.write(msg)
+
+    def write(self, msg,  newline=True):
+        suffix = '\n' if newline else ''
+        sys.stdout.write('\r{:130}{}'.format(msg, suffix))
         sys.stdout.flush()

@@ -1,2 +1,0 @@
-class IOUScore(object):
-    pass

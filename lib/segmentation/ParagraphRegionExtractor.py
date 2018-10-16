@@ -9,7 +9,8 @@ DEFAULTS = {
     "sauvola_window": 19,
     "erode_kernel": [25, 25],
     "dilate_kernel": [30, 30],
-    "scaling": 5
+    "scaling": 5,
+    "expand": 0
 }
 
 
@@ -19,8 +20,10 @@ class ParagraphRegionExtractor():
         self.config = Configuration(config, DEFAULTS)
 
     def _enhance(self, img):
-        img = cv2.dilate(img, np.ones((30, 30)))
-        img = cv2.erode(img, np.ones((25, 25)))
+        img = cv2.dilate(img, np.ones(
+            (self.config["dilate_kernel"][0], self.config["dilate_kernel"][1])))
+        img = cv2.erode(img, np.ones(
+            (self.config["erode_kernel"][0], self.config["erode_kernel"][1])))
         return img
 
     def _get_paragraphs(self, img):
@@ -40,9 +43,10 @@ class ParagraphRegionExtractor():
         return self._extract_regions(original, paragraphs)
 
     def _extract_region(self, img, region):
+        expand = self.config["expand"]*self.config["scaling"]
         x, y, w, h = [a*self.config["scaling"] for a in region]
         return Region(
-            pos=(x, y), size=(w, h), img=img[y:y+h, x:x+w])
+            pos=(x-expand, y-expand), size=(w+expand*2, h+expand*2), img=img[y:y+h, x:x+w])
 
     def _extract_regions(self, img, regions):
         return [self._extract_region(img, region) for region in regions]

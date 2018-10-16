@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import cv2
 
 from lib.Executor import Executor
 from lib.Configuration import Configuration
@@ -64,7 +65,9 @@ class TextSeparation(object):
         self.executor(self.executables,  auto_close=False)
         outputs = np.argmax(np.asarray(self.separator.outputs), 3)
         merged = self.dataset.merge_slices(outputs, original.shape)
-        return (255-(1-merged)*(255-original))
+        output = (255-(1-merged)*(255-original))
+        # cv2.imwrite("e2e_out_sep.png", output)
+        return np.uint8(output)
 
     def close(self):
         self.executor.close()

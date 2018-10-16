@@ -5,49 +5,18 @@ import numpy as np
 from lib.Configuration import Configuration
 from lib.buildingblocks.TextSeparation import TextSeparation
 from lib.buildingblocks.WordSegmentation import WordSegmentation
+from lib.buildingblocks.ParagraphSegmentation import ParagraphSegmentation
 from lib.buildingblocks.LineSegmentation import LineSegmentation
 from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
 from lib.buildingblocks.visualizer.RegionVisualizer import RegionVisualizer
 from lib.buildingblocks.visualizer.SeparatedVisualizer import SeparatedVisualizer
-
-EXAMPLE_CONFIG = {
-    "blocks": [
-        {
-            "type": "TextSeparation",
-            "model_path": "models/separation-2018-10-09-13-54-51",
-            "model_epoch": 1,
-            "binarize_method": "mean"
-        }
-        # {
-        #     "type": "LineSegmentation"
-        # }
-        # {
-        #     "type": "WordSegmentation"
-        # },
-        # {
-        #     "type": "TranscriptionAndClassification",
-        #     "classify": True,
-        #     "model_path": "models/otf-iam-paper-2018-08-28-23-10-33",
-        #     "model_epoch": 74
-        # }
-        # ... building blocks
-    ],
-    "eval": [
-        # ... evaluators
-    ],
-    "viz": {
-        "type": "SeparatedVisualizer"
-    },
-    # "data": {
-    #     # array of files or object with path + ending
-    #     "path": "../paper-notes/data/final/dev/",
-    #     "ending": "-stripped.png",
-    #     "limit": 1
-    # }
-    "data": [
-        "/Users/torbenmeyer/Development/masterthesis/images/gaugin_fleurs/gauguin_fleurs_11.png"
-    ]
-}
+from lib.buildingblocks.evaluate.gtprovider.WordRegionGTProvider import WordRegionGTProvider
+from lib.buildingblocks.evaluate.gtprovider.ParagraphRegionGTProvider import ParagraphRegionGTProvider
+from lib.buildingblocks.evaluate.gtprovider.LineRegionGTProvider import LineRegionGTProvider
+from lib.buildingblocks.evaluate.IoU import IoU
+from lib.buildingblocks.evaluate.IoUPixelSum import IoUPixelSum
+from lib.Logger import Logger
+from time import time
 
 
 class E2ERunner(object):
@@ -55,8 +24,15 @@ class E2ERunner(object):
     def __init__(self, config={}, globalConfig={}):
         self.config = Configuration(config)
         self.globalConfig = Configuration(globalConfig)
+        self._parse_config()
+        self.logger = Logger()
+        self.config()
+
+    def _parse_config(self):
         self._parse_blocks(self.config["blocks"])
         self.viz = self._parse_visualizer(self.config.default("viz", None))
+        self.gtprov = self._parse_gt(self.config.default("gt", None))
+        self.eval = self._parse_eval(self.config.default('eval', None))
 
     def _parse_blocks(self, blocks):
         self.blocks = [self._parse_block(block) for block in blocks]
@@ -68,8 +44,18 @@ class E2ERunner(object):
             return WordSegmentation(block)
         elif block["type"] == "LineSegmentation":
             return LineSegmentation(block)
+        elif block["type"] == "ParagraphSegmentation":
+            return ParagraphSegmentation(block)
         elif block["type"] == "TranscriptionAndClassification":
             return TranscriptionAndClassification(self.globalConfig, block)
+
+    def _parse_eval(self, config):
+        if config is None:
+            return None
+        if config["type"] == "IoU":
+            return IoU(config)
+        elif config["type"] == "IoUPixelSum":
+            return IoUPixelSum(config)
 
     def _parse_data(self, data_config):
         if isinstance(data_config, list):
@@ -89,15 +75,56 @@ class E2ERunner(object):
         elif viz_config["type"] == "SeparatedVisualizer":
             return SeparatedVisualizer(viz_config)
 
-    def __call__(self):
-        results = [self._exec(file)
-                   for file in self._parse_data(self.config["data"])]
+    def _parse_gt(self, gt_config):
+        if gt_config is None:
+            return None
+        if gt_config["type"] == "WordRegion":
+            return WordRegionGTProvider()
+        elif gt_config["type"] == "ParagraphRegion":
+            return ParagraphRegionGTProvider()
+        elif gt_config["type"] == "LineRegion":
+            return LineRegionGTProvider()
+
+    def __call__(self, log_prefix="E2E", skip_range_evaluation=False):
+        if not skip_range_evaluation and self.config.default("ranger", False):
+            self.logger.write("Entering Range Execution Mode")
+            return self._range_exec()
+        start = time()
+        self.scores = []
+        data = self._parse_data(self.config["data"])
+        results = []
+        for idx, file in enumerate(data):
+            self.logger.progress(log_prefix, idx, len(data))
+            results.append(self._exec(file))
         [block.close() for block in self.blocks]
+        if len(self.scores) > 0:
+            self.logger.summary(log_prefix, {
+                "avg. score": np.average(self.scores),
+                "time": time() - start
+            })
         return results
+
+    def _get_range(self):
+        if type(self.config["ranger.values"]) is dict:
+            return range(self.config["ranger.values.from"], self.config["ranger.values.to"], self.config["ranger.values.step"])
+
+    def _range_exec(self):
+        def set_config(value):
+            current = self.config
+            for step in self.config["ranger.path"][:-1]:
+                current = current[step]
+            current[self.config["ranger.path"][-1]] = value
+            self._parse_config()
+
+        for val in self._get_range():
+            set_config(val)
+            prefix = self.config.default("ranger.template", "value {}")
+            self(log_prefix=prefix.format(val), skip_range_evaluation=True)
 
     def _exec(self, file):
         original = cv2.imread(file)
         last_output = original.copy()
+
         for block in self.blocks:
             last_output = block(last_output)
         res = {
@@ -105,15 +132,28 @@ class E2ERunner(object):
             "original": original,
             "result": last_output
         }
+        if self.gtprov is not None:
+            gt = self.gtprov(file, original)
         if self.viz is not None:
-            res["viz"] = self._viz(res)
+            vizimage = res["original"].copy()
+            if self.gtprov is not None and self.config.default('gt.viz', False):
+                vizimage = self.viz(vizimage, gt, True)
+            if len(self.blocks) > 0:
+                vizimage = self.viz(vizimage, res["result"], False)
+            self.viz.store(vizimage, file)
+            res["viz"] = vizimage
+        if self.eval is not None:
+            score = self.eval(res["result"], gt)
+            self.scores.append(score)
+            # print("Score for {} is {}".format(file, score))
         return res
-
-    def _viz(self, res):
-        return self.viz(res["original"], res["result"])
 
 
 if __name__ == "__main__":
-    e2e = E2ERunner(EXAMPLE_CONFIG)
-    res = e2e()[0]
-    cv2.imwrite("e2e_out.png", res["viz"])
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config')
+    args = parser.parse_args()
+    config = Configuration.load("./config/e2e/", args.config)
+    e2e = E2ERunner(config)
+    e2e()

@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import math
+from lib.Configuration import Configuration
 
 import peakutils
 from astar import AStar
@@ -26,6 +27,14 @@ def last_nonzero(arr, axis, invalid_val=-1):
         return 1
 
 
+DEFAULTS = {
+            "d": 150,
+            "d2": 50,
+            "m": 50,
+            "v": 2,
+            "n": 1
+        }
+
 class AStarPathFinder(AStar):
 
     def __init__(self, img, config={}):
@@ -35,13 +44,7 @@ class AStarPathFinder(AStar):
         self.start = None
         self.width = img.shape[1]
         self.height = img.shape[0]
-        self.c = {
-            "d": 150,
-            "d2": 50,
-            "m": 50,
-            "v": 2,
-            "n": 1
-        }
+        self.c = Configuration(config, DEFAULTS)
 
     def heuristic_cost_estimate(self, current, goal):
         (y1, x1) = current

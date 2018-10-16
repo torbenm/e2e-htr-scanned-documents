@@ -6,7 +6,6 @@ from lib.segmentation.ParagraphRegionExtractor import ParagraphRegionExtractor
 
 
 DEFAULTS = {
-    "astar": {},
     "extractor": {}
 }
 
@@ -17,12 +16,9 @@ class LineSegmentation(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULTS)
-        self.astar = AStarLineSegmentation(self.config["astar"])
-        self.region_extractor = ParagraphRegionExtractor(
-            self.config["extractor"])
+        self.astar = AStarLineSegmentation(self.config["extractor"])
 
-    def __call__(self, img):
-        regions = self.region_extractor.extract(img)
+    def __call__(self, regions):
         lines = []
         for region in regions:
             region_lines, _ = self.astar(region.img)

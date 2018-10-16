@@ -53,7 +53,10 @@ class RegionDataset(Dataset):
             self._loadimage(region) for region in self.regions])))
 
     def _loadimage(self, region):
-        img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
+        if len(region.img.shape) > 2:
+            img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
+        else:
+            img = region.img
         target_size = (
             int(self.meta["height"] -
                 (self.data_config.default('preprocess.padding', 0)*2)),
@@ -61,7 +64,7 @@ class RegionDataset(Dataset):
                 (self.data_config.default('preprocess.padding', 0)*2))
         )
         img = self.augmenter.preprocess(img, target_size)
-        img = self.augmenter.postprcess(img)
+        img = self.augmenter.postprocesss(img)
         if img is None:
             img = np.zeros((self.meta["height"], self.meta["width"]))
         return self.augmenter.add_graychannel(img)

@@ -1,0 +1,49 @@
+{
+  "blocks": [
+    {
+      "type": "ParagraphSegmentation",
+      "extractor": {
+        "sauvola_window": 19,
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        "scaling": 5,
+        "expand": 0
+      }
+    },
+    {
+      "type": "LineSegmentation",
+      "extractor": {
+        "relative_maxima_dist": 40,
+        "astar": {
+          "d": 130,
+          "d2": 50,
+          "m": 150,
+          "v": 3.5,
+          "n": 1
+        }
+      }
+    }
+  ],
+  "gt": {
+    "type": "LineRegion",
+    "viz": true
+  },
+  "eval": {
+    "type": "IoUPixelSum",
+    "filter_class": false
+  },
+  "data": {
+    "path": "../paper-notes/data/final/dev/",
+    "ending": "-stripped.png",
+    "limit": 200
+  },
+  "ranger": {
+    "path": ["blocks", 1, "extractor", "relative_maxima_dist"],
+    "values": {
+      "from": 55,
+      "to": 80,
+      "step": 5
+    },
+    "template": "line dist {}"
+  }
+}

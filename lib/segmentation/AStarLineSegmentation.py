@@ -42,7 +42,6 @@ class AStarLineSegmentation(object):
 
     def _local_minima(self, y_hist):
         max_val = np.max(y_hist) - np.std(y_hist)
-        print(max_val)
         minima = argrelextrema(y_hist, np.less_equal)
         return np.int32(list(filter(lambda x: x < max_val, *minima)))
 
@@ -50,7 +49,10 @@ class AStarLineSegmentation(object):
         return np.int32((maxima[1:] + maxima[:-1]) / 2)
 
     def _enhance(self, img):
-        return cv2.GaussianBlur(img, (3, 3), 0)
+        img = cv2.GaussianBlur(img, (3, 3), 0)
+        img = cv2.dilate(img, np.ones((1, 20)))
+        img = cv2.erode(img, np.ones((1, 20)))
+        return img
 
     def _exec_astar(self, img, starting_points):
         astar = AStarPathFinder(img, self.config["astar"])
