@@ -15,8 +15,8 @@
       "dev": 80
     }
   },
-  "learning_rate": 0.00003,
-  "class_learning_rate": 0.00001,
+  "learning_rate": 0.0003,
+  "class_learning_rate": 0.0001,
   "ctc": "greedy",
   "data_config": {
     "dynamic_width": false,
