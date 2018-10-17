@@ -121,7 +121,7 @@ class E2ERunner(object):
 
     def _range_exec(self):
         def set_config(value):
-            for path in self.config.default("ranger.paths", [self.config["ranger.path"]]):
+            for path in self.config.default("ranger.paths", [self.config.default("ranger.path", [])]):
                 current = self.config
                 for step in path[:-1]:
                     current = current[step]
