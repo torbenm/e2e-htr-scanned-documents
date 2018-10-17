@@ -14,7 +14,7 @@
       "type": "LineSegmentation",
       "extractor": {
         "scale_factor": 5.0,
-        "relative_maxima_dist": 25,
+        "relative_maxima_dist": 35,
         "astar": {
           "c": {
             "d": 130,
@@ -43,11 +43,14 @@
     "limit": 200
   },
   "ranger": {
-    "path": ["blocks", 1, "extractor", "relative_maxima_dist"],
+    "paths": [
+      ["blocks", 1, "extractor", "erode_kernel", 1],
+      ["blocks", 1, "extractor", "dilate_kernel", 1]
+    ],
     "values": {
-      "from": 20,
-      "to": 60,
-      "step": 5
+      "from": 10,
+      "to": 30,
+      "step": 4
     },
     "template": "line dist {}"
   }
