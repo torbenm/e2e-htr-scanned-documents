@@ -14,8 +14,8 @@
       "type": "LineSegmentation",
       "extractor": {
         "scale_factor": 5.0,
-        "erode_kernel": [1, 0],
-        "dilate_kernel": [1, 0],
+        "erode_kernel": [1, 10],
+        "dilate_kernel": [1, 10],
         "relative_maxima_dist": 35,
         "astar": {
           "c": {
@@ -45,15 +45,12 @@
     "limit": 200
   },
   "ranger": {
-    "paths": [
-      ["blocks", 1, "extractor", "erode_kernel", 1],
-      ["blocks", 1, "extractor", "dilate_kernel", 1]
-    ],
+    "paths": [["blocks", 1, "extractor", "astar", "c", "m"]],
     "values": {
-      "from": 10,
-      "to": 32,
-      "step": 3
+      "from": 0,
+      "to": 250,
+      "step": 25
     },
-    "template": "morph {}"
+    "template": "m {}"
   }
 }
