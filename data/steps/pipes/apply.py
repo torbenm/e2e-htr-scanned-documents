@@ -44,7 +44,7 @@ def applyPipeline(sourcepath, truth, type, context, train):
     if isActive('crop'):
         images = crop(images)
 
-    if images[0].shape[0] == 0 or images[0].shape[1] == 0:
+    if images[0] is None or images[0].shape[0] == 0 or images[0].shape[1] == 0:
         return [], (0, 0)
 
     # Step 7: Warp Image
