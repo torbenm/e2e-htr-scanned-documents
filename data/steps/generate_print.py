@@ -125,6 +125,8 @@ class PrintGenerator(object):
         return image
 
     def _crop(self, image, invert):
+        if image is None:
+            return None
         if self['crop']:
             image = _pil2cv2(image)
             if not invert:
@@ -152,6 +154,8 @@ class PrintGenerator(object):
             text, font, height, background, foreground)
         image = self._apply_filters(image)
         image = self._crop(image, invert)
+        if image is None:
+            return None
         image = self._pad(image, invert)
         return image
 
@@ -196,6 +200,8 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
             continue
         try:
             image = generator(text, invert)
+            if image is None:
+                continue
         except ValueError:
             print("Skipping ValueError")
             continue
