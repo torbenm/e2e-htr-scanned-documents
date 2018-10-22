@@ -1,6 +1,6 @@
 {
   "name": "otf-iam-paper",
-  "dataset": "iam-both-small",
+  "dataset": "iam-both-large",
   "algorithm": "htrnet",
   "save": 3,
   "batch": 50,
@@ -30,14 +30,13 @@
       "affine": {},
       "warp": {
         "prob": 0.5,
-        "deviation": 1.35,
-        "gridsize": [15, 15]
+        "deviation": 2.7,
+        "gridsize": [30, 30]
       }
     },
     "preprocess": {
       "crop": true,
       "invert": true,
-      "scale": 2.15,
       "padding": 5
     },
     "postprocess": {

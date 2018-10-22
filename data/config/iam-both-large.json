@@ -9,8 +9,7 @@
   "threshold": false,
   "crop": true,
   "scale": {
-    "mode": "factor",
-    "size": [-1, 124]
+    "mode": "none"
   },
   "padding": 5,
   "binarize": false,

@@ -17,7 +17,7 @@ from .copy import copy
 from .affine import affine_but_first
 
 
-def applyPipeline(sourcepath, truth, context, train):
+def applyPipeline(sourcepath, truth, type, context, train):
 
     def isActive(prop, ctx=context,  default=False):
         if prop in ctx:
@@ -80,7 +80,7 @@ def applyPipeline(sourcepath, truth, context, train):
     # Step 9: Save Images
     imagepaths = save(images, splitext(sourcepath), context['imagetarget'])
 
-    return [{"truth": truth, "path": imagepath} for imagepath in imagepaths], (w, h)
+    return [{"truth": truth, "path": imagepath, "type": type} for imagepath in imagepaths], (w, h)
 
 
 def splitext(path):

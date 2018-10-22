@@ -201,7 +201,9 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
             continue
         printedpath = os.path.join(path, 'printed-{}.png'.format(idx))
         image.save(printedpath)
-        full_samples.append({"path": printedpath, "truth": 0})
-        full_samples.append({"path": sample['path'], "truth": 1})
+        full_samples.append(
+            {"path": printedpath, "truth": 0, "type": sample['type']})
+        full_samples.append(
+            {"path": sample['path'], "truth": 1, "type": sample['type']})
         idx += 1
     return full_samples, generator.max_size

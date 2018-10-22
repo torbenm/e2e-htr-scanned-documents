@@ -28,6 +28,7 @@ class PreparedDataset(Dataset):
         self.channels = 1
         self._fill_meta()
         self.augmenter = ImageAugmenter(self.data_config)
+        self.unfiltered = {}
 
     def load_vocab(self, path):
         self._load_vocab(path)
@@ -85,6 +86,26 @@ class PreparedDataset(Dataset):
     def _compile_set(self, dataset):
         for item in self.data[dataset]:
             item['compiled'] = self.compile(item['truth'])
+        
+    def _filter_by_type(self, subset):
+        filtered = []
+
+        if subset not in self.unfiltered:
+            self.unfiltered[subset] = self.data[subset]
+        for file in self.unfiltered[subset]:
+            if file['type'] in self.data_config['type_probs']:
+                if np.random.uniform() <= self.data_config['type_probs'][file['type']]:
+                    filtered.append(file)
+            else:
+                filtered.append(file)
+        self.data[subset] = filtered
+
+
+    def _filter_data(self):
+        if self.data_config.default('type_probs', False):
+            self._filter_by_type('train')
+            if self.meta.default('printed', False):
+                self._filter_by_type('print_train')
 
     def _compile_sets(self):
         self._compile_set("train")
@@ -189,7 +210,11 @@ class PreparedDataset(Dataset):
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
         num_batches = self.getBatchCount(batch_size, max_batches, dataset)
         if self.data_config.default('shuffle_epoch', False):
-            shuffle(self.data[dataset])
+            if dataset in self.unfiltered:
+                shuffle(self.unfiltered[dataset])
+            else:
+                shuffle(self.data[dataset])
+        self._filter_data()
         for b in range(num_batches):
             yield self._load_batch(b, batch_size, dataset, with_filepath, augmentable=augmentable)
         pass
