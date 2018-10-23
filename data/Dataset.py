@@ -31,5 +31,5 @@ class Dataset(object):
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
         pass
 
-    def beforeEpoch(self):
+    def before_epoch(self):
         pass

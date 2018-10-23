@@ -205,7 +205,7 @@ class PreparedDataset(Dataset):
         else:
             return X, Y, L, F
 
-    def beforeEpoch(self):
+    def before_epoch(self):
         if self.data_config.default('shuffle_epoch', False):
             if dataset in self.unfiltered:
                 shuffle(self.unfiltered[dataset])
