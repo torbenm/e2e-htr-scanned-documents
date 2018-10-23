@@ -86,7 +86,7 @@ class PreparedDataset(Dataset):
     def _compile_set(self, dataset):
         for item in self.data[dataset]:
             item['compiled'] = self.compile(item['truth'])
-        
+
     def _filter_by_type(self, subset):
         filtered = []
 
@@ -99,7 +99,6 @@ class PreparedDataset(Dataset):
             else:
                 filtered.append(file)
         self.data[subset] = filtered
-
 
     def _filter_data(self):
         if self.data_config.default('type_probs', False):
@@ -178,7 +177,7 @@ class PreparedDataset(Dataset):
 
         parseline = self._loadline if not dataset.startswith(
             "print_") else self._loadprintline
-
+        nones = 0
         for idx in range(index * batch_size, min((index + 1) * batch_size, len(self.data[dataset]))):
             x, y, l, f = parseline(
                 self.data[dataset][idx], self.transpose, augmentable=augmentable)
@@ -187,6 +186,8 @@ class PreparedDataset(Dataset):
                 Y.append(y)
                 L.append(l)
                 F.append(f)
+            else:
+                nones += 1
         if self.data_config.default('dynamic_width', False):
             L = np.asarray(L)+5
             batch_width = np.max(list(map(lambda _x: _x.shape[1], X)))
@@ -202,6 +203,7 @@ class PreparedDataset(Dataset):
             X = np.asarray(X)
             Y = np.asarray(Y)
             L = np.asarray(L)
+        print("Batch length", len(X), "nones", nones)
         if not with_filepath:
             return X, Y, L
         else:

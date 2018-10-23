@@ -224,5 +224,5 @@ class ImageAugmenter(object):
         insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
                       for dim in range(array.ndim)]
         # Insert the array in the result at the specified offsets
-        result[insertHere] = array
+        result[tuple(insertHere)] = array
         return result
