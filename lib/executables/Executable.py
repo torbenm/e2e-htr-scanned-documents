@@ -20,7 +20,7 @@ class Executable(object):
     def __call__(self, executor, epoch, session, graph):
         start_time = time.time()
         self.before_call()
-        self.dataset.before_epoch()
+        self.dataset.before_epoch(self.subset)
         step = 0
         total_steps = self.get_batch_count()
         self.log_progress(epoch, 0, total_steps)

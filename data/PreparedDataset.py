@@ -205,12 +205,12 @@ class PreparedDataset(Dataset):
         else:
             return X, Y, L, F
 
-    def before_epoch(self):
+    def before_epoch(self, subset):
         if self.data_config.default('shuffle_epoch', False):
-            if dataset in self.unfiltered:
-                shuffle(self.unfiltered[dataset])
+            if subset in self.unfiltered:
+                shuffle(self.unfiltered[subset])
             else:
-                shuffle(self.data[dataset])
+                shuffle(self.data[subset])
         self._filter_data()
 
     def generateBatch(self, batch_size, max_batches=0, dataset="train", with_filepath=False, augmentable=False):
