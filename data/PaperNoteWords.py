@@ -118,7 +118,7 @@ class PaperNoteWords(Dataset):
                 (self.data_config.default('preprocess.padding', 0)*2))
         )
         x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        if x.shape[0] == 0 or x.shape[1] == 0:
+        if x is None or x.shape[0] == 0 or x.shape[1] == 0:
             return None
         x = self.augmenter.preprocess(x, target_size)
         if x is None:
