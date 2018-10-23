@@ -30,3 +30,6 @@ class Dataset(object):
     @abc.abstractmethod
     def getBatchCount(self, batch_size, max_batches=0, dataset="train"):
         pass
+
+    def beforeEpoch(self):
+        pass
