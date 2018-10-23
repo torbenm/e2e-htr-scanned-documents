@@ -86,7 +86,7 @@ class HtrNet(AlgorithmBaseV2):
             x = log_1d(tf.placeholder(
                 tf.float32, [None, self.image_height, None if self['dynamic_width'] else self.image_width, self.channels], name="x"))
             if self["scale"]:
-                x = x / tf.constant(255.0)
+                x = tf.truediv(x, tf.constant(255.0), name='scale')
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, None], name="y")
             class_y = tf.placeholder(

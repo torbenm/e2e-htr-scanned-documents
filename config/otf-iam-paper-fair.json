@@ -47,7 +47,7 @@
   "algo_config": {
     "format": "nchw",
     "dynamic_width": false,
-    "scale": true,
+    "scale": false,
     "encoder": {
       "type": "cnn",
       "cnn": {
