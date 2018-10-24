@@ -1,13 +1,11 @@
 from lib.Configuration import Configuration
 from data.datasets import identifyDataset
+from lib.util.file import readJson
 import pylev
 
 DEFAULT_CONFIG = {
-    "punctuation": " '.-,/(?);:*!\"&",
     "separator": "|",
-    "dataset": "iam",
-    "source": "./data/raw",
-    "subset": "words"
+    "source": "./data/output/corpus.json",
 }
 
 
@@ -15,18 +13,12 @@ class OneGramLanguageModel(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULT_CONFIG)
-        self.dataset = identifyDataset(self.config["dataset"])
         self._build_dictionary()
 
     def _build_dictionary(self):
-        self.dictionary = {}
-        all_lines, _ = self.dataset.getFilesAndTruth(
-            self.config["source"], self.config["subset"])
-        for line in all_lines:
-            for word in line["truth"].split(self.config["separator"]):
-                if word not in self.config["punctuation"]:
-                    word = word.lower()
-                    self.dictionary[word] = 1 if word not in self.dictionary else self.dictionary[word] + 1
+        corpus = readJson(self.config["source"])
+        self.dictionary = corpus["dictionary"]
+        self.punctuation = corpus["punctuation"]
 
     def __call__(self, regions):
         return [self._process_region(region) for region in regions if region.text is not None and region.text != '']
@@ -35,7 +27,7 @@ class OneGramLanguageModel(object):
         return self.config["separator"].join([self._process_word(word) for word in region.text.split(self.config["separator"])])
 
     def _process_word(self, word: str):
-        if word.lower() in self.config["punctuation"] or word.lower() in self.dictionary:
+        if word.lower() in self.punctuation or word.lower() in self.dictionary:
             return word
         word_lower = word.lower()
         new_word = self._get_best_match(word_lower)
@@ -71,7 +63,7 @@ class OneGramLanguageModel(object):
 if __name__ == "__main__":
 
     class test(object):
-        text = "An|aahple|does|not|fahl|far|from|the|tree|!"
+        text = "An|apple|does|not|fahl|faar|flom|the|trea|!"
 
     model = OneGramLanguageModel()
     print(model._process_region(test()))

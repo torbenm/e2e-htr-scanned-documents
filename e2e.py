@@ -19,6 +19,11 @@ from lib.buildingblocks.evaluate.IoUCER import IoUCER
 from lib.buildingblocks.evaluate.BagOfWords import BagOfWords
 from lib.Logger import Logger
 from time import time
+from itertools import count, takewhile
+
+
+def frange(start, stop, step):
+    return takewhile(lambda x: x < stop, count(start, step))
 
 
 class E2ERunner(object):
@@ -117,7 +122,7 @@ class E2ERunner(object):
 
     def _get_range(self):
         if type(self.config["ranger.values"]) is dict:
-            return range(self.config["ranger.values.from"], self.config["ranger.values.to"], self.config["ranger.values.step"])
+            return frange(self.config["ranger.values.from"], self.config["ranger.values.to"], self.config["ranger.values.step"])
 
     def _range_exec(self):
         def set_config(value):
