@@ -7,7 +7,8 @@ from lib.buildingblocks.evaluate.IoU import IoU
 DEFAULT_CONFIG = {
     "threshold": 0,
     "filter_class": True,
-    "target_class": 1
+    "target_class": 1,
+    "binary": False
 }
 
 
@@ -21,7 +22,10 @@ class IoUPixelSum(IoU):
             return 0
         if len(img.shape) > 2:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        return np.sum(255-img)
+        img = 255 - img
+        if self.config["binary"]:
+            img = img > 0
+        return np.sum(img)
 
     def _calc_score(self, hits, misfire, nofire):
         # GT that has no predicitons, but consist only of 1 char are ignored
