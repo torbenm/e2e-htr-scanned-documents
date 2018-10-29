@@ -24,7 +24,7 @@
   "data": {
     "path": "../paper-notes/data/final/dev/",
     "ending": "-stripped.png",
-    "limit": 200
+    "limit": 500
   },
   "ranger": {
     "paths": [
@@ -34,9 +34,9 @@
       ["blocks", 0, "extractor", "dilate_kernel", 1]
     ],
     "values": {
-      "from": 0,
-      "to": 71,
-      "step": 5
+      "from": 25,
+      "to": 36,
+      "step": 1
     },
     "template": "kernel {}"
   }
