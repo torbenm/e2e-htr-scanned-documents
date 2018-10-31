@@ -38,4 +38,6 @@ class IoUCER(IoU):
             dist = self._cer(self._clean_text(hit["gt"].text).lower(),
                              self._clean_text(hit["pred"].text).lower())
             hit_score += self._score_fn(dist)
+        if total_len == 0:
+            return {"ioucer": 1}, hits, misfire, nofire
         return ({"ioucer": hit_score/total_len}, hits, misfire, nofire)
