@@ -176,7 +176,11 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--config')
+    parser.add_argument(
+        '--gpu', help='Runs scripts on gpu. Default is cpu.', default=-1, type=int)
     args = parser.parse_args()
     config = Configuration.load("./config/e2e/", args.config)
-    e2e = E2ERunner(config)
+    e2e = E2ERunner(config, {
+        "gpu": args.gpu
+    })
     e2e()
