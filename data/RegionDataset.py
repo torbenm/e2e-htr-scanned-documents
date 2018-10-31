@@ -66,7 +66,8 @@ class RegionDataset(Dataset):
                 (self.data_config.default('preprocess.padding', 0)*2))
         )
         img = self.augmenter.preprocess(img, target_size)
-        img = self.augmenter.postprocesss(img)
+        if img is not None:
+            img = self.augmenter.postprocesss(img)
         if img is None:
             img = np.zeros((self.meta["height"], self.meta["width"]))
         return self.augmenter.add_graychannel(img)

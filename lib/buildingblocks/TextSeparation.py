@@ -11,8 +11,7 @@ from data.PaperNoteSlicesSingle import PaperNoteSlicesSingle
 DEFAULTS = {
     "model_path": "",
     "model_epoch": 0,
-    "subset": "",
-    "binarize_method": ""
+    "binarize_method": "fast_threshold"
 }
 
 GLOBAL_DEFAULTS = {
@@ -57,7 +56,7 @@ class TextSeparation(object):
         self.executor.restore(os.path.join(
             self.config["model_path"], "model-{}".format(self.config["model_epoch"])))
         self.separator = SeparationRunner(config=self.modelConfig,
-                                          dataset=self.dataset, subset=self.config["subset"])
+                                          dataset=self.dataset, subset="")
         self.executables = [self.separator]
 
     def __call__(self, image):

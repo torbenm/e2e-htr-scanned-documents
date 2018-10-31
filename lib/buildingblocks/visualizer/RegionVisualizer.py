@@ -32,7 +32,9 @@ class RegionVisualizer(object):
     def _draw_text(self, image, region, color):
         if region.text is not None and (region.cls is None or region.cls == 1):
             x, y = region.pos
-            cv2.putText(image, region.text, (x, y-5), cv2.FONT_HERSHEY_PLAIN,
+            # place text below if there is not enough space above
+            y = y + 5 + region.size[1] if y-25 < 0 else y - 5
+            cv2.putText(image, region.text, (x, y), cv2.FONT_HERSHEY_PLAIN,
                         1, color, 1)
 
     def _viz_region(self, image, region, is_gt=False):

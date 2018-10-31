@@ -13,6 +13,7 @@ from lib.buildingblocks.visualizer.SeparatedVisualizer import SeparatedVisualize
 from lib.buildingblocks.evaluate.gtprovider.WordRegionGTProvider import WordRegionGTProvider
 from lib.buildingblocks.evaluate.gtprovider.ParagraphRegionGTProvider import ParagraphRegionGTProvider
 from lib.buildingblocks.evaluate.gtprovider.LineRegionGTProvider import LineRegionGTProvider
+from lib.buildingblocks.OneGramLanguageModel import OneGramLanguageModel
 from lib.buildingblocks.evaluate.IoU import IoU
 from lib.buildingblocks.evaluate.IoUPixelSum import IoUPixelSum
 from lib.buildingblocks.evaluate.IoUCER import IoUCER
@@ -42,7 +43,8 @@ class E2ERunner(object):
         self.evals = self._parse_evals(self.config.default('eval', []))
 
     def _parse_blocks(self, blocks):
-        self.blocks = [self._parse_block(block) for block in blocks]
+        self.blocks = [self._parse_block(
+            block) for block in blocks if "disabled" not in block or not block["disabled"]]
 
     def _parse_block(self, block):
         if block["type"] == "TextSeparation":
@@ -53,6 +55,8 @@ class E2ERunner(object):
             return LineSegmentation(block)
         elif block["type"] == "ParagraphSegmentation":
             return ParagraphSegmentation(block)
+        elif block["type"] == "OneGramLanguageModel":
+            return OneGramLanguageModel(block)
         elif block["type"] == "TranscriptionAndClassification":
             return TranscriptionAndClassification(self.globalConfig, block)
 

@@ -24,7 +24,9 @@ class OneGramLanguageModel(object):
         return [self._process_region(region) for region in regions if region.text is not None and region.text != '']
 
     def _process_region(self, region):
-        return self.config["separator"].join([self._process_word(word) for word in region.text.split(self.config["separator"])])
+        region.text = self.config["separator"].join([self._process_word(
+            word) for word in region.text.split(self.config["separator"])])
+        return region
 
     def _process_word(self, word: str):
         if word.lower() in self.punctuation or word.lower() in self.dictionary:
@@ -58,6 +60,9 @@ class OneGramLanguageModel(object):
                 max_prob = self.dictionary[match]
                 final_match = match
         return final_match
+
+    def close(self):
+        pass
 
 
 if __name__ == "__main__":

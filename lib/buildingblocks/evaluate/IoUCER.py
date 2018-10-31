@@ -7,6 +7,7 @@ DEFAULT_CONFIG = {
     "punctuation_regex": re.compile(r"([|])(?=[,.;:!?])"),
     "regular_regex": re.compile(r"[|]"),
     "filter_class": True,
+    "consider_punctuation": True,
     "target_class": 1
 }
 
