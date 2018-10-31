@@ -36,7 +36,7 @@ class BagOfWords(object):
                 correct += min(pred_words[word], truth_words[word])
 
         if total == 0:
-            return [1]
+            return [{"bow": 1}]
 
         return [{"bow": correct / total}]
 

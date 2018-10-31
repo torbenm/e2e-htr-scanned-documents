@@ -39,5 +39,5 @@ class IoUCER(IoU):
                              self._clean_text(hit["pred"].text).lower())
             hit_score += self._score_fn(dist)
         if total_len == 0:
-            return {"ioucer": 1}, hits, misfire, nofire
+            return ({"ioucer": 1}, hits, misfire, nofire)
         return ({"ioucer": hit_score/total_len}, hits, misfire, nofire)
