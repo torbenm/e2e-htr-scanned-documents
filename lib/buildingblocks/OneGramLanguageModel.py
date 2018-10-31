@@ -5,7 +5,7 @@ import pylev
 
 DEFAULT_CONFIG = {
     "separator": "|",
-    "source": "./data/output/corpus.json",
+    "source": "./data/corpus.json",
 }
 
 
