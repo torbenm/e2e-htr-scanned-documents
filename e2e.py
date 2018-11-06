@@ -79,8 +79,9 @@ class E2ERunner(object):
         if isinstance(data_config, list):
             return data_config
         else:
+            prefix = data_config["prefix"] if "prefix" in data_config else ""
             filenames = list(filter(lambda f: f.endswith(
-                data_config.default("ending")) and f.startswith(data_config.default("prefix", "")), os.listdir(data_config["path"])))
+                data_config.default("ending")) and f.startswith(prefix), os.listdir(data_config["path"])))
             if data_config["limit"] > 0:
                 filenames = filenames[:data_config["limit"]]
             return [os.path.join(data_config["path"], filename) for filename in filenames]
