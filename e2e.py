@@ -80,7 +80,7 @@ class E2ERunner(object):
             return data_config
         else:
             filenames = list(filter(lambda f: f.endswith(
-                data_config["ending"]), os.listdir(data_config["path"])))
+                data_config.default("ending")) and f.startswith(data_config.default("prefix", "")), os.listdir(data_config["path"])))
             if data_config["limit"] > 0:
                 filenames = filenames[:data_config["limit"]]
             return [os.path.join(data_config["path"], filename) for filename in filenames]

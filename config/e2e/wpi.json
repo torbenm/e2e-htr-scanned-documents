@@ -43,12 +43,13 @@
     }
   ],
   "data": {
-    "path": "../paper-notes/data/final/dev/",
-    "ending": "-paper.png",
-    "limit": 10
+    "path": "../images/gaugin_fleurs",
+    "prefix": "gauguin_fleurs",
+    "ending": ".png",
+    "limit": 0
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-line-lm"
+    "store": "./e2eoutputs/wpi"
   }
 }
