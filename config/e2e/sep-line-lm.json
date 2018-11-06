@@ -62,7 +62,7 @@
   "data": {
     "path": "../paper-notes/data/final/dev/",
     "ending": "-paper.png",
-    "limit": 10
+    "limit": 0
   },
   "viz": {
     "type": "RegionVisualizer",
