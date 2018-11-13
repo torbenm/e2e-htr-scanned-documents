@@ -1,0 +1,46 @@
+{
+  "blocks": [
+    {
+      "type": "WordSegmentation",
+      "extractor": {}
+    },
+    {
+      "type": "TranscriptionAndClassification",
+      "model_path": "./models/otf-iam-paper-2018-10-30-13-33-59",
+      "model_epoch": 74,
+      "classify": false
+    },
+    {
+      "type": "OneGramLanguageModel"
+    }
+  ],
+  "gt": {
+    "type": "WordRegion",
+    "viz": true
+  },
+  "eval": [
+    {
+      "type": "IoUCER",
+      "filter_class": true,
+      "threshold": 0
+    },
+    {
+      "type": "IoUCER",
+      "filter_class": true,
+      "threshold": 0.5
+    },
+    {
+      "type": "BagOfWords",
+      "filter_class": true
+    }
+  ],
+  "data": {
+    "path": "../paper-notes/data/final/test/",
+    "ending": "-paper.png",
+    "limit": 0
+  },
+  "viz": {
+    "type": "RegionVisualizer",
+    "store": "./e2eoutputs/word-lm"
+  }
+}
