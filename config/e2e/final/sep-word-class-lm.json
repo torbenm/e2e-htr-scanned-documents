@@ -28,12 +28,14 @@
     {
       "type": "IoUCER",
       "filter_class": true,
-      "threshold": 0
+      "threshold": 0,
+      "name": "ioucer_0"
     },
     {
       "type": "IoUCER",
       "filter_class": true,
-      "threshold": 0.5
+      "threshold": 0.5,
+      "name": "ioucer_0.5"
     },
     {
       "type": "BagOfWords",

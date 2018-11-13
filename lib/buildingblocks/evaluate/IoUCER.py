@@ -8,7 +8,8 @@ DEFAULT_CONFIG = {
     "regular_regex": re.compile(r"[|]"),
     "filter_class": True,
     "consider_punctuation": True,
-    "target_class": 1
+    "target_class": 1,
+    "name": "ioucer"
 }
 
 
@@ -39,5 +40,5 @@ class IoUCER(IoU):
                              self._clean_text(hit["pred"].text).lower())
             hit_score += self._score_fn(dist)
         if total_len == 0:
-            return ({"ioucer": 1}, hits, misfire, nofire)
-        return ({"ioucer": hit_score/total_len}, hits, misfire, nofire)
+            return ({self.config["name"]: 1}, hits, misfire, nofire)
+        return ({self.config["name"]: hit_score/total_len}, hits, misfire, nofire)
