@@ -46,6 +46,8 @@ class WordRegionExtractor(object):
         return cv2.boundingRect(hull)
 
     def _cluster(self, rects, eps, metric):
+        if not rects:
+            return []
         db = DBSCAN(eps=eps, min_samples=1,
                     metric=metric).fit(rects)
         labels = db.labels_
