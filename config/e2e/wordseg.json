@@ -20,7 +20,7 @@
   "data": {
     "path": "../paper-notes/data/final/dev/",
     "ending": "-stripped.png",
-    "limit": 500
+    "limit": 0
   },
   "ranger": {
     "paths": [["blocks", 0, "extractor", "cluster_y_eps"]],

@@ -52,7 +52,7 @@ class WordRegionExtractor(object):
         cluster = []
         cluster_dict = {}
         for idx, rect in enumerate(rects):
-            if labels[idx] > -1:
+            if labels[idx] > -1 and rect:
                 if labels[idx] not in cluster_dict:
                     cluster_dict[labels[idx]] = []
                 cluster_dict[labels[idx]].append(rect)
