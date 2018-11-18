@@ -43,7 +43,7 @@
     }
   ],
   "data": {
-    "path": "../images/gaugin_fleurs",
+    "path": "../gaugin_fleurs",
     "prefix": "gauguin_fleurs",
     "ending": ".png",
     "limit": 0

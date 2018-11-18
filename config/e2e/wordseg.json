@@ -3,7 +3,8 @@
     {
       "type": "WordSegmentation",
       "extractor": {
-        "cluster_y_eps": 0.1
+        "cluster_y_eps": 0.06,
+	"cluster_x_eps": 0.54
       }
     }
   ],
@@ -20,15 +21,15 @@
   "data": {
     "path": "../paper-notes/data/final/dev/",
     "ending": "-stripped.png",
-    "limit": 0
+    "limit": 500
   },
   "ranger": {
     "paths": [["blocks", 0, "extractor", "cluster_y_eps"]],
     "values": {
-      "from": 0.01,
-      "to": 0.2,
+      "from": 0.03,
+      "to": 0.09,
       "step": 0.01
     },
-    "template": "kernel {}"
+    "template": "y {}"
   }
 }

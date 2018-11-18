@@ -4,7 +4,8 @@
       "type": "TextSeparation",
       "model_path": "./models/separation-2018-10-10-17-58-01",
       "model_epoch": 19,
-      "disabled": false
+      "disabled": false,
+      "binarize_method": "sauvola"
     },
     {
       "type": "ParagraphSegmentation",
