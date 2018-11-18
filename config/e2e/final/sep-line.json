@@ -48,19 +48,19 @@
   "eval": [
     {
       "type": "IoUCER",
-      "filter_class": true,
+      "filter_class": false,
       "threshold": 0,
       "name": "ioucer_0"
     },
     {
       "type": "IoUCER",
-      "filter_class": true,
+      "filter_class": false,
       "threshold": 0.5,
       "name": "ioucer_0.5"
     },
     {
       "type": "BagOfWords",
-      "filter_class": true
+      "filter_class": false
     }
   ],
   "data": {
