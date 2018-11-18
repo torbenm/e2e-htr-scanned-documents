@@ -7,24 +7,42 @@
       "disabled": false
     },
     {
-      "type": "WordSegmentation",
+      "type": "ParagraphSegmentation",
       "extractor": {
-        "cluster_y_eps": 0.06,
-        "cluster_x_eps": 0.54
+        "sauvola_window": 19,
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        "scaling": 5,
+        "expand": 0
+      }
+    },
+    {
+      "type": "LineSegmentation",
+      "extractor": {
+        "scale_factor": 5.0,
+        "erode_kernel": [1, 10],
+        "dilate_kernel": [1, 10],
+        "relative_maxima_dist": 35,
+        "astar": {
+          "c": {
+            "d": 60,
+            "d2": 0,
+            "m": 275,
+            "v": 3.5,
+            "n": 1
+          }
+        }
       }
     },
     {
       "type": "TranscriptionAndClassification",
       "model_path": "./models/otf-iam-paper-2018-10-30-13-33-59",
       "model_epoch": 74,
-      "classify": false
-    },
-    {
-      "type": "OneGramLanguageModel"
+      "classify": true
     }
   ],
   "gt": {
-    "type": "WordRegion",
+    "type": "LineRegion",
     "viz": true
   },
   "eval": [
@@ -52,6 +70,6 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-word-lm"
+    "store": "./e2eoutputs/sep-line-class-lm"
   }
 }

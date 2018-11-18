@@ -2,7 +2,10 @@
   "blocks": [
     {
       "type": "WordSegmentation",
-      "extractor": {}
+      "extractor": {
+        "cluster_y_eps": 0.06,
+        "cluster_x_eps": 0.54
+      }
     },
     {
       "type": "TranscriptionAndClassification",

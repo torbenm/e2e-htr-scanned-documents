@@ -17,10 +17,7 @@
       "type": "TranscriptionAndClassification",
       "model_path": "./models/otf-iam-paper-2018-10-30-13-33-59",
       "model_epoch": 74,
-      "classify": false
-    },
-    {
-      "type": "OneGramLanguageModel"
+      "classify": true
     }
   ],
   "gt": {
