@@ -1,5 +1,4 @@
 import numpy as np
-import pylev
 import cv2
 
 from lib.buildingblocks.evaluate.IoU import IoU
@@ -29,7 +28,7 @@ class IoUPixelSum(IoU):
 
     def _calc_score(self, hits, misfire, nofire):
         # GT that has no predicitons, but consist only of 1 char are ignored
-        nofire = list(filter(lambda x: len(x["text"]) > 1, nofire))
+        nofire = list(filter(lambda x: len(x.text) > 1, nofire))
         total_len = len(hits) + len(nofire) + len(misfire)
         hit_score = 0
         for hit in hits:
