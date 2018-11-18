@@ -49,6 +49,6 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-word-lm"
+    "store": "./e2eoutputs/sep-word"
   }
 }

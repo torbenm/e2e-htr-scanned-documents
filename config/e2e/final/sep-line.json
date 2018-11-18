@@ -70,6 +70,6 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-line-lm"
+    "store": "./e2eoutputs/sep-line"
   }
 }

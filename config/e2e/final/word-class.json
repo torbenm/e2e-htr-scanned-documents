@@ -43,6 +43,6 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/word-class-lm"
+    "store": "./e2eoutputs/word-class"
   }
 }
