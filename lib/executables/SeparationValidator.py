@@ -10,10 +10,12 @@ class SeparationValidator(Executable, Extendable):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('subset', 'dev')
+        self.prefix = kwargs.get('prefix', 'dev')
+        self.exit_afterwards = kwargs.get('exit_afterwards', False)
         super().__init__(**kwargs)
 
     def get_logger_prefix(self, epoch):
-        return "Validating"
+        return "Validating {}".format(self.prefix)
 
     def get_feed_dict(self, batch, graph):
         X, Y, _ = batch
@@ -63,8 +65,14 @@ class SeparationValidator(Executable, Extendable):
 
     def summarize(self, summary):
         summary.update({
-            "sep val loss": self.training_loss,
-            "sep val f": self.mean_f,
-            "sep val rec": self.mean_rec,
-            "sep val prec": self.mean_prec,
+            "sep {} loss".format(self.prefix): self.training_loss,
+            "sep {} f".format(self.prefix): self.mean_f,
+            "sep {} rec".format(self.prefix): self.mean_rec,
+            "sep {} prec".format(self.prefix): self.mean_prec,
         })
+
+    def will_continue(self, epoch):
+        if self.exit_afterwards:
+            return epoch == 0
+        else:
+            return True
