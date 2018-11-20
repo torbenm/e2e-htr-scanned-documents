@@ -46,15 +46,18 @@ if __name__ == "__main__":
         slice_width=config['data_config.slice_width'],
         slice_height=config['data_config.slice_height'],
         binarize=config.default('binary', False),
-        filter=False)
+        filter=True)
 
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)
 
     executor.restore(models_path)
     executables = [SeparationValidator(logger=logger, config=config,
-                                       dataset=dataset, subset="dev", prefix="dev"),
+                                       dataset=dataset, subset="dev", prefix="dev", exit_afterwards=True),
                    SeparationValidator(logger=logger, config=config,
-                                       dataset=dataset, subset="test", prefix="test")]
+                                       dataset=dataset, subset="test", prefix="test", exit_afterwards=True)]
 
     executor(executables)
+
+
+# Epoch    0 | time 575.7810 | sep dev loss   0.0029 | sep dev f   0.9577 | sep dev rec   0.9703 | sep dev prec   0.6685 | sep test loss   0.0025 | sep test f   0.9692 | sep test rec   0.9886 | sep test prec   0.7197
