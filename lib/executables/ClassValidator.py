@@ -12,6 +12,7 @@ class ClassValidator(Executable, Extendable):
         kwargs.setdefault('subset', 'print_dev')
         super().__init__(**kwargs)
         self.prefix = kwargs.get('prefix', '')
+        self.exit_afterwards = kwargs.get('exit_afterwards', False)
 
     def get_logger_prefix(self, epoch):
         return "Validating"
@@ -48,3 +49,9 @@ class ClassValidator(Executable, Extendable):
         summary.update({
             "{}class acc".format(self.prefix): self.validation_results["accuracy"]
         })
+
+    def will_continue(self, epoch):
+        if self.exit_afterwards:
+            return epoch == 0
+        else:
+            return True

@@ -21,7 +21,7 @@ class QuickExecutor(object):
     executables = []
     logger = Logger()
 
-    def __init__(self, dataset=None, configName: str="", verbose=False):
+    def __init__(self, dataset=None, configName: str = "", verbose=False):
         self.config = Configuration(util.loadJson(
             CONFIG_PATH, configName), self.DEFAULT_CONFIG)
         self.algorithm = getAlgorithm(

@@ -58,6 +58,3 @@ if __name__ == "__main__":
                                        dataset=dataset, subset="test", prefix="test", exit_afterwards=True)]
 
     executor(executables)
-
-
-# Epoch    0 | time 575.7810 | sep dev loss   0.0029 | sep dev f   0.9577 | sep dev rec   0.9703 | sep dev prec   0.6685 | sep test loss   0.0025 | sep test f   0.9692 | sep test rec   0.9886 | sep test prec   0.7197
