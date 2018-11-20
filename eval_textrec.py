@@ -63,16 +63,18 @@ if __name__ == "__main__":
                    RecognitionValidator(logger=logger, config=config,
                                         dataset=dataset, subset="test", prefix="test", exit_afterwards=True),
                    ClassValidator(logger=logger, config=config,
-                                  dataset=dataset, subset="dev", prefix="dev", exit_afterwards=True),
+                                  dataset=dataset, subset="dev", prefix="print_dev", exit_afterwards=True),
                    ClassValidator(logger=logger, config=config,
-                                  dataset=dataset, subset="test", prefix="test", exit_afterwards=True),
-                   RecognitionValidator(logger=logger, config=config,
-                                        dataset=paper_note_dataset, subset="dev", prefix="pn dev", exit_afterwards=True),
-                   RecognitionValidator(logger=logger, config=config,
-                                        dataset=paper_note_dataset, subset="test", prefix="pn test", exit_afterwards=True),
-                   ClassValidator(logger=logger, config=config,
-                                  dataset=paper_note_dataset, subset="dev", prefix="pn dev", exit_afterwards=True),
-                   ClassValidator(logger=logger, config=config,
-                                  dataset=paper_note_dataset, subset="test", prefix="pn test", exit_afterwards=True)]
+                                  dataset=dataset, subset="test", prefix="print_test", exit_afterwards=True)]
 
-    executor(executables)
+    executables_pn = [RecognitionValidator(logger=logger, config=config,
+                                           dataset=paper_note_dataset, subset="dev", prefix="pn dev", exit_afterwards=True),
+                      RecognitionValidator(logger=logger, config=config,
+                                           dataset=paper_note_dataset, subset="test", prefix="pn test", exit_afterwards=True),
+                      ClassValidator(logger=logger, config=config,
+                                     dataset=paper_note_dataset, subset="print_dev", prefix="pn dev", exit_afterwards=True),
+                      ClassValidator(logger=logger, config=config,
+                                     dataset=paper_note_dataset, subset="print_test", prefix="pn test", exit_afterwards=True)]
+
+    executor(executables, auto_close=False)
+    executor(executables_pn, auto_close=True)
