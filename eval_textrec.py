@@ -41,6 +41,8 @@ if __name__ == "__main__":
     logger = Logger()
     config = Configuration.load(model_folder, "algorithm")
     algorithm = HtrNet(config['algo_config'])
+    dataset = PreparedDataset.PreparedDataset(config[
+        'dataset'], False, config['data_config'])
 
     algorithm.configure(batch_size=config['batch'], learning_rate=config[
         'learning_rate'], sequence_length=dataset.max_length,
@@ -48,8 +50,6 @@ if __name__ == "__main__":
         "width"], vocab_length=dataset.vocab_length, channels=dataset.channels,
         class_learning_rate=config.default('class_learning_rate', config['learning_rate']))
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PreparedDataset.PreparedDataset(config[
-        'dataset'], False, config['data_config'])
 
     paper_note_dataset = PaperNoteWords(
         meta=dataset.meta, vocab=dataset.vocab, data_config=dataset.data_config, max_length=dataset.max_length)
