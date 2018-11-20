@@ -63,9 +63,9 @@ if __name__ == "__main__":
                    RecognitionValidator(logger=logger, config=config,
                                         dataset=dataset, subset="test", prefix="test", exit_afterwards=True),
                    ClassValidator(logger=logger, config=config,
-                                  dataset=dataset, subset="dev", prefix="print_dev", exit_afterwards=True),
+                                  dataset=dataset, subset="print_dev", prefix="dev", exit_afterwards=True),
                    ClassValidator(logger=logger, config=config,
-                                  dataset=dataset, subset="test", prefix="print_test", exit_afterwards=True)]
+                                  dataset=dataset, subset="print_test", prefix="test", exit_afterwards=True)]
 
     executables_pn = [RecognitionValidator(logger=logger, config=config,
                                            dataset=paper_note_dataset, subset="dev", prefix="pn dev", exit_afterwards=True),
