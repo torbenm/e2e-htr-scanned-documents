@@ -67,32 +67,32 @@ class Extendable(object):
         if self._tp is None:
             pred_res = self.build_pred_res(graph)
             y_res = self.build_y_res(graph)
-            self._tp = tf.reduce_mean(
-                tf.cast(tf.equal(tf.boolean_mask(pred_res, tf.equal(y_res, 0)), 0), tf.float32))
+            self._tp = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 0)), 0), tf.float32))
         return self._tp
 
     def build_fp(self, graph):
         if self._fp is None:
             pred_res = self.build_pred_res(graph)
             y_res = self.build_y_res(graph)
-            self._fp = tf.reduce_mean(
-                tf.cast(tf.equal(tf.boolean_mask(pred_res, tf.equal(y_res, 1)), 0), tf.float32))
+            self._fp = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 1)), 0), tf.float32))
         return self._fp
 
     def build_fn(self, graph):
         if self._fn is None:
             pred_res = self.build_pred_res(graph)
             y_res = self.build_y_res(graph)
-            self._fn = tf.reduce_mean(
-                tf.cast(tf.equal(tf.boolean_mask(pred_res, tf.equal(y_res, 0)), 1), tf.float32))
+            self._fn = tf.reduce_sum(tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 0)), 1), tf.float32))
         return self._fn
 
     def build_tn(self, graph):
         if self._tn is None:
             pred_res = self.build_pred_res(graph)
             y_res = self.build_y_res(graph)
-            self._tn = tf.reduce_mean(
-                tf.cast(tf.equal(tf.boolean_mask(pred_res, tf.equal(y_res, 1)), 1), tf.float32))
+            self._tn = tf.cast(tf.equal(tf.boolean_mask(
+                pred_res, tf.equal(y_res, 1)), 1), tf.float32)
         return self._tn
 
     def build_sep_accuracy(self, graph):
@@ -125,20 +125,17 @@ class Extendable(object):
             self._sep_prec = tp / (tp+fp)
         return self._sep_prec
 
-    
     def build_sep_fmeasure(self, graph):
         if self._sep_f is None:
             prec = self.build_sep_precision(graph)
             rec = self.build_sep_recall(graph)
-            self._sep_f = (tf.constant(2.0) * prec * rec)/ (prec+rec)
+            self._sep_f = (tf.constant(2.0) * prec * rec) / (prec+rec)
         return self._sep_f
 
     def build_pred_res(self, graph):
         if self._pred_res is None:
             self._pred_res = tf.argmax(graph['output'], 3)
         return self._pred_res
-    
-
 
     def build_y_res(self, graph):
         if self._y_res is None:
