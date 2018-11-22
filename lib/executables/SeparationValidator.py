@@ -30,7 +30,7 @@ class SeparationValidator(Executable, Extendable):
         # self.build_sep_fmeasure(graph)
         self.build_tp(graph)
         self.build_fn(graph)
-        self.build_tn(graph)
+        self.build_fp(graph)
 
     def max_batches(self):
         return self.config.defaultchain(
