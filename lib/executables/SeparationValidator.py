@@ -41,24 +41,24 @@ class SeparationValidator(Executable, Extendable):
             self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        return [graph['loss'], self._tn, self._fn, self._tp]
+        return [graph['loss'], self._fn, self._fp, self._tp]
 
     def before_call(self):
         self.all_training_loss = []
         self.tp = 0
         self.fn = 0
-        self.tn = 0
+        self.fp = 0
         # self.f_total = []
         # self.prec_total = []
         # self.rec_total = []
 
     def after_iteration(self, batch, execution_results):
-        training_loss, tn, fn, tp = execution_results
+        training_loss, fn, fp, tp = execution_results
         # training_loss, f, rec, prec = execution_results
         self.all_training_loss.append(training_loss)
         self.tp += tp
+        self.fp += fp
         self.fn += fn
-        self.tn += tn
         # self.f_total.append(f)
         # self.rec_total.append(rec)
         # self.prec_total.append(prec)
