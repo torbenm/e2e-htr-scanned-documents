@@ -53,8 +53,8 @@ if __name__ == "__main__":
 
     executor.restore(models_path)
     executables = [SeparationValidator(logger=logger, config=config,
-                                       dataset=dataset, subset="dev", prefix="dev", exit_afterwards=True),
+                                       dataset=dataset, subset="dev", prefix="dev", exit_afterwards=True, max_batch_active=False),
                    SeparationValidator(logger=logger, config=config,
-                                       dataset=dataset, subset="test", prefix="test", exit_afterwards=True)]
+                                       dataset=dataset, subset="test", prefix="test", exit_afterwards=True, max_batch_active=False)]
 
     executor(executables)

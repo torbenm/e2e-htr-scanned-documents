@@ -12,6 +12,7 @@ class SeparationValidator(Executable, Extendable):
         kwargs.setdefault('subset', 'dev')
         self.prefix = kwargs.get('prefix', 'dev')
         self.exit_afterwards = kwargs.get('exit_afterwards', False)
+        self.max_batch_active = kwargs.get('max_batch_active', True)
         super().__init__(**kwargs)
 
     def get_logger_prefix(self, epoch):
@@ -34,7 +35,7 @@ class SeparationValidator(Executable, Extendable):
 
     def max_batches(self):
         return self.config.defaultchain(
-            'max_batches.sep.val', 'max_batches.sep', 'max_batches')
+            'max_batches.sep.val', 'max_batches.sep', 'max_batches') if self.max_batch_active else 0
 
     def get_batches(self):
         return self.dataset.generateBatch(
