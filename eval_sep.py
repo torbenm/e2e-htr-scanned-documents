@@ -46,7 +46,7 @@ if __name__ == "__main__":
         slice_width=config['data_config.slice_width'],
         slice_height=config['data_config.slice_height'],
         binarize=config.default('binary', False),
-        filter=True)
+        filter=False)
 
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)
