@@ -29,24 +29,13 @@
       }
     }
   ],
-  "gt": {
-    "type": "LineRegion",
-    "viz": true
-  },
-  "eval": [
-    {
-      "type": "IoUPixelSum",
-      "filter_class": false,
-      "binary": false
-    }
-  ],
   "data": {
-    "path": "../paper-notes/data/final/dev/",
+    "path": "../paper-notes/data/final/test/",
     "ending": "-stripped.png",
     "limit": 20
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/"
+    "store": "./e2eoutputs/linedist"
   }
 }
