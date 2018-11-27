@@ -19,7 +19,7 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/word",
+    "store": "./e2eoutputs/pg",
     "text": false
   }
 }
