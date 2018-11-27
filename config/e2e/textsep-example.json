@@ -1,0 +1,19 @@
+{
+  "blocks": [
+    {
+      "type": "TextSeparation",
+      "model_path": "./models/separation-2018-10-10-17-58-01",
+      "model_epoch": 19,
+      "disabled": false
+    }
+  ],
+  "data": {
+    "path": "../paper-notes/data/final/test/",
+    "ending": "-paper.png",
+    "limit": 20
+  },
+  "viz": {
+    "type": "SeparatedVisualizer",
+    "store": "./e2eoutputs/sep"
+  }
+}
