@@ -9,6 +9,7 @@ from lib.buildingblocks.ParagraphSegmentation import ParagraphSegmentation
 from lib.buildingblocks.LineSegmentation import LineSegmentation
 from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
 from lib.buildingblocks.visualizer.RegionVisualizer import RegionVisualizer
+from lib.buildingblocks.visualizer.ImageVisualizer import ImageVisualizer
 from lib.buildingblocks.visualizer.SeparatedVisualizer import SeparatedVisualizer
 from lib.buildingblocks.evaluate.gtprovider.WordRegionGTProvider import WordRegionGTProvider
 from lib.buildingblocks.evaluate.gtprovider.ParagraphRegionGTProvider import ParagraphRegionGTProvider
@@ -91,6 +92,8 @@ class E2ERunner(object):
             return None
         if viz_config["type"] == "RegionVisualizer":
             return RegionVisualizer(viz_config)
+        elif viz_config["type"] == "ImageVisualizer":
+            return ImageVisualizer(viz_config)
         elif viz_config["type"] == "SeparatedVisualizer":
             return SeparatedVisualizer(viz_config)
 

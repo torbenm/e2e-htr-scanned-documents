@@ -17,7 +17,7 @@
     "viz": true
   },
   "viz": {
-    "type": "SeparatedVisualizer",
+    "type": "ImageVisualizer",
     "store": "./e2eoutputs/sep"
   }
 }
