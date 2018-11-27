@@ -10,7 +10,7 @@
   ],
   "gt": {
     "type": "WordRegion",
-    "viz": true
+    "viz": false
   },
   "eval": [],
   "data": {
@@ -20,6 +20,7 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/word"
+    "store": "./e2eoutputs/word",
+    "text": false
   }
 }

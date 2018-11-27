@@ -30,7 +30,7 @@ class RegionVisualizer(object):
         return (0, 0, 255) if region.cls is not None and region.cls == 1 else (255, 0, 0)
 
     def _draw_text(self, image, region, color):
-        if region.text is not None and (region.cls is None or region.cls == 1):
+        if region.text is not None and (region.cls is None or region.cls == 1) and self.config.default("text", True):
             x, y = region.pos
             # place text below if there is not enough space above
             y = y + 5 + region.size[1] if y-25 < 0 else y - 5
