@@ -62,7 +62,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
     deconv = OrderedDict()
     dw_h_convs = OrderedDict()
     up_h_convs = OrderedDict()
-    viz = None
+    viz = []
 
     # down layers
     for layer in range(0, layers):
@@ -91,8 +91,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             weights.append((w1, w2))
             biases.append((b1, b2))
             convs.append((conv1, conv2))
-            if layer == 2:
-                viz = conv2
+            viz.append(conv2)
             if layer < layers - 1:
                 pools[layer] = max_pool(dw_h_convs[layer], pool_size, padding)
                 in_node = pools[layer]
