@@ -60,7 +60,7 @@ if __name__ == "__main__":
         slice_height=config['data_config.slice_height'],
         binarize=config.default('binary', False),
         shuffle=False,
-        filter=False, single_page=True)
+        filter=True, single_page=True)
 
     executor.configure(softplacement=not args.hardplacement,
                        logplacement=args.logplacement, device=args.gpu)
@@ -78,6 +78,6 @@ if __name__ == "__main__":
             for idx, activation in enumerate(layer):
                 features = activation.shape[2]
                 for feature in range(features):
-                    act_map = activation[:, :, feature]*255.0
+                    act_map = (activation[:, :, feature]+1)*(255.0/2)
                     cv2.imwrite(
                         "sep_viz/viz_{}_{}_{}.png".format(layer_idx, idx, feature), act_map)
