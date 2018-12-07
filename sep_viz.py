@@ -59,6 +59,7 @@ if __name__ == "__main__":
         slice_width=config['data_config.slice_width'],
         slice_height=config['data_config.slice_height'],
         binarize=config.default('binary', False),
+        shuffle=False,
         filter=False, single_page=True)
 
     executor.configure(softplacement=not args.hardplacement,
@@ -71,6 +72,7 @@ if __name__ == "__main__":
 
     for fidx in range(1):
         dataset.next_file("test")
+        print(dataset.file)
         executor(executables,  auto_close=False)
         for idx, activation in enumerate(runner.outputs):
             features = activation.shape[2]

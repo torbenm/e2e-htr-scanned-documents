@@ -32,6 +32,7 @@ class PaperNoteSlices(Dataset):
         self.single_page = kwargs.get('single_page', False)
         self.slicer = Slicer(**kwargs)
         self.meta = Configuration({})
+        self.shuffle = kwargs.get('shuffle', True)
         self.vocab = {}
         self._load_filelists()
         self.augmenter = ImageAugmenter(kwargs.get('config', {
@@ -131,7 +132,8 @@ class PaperNoteSlices(Dataset):
     def next_file(self, dataset):
         if self.file_iter is None:
             files = self.data[dataset]
-            shuffle(files)
+            if self.shuffle:
+                shuffle(files)
             self.file_iter = iter(files)
         try:
             self.file = next(self.file_iter)
