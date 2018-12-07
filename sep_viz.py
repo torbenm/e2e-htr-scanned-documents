@@ -75,6 +75,6 @@ if __name__ == "__main__":
         for idx, activation in enumerate(runner.outputs):
             features = activation.shape[2]
             for feature in range(features):
-                act_map = activation[:, :, feature]
+                act_map = activation[:, :, feature]*255.0
                 cv2.imwrite(
                     "sep_viz/viz_{}_{}_{}.png".format(fidx, idx, feature), act_map)
