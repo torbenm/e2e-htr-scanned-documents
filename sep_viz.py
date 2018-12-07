@@ -78,4 +78,3 @@ if __name__ == "__main__":
                 act_map = activation[:, :, feature]
                 cv2.imwrite(
                     "sep_viz/viz_{}_{}.png".format(idx, feature), act_map)
-            conv_layer += 1
