@@ -33,7 +33,7 @@ from .layers import (weight_variable, weight_variable_devonc, bias_variable,
 
 
 def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, filter_size=3, pool_size=2,
-                    is_train=False, batch_norm=False, group_norm=False, with_dropout=True, padding='VALID'):
+                    is_train=False, batch_norm=False, group_norm=False, with_dropout=True, padding='VALID', return_viz=False):
     """
     Creates a new convolutional unet for the given parametrization.
 
@@ -62,6 +62,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
     deconv = OrderedDict()
     dw_h_convs = OrderedDict()
     up_h_convs = OrderedDict()
+    viz = None
 
     # down layers
     for layer in range(0, layers):
@@ -90,6 +91,8 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             weights.append((w1, w2))
             biases.append((b1, b2))
             convs.append((conv1, conv2))
+            if layer == 1:
+                viz = conv2
             if layer < layers - 1:
                 pools[layer] = max_pool(dw_h_convs[layer], pool_size, padding)
                 in_node = pools[layer]
@@ -146,4 +149,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
     for b1, b2 in biases:
         variables.append(b1)
         variables.append(b2)
-    return output_map, variables
+    if not return_viz:
+        return output_map, variables
+    else:
+        return output_map, variables, viz

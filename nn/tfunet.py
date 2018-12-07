@@ -29,6 +29,7 @@ class TFUnet(AlgorithmBaseV2):
 
     def __init__(self, config):
         super(TFUnet, self).__init__(config, DEFAULTS)
+        self.viz = None
 
     def configure(self, **kwargs):
         self.learning_rate = kwargs.get('learning_rate', 0.001)
@@ -100,7 +101,7 @@ class TFUnet(AlgorithmBaseV2):
             "float", shape=[None, None, None, self.n_class], name="y")
         is_train = tf.placeholder_with_default(False, (), name='is_train')
 
-        logits, variables = unet.create_conv_net(
+        logits, variables, viz = unet.create_conv_net(
             x,
             self['dropout'],
             self.channels,
@@ -113,7 +114,8 @@ class TFUnet(AlgorithmBaseV2):
             batch_norm=self['batch_norm'],
             group_norm=self['group_norm'],
             with_dropout=self['dropout_enabled'],
-            pool_size=self['pool_size'])
+            pool_size=self['pool_size'],
+            return_viz=True)
 
         loss = self._get_cost(logits,  y, variables, self['cost.type'], dict(
             regularizer=self['cost.regularizer'], class_weights=self['cost.class_weights']))
@@ -127,6 +129,7 @@ class TFUnet(AlgorithmBaseV2):
         return dict(
             x=x,
             y=y,
+            viz=viz,
             is_train=is_train,
             output=output,
             loss=loss,
