@@ -47,7 +47,7 @@ class RegionVisualizer(object):
             # place text below if there is not enough space above
             y = y + reloc + region.size[1] if y-(20+reloc) < 0 else y - reloc
             cv2.putText(image, region.text, (x, y), cv2.FONT_HERSHEY_PLAIN,
-                        scale, color, 1)
+                        scale, color, thickness)
 
     def _viz_region(self, image, region, is_gt=False):
         color = self._color(region, is_gt)
