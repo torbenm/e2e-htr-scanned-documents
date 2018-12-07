@@ -4,7 +4,10 @@ import os
 
 from lib.Configuration import Configuration
 
-DEFAULT_CONFIG = {}
+DEFAULT_CONFIG = {
+    "fill": False,
+    "large": False
+}
 
 
 class RegionVisualizer(object):
@@ -18,11 +21,18 @@ class RegionVisualizer(object):
         return image
 
     def _draw_lines(self, image, region, color):
+        thickness = 1
+        if self.config["filled"]:
+            thickness = cv2.FILLED
+        elif self.config["large"]:
+            thickness = 2
+
         if(len(region.path) > 0):
-            cv2.polylines(image, [np.array(region.path)], 1, color)
+            cv2.polylines(image, [np.array(region.path)],
+                          cv2.FILLED if self.config["filled"] else 1, color)
         else:
             cv2.rectangle(image, region.pos,
-                          region.get_bottom_right(), color, 1)
+                          region.get_bottom_right(), color, cv2.FILLED if self.config["filled"] else 1)
 
     def _color(self, region, is_gt=False):
         if is_gt:
@@ -32,10 +42,12 @@ class RegionVisualizer(object):
     def _draw_text(self, image, region, color):
         if region.text is not None and (region.cls is None or region.cls == 1) and self.config.default("text", True):
             x, y = region.pos
+            scale = 2 if self.config["large"] else 1
+            reloc = 5 * scale
             # place text below if there is not enough space above
-            y = y + 5 + region.size[1] if y-25 < 0 else y - 5
+            y = y + reloc + region.size[1] if y-(20+reloc) < 0 else y - reloc
             cv2.putText(image, region.text, (x, y), cv2.FONT_HERSHEY_PLAIN,
-                        1, color, 1)
+                        scale, color, 1)
 
     def _viz_region(self, image, region, is_gt=False):
         color = self._color(region, is_gt)

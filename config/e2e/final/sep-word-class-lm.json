@@ -25,7 +25,7 @@
   ],
   "gt": {
     "type": "WordRegion",
-    "viz": true
+    "viz": false
   },
   "eval": [
     {
@@ -46,12 +46,13 @@
     }
   ],
   "data": {
-    "path": "../paper-notes/data/final/test/",
+    "path": "../paper-notes/data/final/test_examples/",
     "ending": "-paper.png",
-    "limit": 0
+    "limit": 50
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-word-lm"
+    "store": "./e2eoutputs/sep-word-lm",
+    "large": True
   }
 }
