@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                   dataset=dataset, subset="test")
     executables = [runner]
 
-    for fidx in range(5):
+    for fidx in range(1):
         dataset.next_file("test")
         executor(executables,  auto_close=False)
         for idx, activation in enumerate(runner.outputs):
