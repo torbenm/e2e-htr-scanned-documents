@@ -42,6 +42,7 @@ class RegionVisualizer(object):
         if region.text is not None and (region.cls is None or region.cls == 1) and self.config.default("text", True):
             x, y = region.pos
             scale = 2 if self.config["large"] else 1
+            thickness = 2 if self.config["large"] else 1
             reloc = 5 * scale
             # place text below if there is not enough space above
             y = y + reloc + region.size[1] if y-(20+reloc) < 0 else y - reloc
