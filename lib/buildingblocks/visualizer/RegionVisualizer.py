@@ -21,17 +21,11 @@ class RegionVisualizer(object):
         return image
 
     def _draw_lines(self, image, region, color):
-        thickness = 1
-        if self.config["filled"]:
-            thickness = cv2.FILLED
-        elif self.config["large"]:
-            thickness = 2
-
         if(len(region.path) > 0):
-            cv2.polylines(image, [np.array(region.path)], thickness, color)
+            cv2.polylines(image, [np.array(region.path)], 1, color)
         else:
             cv2.rectangle(image, region.pos,
-                          region.get_bottom_right(), color, thickness)
+                          region.get_bottom_right(), color, 1)
 
     def _color(self, region, is_gt=False):
         if is_gt:
