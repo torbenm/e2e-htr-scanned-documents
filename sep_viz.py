@@ -80,4 +80,4 @@ if __name__ == "__main__":
                 for feature in range(features):
                     act_map = activation[:, :, feature]*255.0
                     cv2.imwrite(
-                        "sep_viz/viz_{}_{}_{}.png".format(layer, idx, feature), act_map)
+                        "sep_viz/viz_{}_{}_{}.png".format(layer_idx, idx, feature), act_map)
