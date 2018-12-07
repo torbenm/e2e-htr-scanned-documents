@@ -5,7 +5,7 @@ import os
 from lib.Configuration import Configuration
 
 DEFAULT_CONFIG = {
-    "fill": False,
+    "filled": False,
     "large": False
 }
 
