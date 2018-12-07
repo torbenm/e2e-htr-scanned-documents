@@ -53,6 +53,7 @@ class Unet(AlgorithmBaseV2):
 
     def __init__(self, config):
         super(Unet, self).__init__(config, DEFAULTS)
+        self.viz = None
         if not self['sigmoid']:
             self.n_class = 2
         else:
@@ -77,6 +78,8 @@ class Unet(AlgorithmBaseV2):
                 net = conv2d(net, filters, kernel_size=(
                     3, 3), padding=self['conv.padding'])
                 net = batch_normalization(net, training=is_train)
+                if num == 1 and self.viz == None:
+                    self.viz = net
                 net = log_1d(activation(net, self['conv.activation']))
         return net
 
@@ -188,6 +191,7 @@ class Unet(AlgorithmBaseV2):
         return dict(
             x=x,
             y=y,
+            viz=self.viz,
             is_train=is_train,
             output=output,
             loss=loss,

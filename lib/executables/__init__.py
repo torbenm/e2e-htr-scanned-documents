@@ -9,6 +9,7 @@ from .ClassValidator import ClassValidator
 from .SeparationRunner import SeparationRunner
 from .SeparationTrainer import SeparationTrainer
 from .SeparationValidator import SeparationValidator
+from .SeparationVisualizer import SeparationVisualizer
 from .RecClassRunner import RecClassRunner
 from .RecognitionTrainer import RecognitionTrainer
 from .RecognitionValidator import RecognitionValidator
