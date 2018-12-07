@@ -53,6 +53,6 @@
   "viz": {
     "type": "RegionVisualizer",
     "store": "./e2eoutputs/sep-word-lm",
-    "large": True
+    "large": true
   }
 }

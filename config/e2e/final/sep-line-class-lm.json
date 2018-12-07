@@ -46,7 +46,7 @@
   ],
   "gt": {
     "type": "LineRegion",
-    "viz": true
+    "viz": false
   },
   "eval": [
     {
@@ -69,10 +69,11 @@
   "data": {
     "path": "../paper-notes/data/final/test/",
     "ending": "-paper.png",
-    "limit": 0
+    "limit": 50
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-line-class-lm"
+    "store": "./e2eoutputs/sep-line-class-lm_examples",
+    "large": true
   }
 }
