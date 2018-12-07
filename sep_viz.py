@@ -69,7 +69,7 @@ if __name__ == "__main__":
                                   dataset=dataset, subset="test")
     executables = [runner]
 
-    for idx in range(1):
+    for fidx in range(5):
         dataset.next_file("test")
         executor(executables,  auto_close=False)
         for idx, activation in enumerate(runner.outputs):
@@ -77,4 +77,4 @@ if __name__ == "__main__":
             for feature in range(features):
                 act_map = activation[:, :, feature]
                 cv2.imwrite(
-                    "sep_viz/viz_{}_{}.png".format(idx, feature), act_map)
+                    "sep_viz/viz_{}_{}_{}.png".format(fidx, idx, feature), act_map)
