@@ -50,6 +50,7 @@
   },
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/wpi"
+    "store": "./e2eoutputs/wpi",
+    "large": true
   }
 }
