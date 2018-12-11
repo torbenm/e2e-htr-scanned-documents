@@ -6,7 +6,8 @@ from lib.Configuration import Configuration
 
 DEFAULT_CONFIG = {
     "filled": False,
-    "large": False
+    "large": False,
+    "text": True
 }
 
 
@@ -22,10 +23,11 @@ class RegionVisualizer(object):
 
     def _draw_lines(self, image, region, color):
         if(len(region.path) > 0):
-            cv2.polylines(image, [np.array(region.path)], 1, color)
+            cv2.polylines(image, [np.array(region.path)], 1,
+                          color, 1 if not self.config["filled"] else -1)
         else:
             cv2.rectangle(image, region.pos,
-                          region.get_bottom_right(), color, 1)
+                          region.get_bottom_right(), color, 1 if not self.config["filled"] else -1)
 
     def _color(self, region, is_gt=False):
         if is_gt:

@@ -7,7 +7,7 @@
       "disabled": false
     }
   ],
-  "data": ["../paper-notes/data/final/test/10291-paper.png"],
+  "data": ["../paper-notes/data/final/test/10505-paper.png"],
   "viz": {
     "type": "ImageVisualizer",
     "store": "./e2eoutputs/steps/step1"

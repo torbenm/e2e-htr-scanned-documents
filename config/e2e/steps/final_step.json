@@ -44,10 +44,10 @@
       "type": "OneGramLanguageModel"
     }
   ],
-  "data": ["../paper-notes/data/final/test/10291-paper.png"],
+  "data": ["../paper-notes/data/final/test/10505-paper.png"],
   "viz": {
     "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-line-class-lm_examples",
+    "store": "./e2eoutputs/steps/final",
     "large": true
   }
 }

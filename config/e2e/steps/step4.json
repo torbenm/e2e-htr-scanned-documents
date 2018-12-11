@@ -35,7 +35,11 @@
       "classify": true
     }
   ],
-  "data": ["./e2eoutputs/steps/step1/10291-paper.png"],
+  "data": {
+    "path": "./e2eoutputs/steps/step1",
+    "ending": "-paper.png",
+    "limit": 0
+  },
   "viz": {
     "type": "RegionVisualizer",
     "store": "./e2eoutputs/steps/step4",
