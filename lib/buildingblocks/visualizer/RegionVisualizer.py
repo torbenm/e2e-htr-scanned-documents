@@ -35,7 +35,7 @@ class RegionVisualizer(object):
     def _color(self, region, is_gt=False):
         if is_gt:
             return (0, 255, 0)
-        return (0, 0, 255) if region.cls is not None and region.cls == 1 else (255, 0, 0)
+        return (255, 0, 0) if region.cls is not None and region.cls == 0 else (0, 0, 255)
 
     def _draw_text(self, image, region, color):
         if region.text is not None and (region.cls is None or region.cls == 1) and self.config.default("text", True):
