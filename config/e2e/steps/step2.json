@@ -1,0 +1,21 @@
+{
+  "blocks": [
+    {
+      "type": "ParagraphSegmentation",
+      "extractor": {
+        "sauvola_window": 19,
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        "scaling": 5,
+        "expand": 0
+      }
+    }
+  ],
+
+  "data": ["./e2eoutputs/steps/step1/10291-paper.png"],
+  "viz": {
+    "type": "RegionVisualizer",
+    "store": "./e2eoutputs/steps/step2",
+    "filled": true
+  }
+}
