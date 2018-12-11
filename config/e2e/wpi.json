@@ -42,12 +42,7 @@
       "classify": true
     }
   ],
-  "data": {
-    "path": "../gaugin_fleurs",
-    "prefix": "gauguin_fleurs",
-    "ending": ".png",
-    "limit": 0
-  },
+  "data": ["../gaugin_fleurs/gauguin_fleurs_7.png"],
   "viz": {
     "type": "RegionVisualizer",
     "store": "./e2eoutputs/wpi",
