@@ -23,8 +23,11 @@ class RegionVisualizer(object):
 
     def _draw_lines(self, image, region, color):
         if(len(region.path) > 0):
-            cv2.polylines(image, [np.array(region.path)], 1,
-                          color, 1 if not self.config["filled"] else -1)
+            if not self.config["filled"]:
+                cv2.polylines(image, [np.array(region.path)], 1,
+                              color)
+            else:
+                cv2.fillPoly(image, [np.array(region.path)], color)
         else:
             cv2.rectangle(image, region.pos,
                           region.get_bottom_right(), color, 1 if not self.config["filled"] else -1)
