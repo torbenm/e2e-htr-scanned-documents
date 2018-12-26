@@ -71,7 +71,10 @@ if __name__ == "__main__":
     executables = [runner]
 
     for fidx in range(1):
-        dataset.next_file("test")
+        dataset.file = {
+            "paper": os.path.join(dataset.paper_note_path, "test", "04837-paper.png"),
+            "stripped": os.path.join(dataset.paper_note_path, "test", "04837-stripped.png"),
+        }
         print(dataset.file)
         executor(executables,  auto_close=False)
         for layer_idx, layer in enumerate(runner.outputs):
