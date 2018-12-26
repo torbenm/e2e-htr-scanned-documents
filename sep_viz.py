@@ -87,7 +87,8 @@ if __name__ == "__main__":
                     cv2.imwrite(
                         "{}/viz{}.png".format(folder, feature), act_map)
 
-        predictions = np.argmax(np.asarray(runner.predictions), 3)
+        predictions = np.uint8(
+            np.argmax(np.asarray(runner.predictions), 3)*255)
         for image_idx, prediction in enumerate(predictions):
             cv2.imwrite(
                 "sep_viz/image{}/output.png".format(image_idx), prediction)
