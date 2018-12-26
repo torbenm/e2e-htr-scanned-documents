@@ -86,6 +86,7 @@ def create_conv_net(x, dropout, channels, n_class, layers=3, features_root=16, f
             tmp_h_conv = tf.nn.relu(conv1)
             conv2 = conv2d(tmp_h_conv, w2, b2, dropout,
                            is_train, padding, batch_norm, group_norm, with_dropout)
+            viz.append(conv2)
             dw_h_convs[layer] = tf.nn.relu(conv2)
 
             weights.append((w1, w2))
