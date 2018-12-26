@@ -89,8 +89,11 @@ if __name__ == "__main__":
 
         predictions = np.argmax(np.asarray(runner.predictions), 3)
         for image_idx, prediction in enumerate(predictions):
-            cv2.imwrite("sep_viz/image{}/output.png", prediction)
+            print(prediction.shape)
+            cv2.imwrite(
+                "sep_viz/image{}/output.png".format(image_idx), prediction)
 
         input_samples, _ = self._load_file(dataset.file, False)
         for image_idx, prediction in enumerate(input_samples):
-            cv2.imwrite("sep_viz/image{}/input.png", prediction)
+            cv2.imwrite(
+                "sep_viz/image{}/input.png".format(image_idx), prediction)
