@@ -30,7 +30,7 @@ class SeparationVisualizer(Executable):
             self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        return [graph['viz'], return graph['output']]
+        return [graph['viz'], graph['output']]
 
     def before_call(self):
         self.outputs = []
