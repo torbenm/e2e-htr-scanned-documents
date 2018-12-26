@@ -86,3 +86,10 @@ if __name__ == "__main__":
                     os.makedirs(folder, exist_ok=True)
                     cv2.imwrite(
                         "{}/viz{}.png".format(folder, feature), act_map)
+
+        for image_idx, prediction in enumerate(runner.predictions):
+            cv2.imwrite("sep_viz/image{}/output.png", prediction)
+
+        input_samples, _ = self._load_file(dataset.file, False)
+        for image_idx, prediction in enumerate(input_samples):
+            cv2.imwrite("sep_viz/image{}/input.png", prediction)

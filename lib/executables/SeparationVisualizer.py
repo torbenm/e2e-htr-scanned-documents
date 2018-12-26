@@ -30,14 +30,17 @@ class SeparationVisualizer(Executable):
             self.config['batch'], max_batches=self.max_batches(), dataset=self.subset)
 
     def get_graph_executables(self, graph):
-        return graph['viz']
+        return [graph['viz'], return graph['output']]
 
     def before_call(self):
         self.outputs = []
+        self.predictions = []
 
     def after_iteration(self, batch, execution_results):
-        output = execution_results
+        output = execution_results[0]
+        prediction = execution_results[1]
         self.outputs.extend(output)
+        self.predictions.extend(prediction)
         if self.after_iter is not None:
             self.after_iter(output, batch[0])
 
