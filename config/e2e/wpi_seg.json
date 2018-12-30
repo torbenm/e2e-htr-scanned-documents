@@ -8,7 +8,7 @@
       "binarize_method": "mean_threshold"
     }
   ],
-  "data": ["../gaugin_fleurs/gauguin_fleurs_7.png"],
+  "data": ["../gaugin_fleurs/gauguin_fleurs_10.png"],
   "viz": {
     "type": "ImageVisualizer",
     "store": "./e2eoutputs/wpi_seg",
