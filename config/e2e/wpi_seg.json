@@ -1,0 +1,17 @@
+{
+  "blocks": [
+    {
+      "type": "TextSeparation",
+      "model_path": "./models/separation-2018-10-10-17-58-01",
+      "model_epoch": 19,
+      "disabled": false,
+      "binarize_method": "mean_threshold"
+    }
+  ],
+  "data": ["../gaugin_fleurs/gauguin_fleurs_7.png"],
+  "viz": {
+    "type": "ImageVisualizer",
+    "store": "./e2eoutputs/wpi_seg",
+    "large": true
+  }
+}

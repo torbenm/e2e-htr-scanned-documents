@@ -58,6 +58,9 @@ class PaperNoteSlicesSingle(Dataset):
             out = self._sauvola(img)
         elif(self.binarize_method == "mean"):
             out = np.uint8((img > np.mean(img))*255)
+        elif(self.binarize_method == "mean_threshold"):
+            mean = np.mean(img)
+            _, out = cv2.threshold(img, mean, 255, cv2.THRESH_BINARY)
         return self.graychannel(out)
 
     def _sauvola(self, img):
