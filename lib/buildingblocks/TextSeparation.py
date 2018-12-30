@@ -65,7 +65,7 @@ class TextSeparation(object):
         outputs = np.argmax(np.asarray(self.separator.outputs), 3)
         merged = self.dataset.merge_slices(outputs, original.shape)
         output = (255-(1-merged)*(255-original))
-        return np.uint8(merged*255)
+        return np.uint8(output)
 
     def close(self):
         self.executor.close()
