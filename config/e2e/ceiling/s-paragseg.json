@@ -2,17 +2,31 @@
   "blocks": [
     {
       "type": "Ceiling",
-      "provider": "LineRegion"
+      "provider": "ParagraphRegion"
+    },
+    {
+      "type": "LineSegmentation",
+      "extractor": {
+        "scale_factor": 5.0,
+        "erode_kernel": [1, 10],
+        "dilate_kernel": [1, 10],
+        "relative_maxima_dist": 35,
+        "astar": {
+          "c": {
+            "d": 60,
+            "d2": 0,
+            "m": 275,
+            "v": 3.5,
+            "n": 1
+          }
+        }
+      }
     },
     {
       "type": "TranscriptionAndClassification",
       "model_path": "./models/otf-iam-paper-2018-10-30-13-33-59",
       "model_epoch": 74,
-      "classify": false
-    },
-    {
-      "type": "OneGramLanguageModel",
-      "ceiling": false
+      "classify": true
     }
   ],
   "gt": {
