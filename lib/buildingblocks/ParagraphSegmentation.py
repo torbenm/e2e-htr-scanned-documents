@@ -15,7 +15,7 @@ class ParagraphSegmentation(object):
         self.region_extractor = ParagraphRegionExtractor(
             self.config["extractor"])
 
-    def __call__(self, img):
+    def __call__(self, img, file):
         return self.region_extractor.extract(img)
 
     def close(self):

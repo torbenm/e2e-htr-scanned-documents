@@ -20,7 +20,7 @@ class OneGramLanguageModel(object):
         self.dictionary = corpus["dictionary"]
         self.punctuation = corpus["punctuation"]
 
-    def __call__(self, regions):
+    def __call__(self, regions, file):
         return [self._process_region(region) for region in regions if region.text is not None and region.text != '']
 
     def _process_region(self, region):

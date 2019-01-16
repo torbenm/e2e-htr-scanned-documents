@@ -7,6 +7,7 @@ from lib.buildingblocks.TextSeparation import TextSeparation
 from lib.buildingblocks.WordSegmentation import WordSegmentation
 from lib.buildingblocks.ParagraphSegmentation import ParagraphSegmentation
 from lib.buildingblocks.LineSegmentation import LineSegmentation
+from lib.buildingblocks.Ceiling import Ceiling
 from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
 from lib.buildingblocks.visualizer.RegionVisualizer import RegionVisualizer
 from lib.buildingblocks.visualizer.ImageVisualizer import ImageVisualizer
@@ -58,6 +59,8 @@ class E2ERunner(object):
             return ParagraphSegmentation(block)
         elif block["type"] == "OneGramLanguageModel":
             return OneGramLanguageModel(block)
+        elif block["type"] == "Ceiling":
+            return Ceiling(block)
         elif block["type"] == "TranscriptionAndClassification":
             return TranscriptionAndClassification(self.globalConfig, block)
 
@@ -151,7 +154,7 @@ class E2ERunner(object):
         last_output = original.copy()
 
         for block in self.blocks:
-            last_output = block(last_output)
+            last_output = block(last_output, file)
         res = {
             "file": file,
             "original": original,

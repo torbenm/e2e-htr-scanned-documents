@@ -66,7 +66,7 @@ class TranscriptionAndClassification(object):
                 self.dataset, config=self.modelConfig)
         self.executables = [self.transcriber]
 
-    def __call__(self, images):
+    def __call__(self, images, file):
         self.dataset.set_regions(images)
         self.executor(self.executables, auto_close=False)
         for idx in range(len(self.transcriber.transcriptions['trans'])):

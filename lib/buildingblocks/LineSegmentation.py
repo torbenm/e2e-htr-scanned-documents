@@ -9,13 +9,14 @@ DEFAULTS = {
     "extractor": {}
 }
 
+
 class LineSegmentation(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULTS)
         self.astar = AStarLineSegmentation(self.config["extractor"])
 
-    def __call__(self, regions):
+    def __call__(self, regions, file):
         lines = []
         for region in regions:
             region_lines, _ = self.astar(region.img)

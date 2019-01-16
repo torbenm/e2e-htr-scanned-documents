@@ -59,7 +59,7 @@ class TextSeparation(object):
                                           dataset=self.dataset, subset="")
         self.executables = [self.separator]
 
-    def __call__(self, image):
+    def __call__(self, image, file):
         original = self.dataset.set_image(image).copy()
         self.executor(self.executables,  auto_close=False)
         outputs = np.argmax(np.asarray(self.separator.outputs), 3)

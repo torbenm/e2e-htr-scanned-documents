@@ -20,7 +20,7 @@ class LineRegionGTProvider(GTProvider):
             text += "" if len(text) == 0 else "|"
             text += gt["text"]
 
-        return Region(pos=(min_x, min_y), size=(max_x-min_x, max_y-min_y), text=text, img=self.original[min_y:max_y, min_x:max_x, :])
+        return Region(pos=(min_x, min_y), size=(max_x-min_x, max_y-min_y), text=text, cls=1, img=self.original[min_y:max_y, min_x:max_x, :])
 
     def _group_lines(self, side):
         lines = {}
