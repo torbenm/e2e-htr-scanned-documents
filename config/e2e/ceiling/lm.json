@@ -1,0 +1,35 @@
+{
+  "blocks": [
+    {
+      "type": "Ceiling",
+      "provider": "LineRegion"
+    }
+  ],
+  "gt": {
+    "type": "LineRegion",
+    "viz": true
+  },
+  "eval": [
+    {
+      "type": "IoUCER",
+      "filter_class": true,
+      "threshold": 0,
+      "name": "ioucer_0"
+    },
+    {
+      "type": "IoUCER",
+      "filter_class": true,
+      "threshold": 0.5,
+      "name": "ioucer_0.5"
+    },
+    {
+      "type": "BagOfWords",
+      "filter_class": true
+    }
+  ],
+  "data": {
+    "path": "../paper-notes/data/final/test/",
+    "ending": "-stripped.png",
+    "limit": 0
+  }
+}
