@@ -88,7 +88,7 @@ class AStarLineSegmentation(object):
     def __call__(self, img):
         original = img
         if img.shape[0] == 0 or img.shape[1] == 0:
-            return []
+            return [], []
         if len(img.shape) > 2:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         scaling = 1.0/self.config["scale_factor"]
