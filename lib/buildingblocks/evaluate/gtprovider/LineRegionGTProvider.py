@@ -19,8 +19,9 @@ class LineRegionGTProvider(GTProvider):
             max_y = max(max_y, gt["y"]+gt["h"])
             text += "" if len(text) == 0 else "|"
             text += gt["text"]
-
-        return Region(pos=(min_x, min_y), size=(max_x-min_x, max_y-min_y), text=text, cls=1, img=self.original[min_y:max_y, min_x:max_x, :])
+        img_c = self.original[min_y:max_y, min_x:max_x, :] if len(
+            self.original.shape) > 2 else self.original[min_y:max_y, min_x:max_x]
+        return Region(pos=(min_x, min_y), size=(max_x-min_x, max_y-min_y), text=text, cls=1, img=img_c)
 
     def _group_lines(self, side):
         lines = {}
