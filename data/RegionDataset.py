@@ -55,8 +55,9 @@ class RegionDataset(Dataset):
             self._loadimage(region) for region in self.regions])))
 
     def _loadimage(self, region):
-        if len(region.img.shape) > 2:
-            print(region.img.shape)
+        if region.img.shape[0] == 0 or region.img.shape[1] == 0:
+            img = np.zeros((self.meta["height"], self.meta["width"]))
+        elif len(region.img.shape) > 2:
             img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
         else:
             img = region.img
