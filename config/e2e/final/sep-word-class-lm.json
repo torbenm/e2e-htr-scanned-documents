@@ -48,7 +48,7 @@
   "data": {
     "path": "../paper-notes/data/final/test_examples/",
     "ending": "-paper.png",
-    "limit": 50
+    "limit": 100
   },
   "viz": {
     "type": "RegionVisualizer",

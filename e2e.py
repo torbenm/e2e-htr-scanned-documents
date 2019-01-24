@@ -118,13 +118,18 @@ class E2ERunner(object):
         self.scores = {}
         data = self._parse_data(self.config["data"])
         results = []
+        times = []
         for idx, file in enumerate(data):
+            file_time = time()
             self.logger.progress(log_prefix, idx, len(data))
             results.append(self._exec(file))
+            times.append(time() - file_time)
         [block.close() for block in self.blocks]
         if len(self.evals) > 0:
             final_scores = {
-                "time": time() - start
+                "time": time() - start,
+                "median time": np.median(times),
+                "avg time": np.average(times)
             }
             for score_key in self.scores:
                 final_scores[score_key] = np.average(self.scores[score_key])
