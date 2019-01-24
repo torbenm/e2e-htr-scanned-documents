@@ -70,10 +70,5 @@
     "path": "../paper-notes/data/final/test/",
     "ending": "-paper.png",
     "limit": 100
-  },
-  "viz": {
-    "type": "RegionVisualizer",
-    "store": "./e2eoutputs/sep-line-class-lm_examples",
-    "large": true
   }
 }
