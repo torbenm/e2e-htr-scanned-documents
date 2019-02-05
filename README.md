@@ -2,7 +2,7 @@
 
 This repository contains all files necessary to train, run, and evaluate the sytem presented in the Master's Thesis "End-to-End Recognition of Handwritten Notes in Scanned Documents".
 With the end-to-end system, you can transcribe (only the) handwritten notes on pages, even when they are mixing with printed text.
-This repository does not include any models; however you can download some here or train them yourself.
+This repository does not include any models; however you can [download some here](https://we.tl/t-s5MFroEJCY) or train them yourself.
 
 A good dataset to train the model on is the [Paper Notes](https://www.github.com/torbenm/paper-notes) dataset.
 
