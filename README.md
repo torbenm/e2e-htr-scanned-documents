@@ -64,7 +64,8 @@ The following options are available:
   "threshold": false, // Whether to apply thresholding
   "crop": true, // Whether to crop the image to the smallest part of non-background pixels
   "scale": {
-    "mode": "none" // How to scale the image. Modes are "factor",                     //"none", "height", "line" (see scale.py for more detail)
+    "mode": "none" // How to scale the image. Modes are "factor",
+    //"none", "height", "line" (see scale.py for more detail)
   },
   "padding": 5, // Number of pixels to padd with
   "binarize": false, // Whether to binarize
@@ -115,12 +116,50 @@ The following options are available:
 
 ### Text Separation
 
-To train the `Text Separation Network`, you first need to define a configuration file. In my thesis, I used `data/config/base.json`.
-Here are some of the options:
+To train the `Text Separation Network`, you first need to define a configuration file. In my thesis, I used `config/separation/base.json`.
+Here are some of the options.
 
 ```jsonc
-
+{
+  "name": "separation", // name of the configuration
+  "save": 2, // after which epoch to make a checkpoint (here, every second epoch)
+  "binary": true, // Whether to binarize the data
+  "max_batches": {
+    "sep": {
+      // MAximum number of batches per subset
+      "train": 1000,
+      "val": 1000 // same as "dev"
+    }
+  },
+  "data_config": {
+    // How the page should be separated into tiles/slices
+    "slice_width": 512,
+    "slice_height": 512,
+    "filter": true, // Whether to filter out slices without handwriting
+    "otf_augmentations": {} // see data/ImageAugmenter.py for options
+    // empty object means no augmentations are applied
+    // otf stands for "on the fly", thus there will be no two batches alike
+  },
+  "batch": 4, // Size of a batch
+  "learning_rate": 0.0000001, // Size of the learning rate
+  "algo_config": {
+    "filter_size": 5, // Filter size of the convolutions
+    "features_root": 32, // Number of features in the first convolution (doubled every contracting block)
+    "batch_norm": false, // whether to use batch norm
+    "group_norm": 32 // whether to use group norm and the group size
+    // ...  more options can be found in ./nn/tfunet.py
+  }
+}
 ```
+
+To start the actual training, execute
+
+```sh
+python train_separation.py [--gpu GPU] [--model-date] [--model-epoch]
+```
+
+You should pass a GPU parameter with the index of the GPU to use. Default is `-1`, thus CPU execution.
+The model snapshots are stored in `models/$NAME_OF_THE_CONFIG_$CURRENT_DATE/`. Therefore, if you want to continue training an existing model, you should pass `--model-date` set to the according date and `--model-epoch` to the epoch where you want to continue.
 
 ### Text Classification & Recognition
 

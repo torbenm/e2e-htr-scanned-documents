@@ -11,7 +11,6 @@ DEFAULTS = {
     "features_root": 16,
     "dropout": 0.5,
     "padding": "SAME",
-    "features_root": 16,
     "filter_size": 3,
     "pool_size": 2,
     "batch_norm": False,
