@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
     parser.add_argument(
-        '--paper-note-path', default='../paper-notes/data/words')
+        '--paper-note-path', default='../paper-notes/data/final')
     parser.add_argument(
         '--model-date', help='date to continue for', default=MODEL_DATE)
     parser.add_argument('--model-epoch', help='epoch to continue for',
