@@ -1,0 +1,21 @@
+{
+  "name": "separation",
+  "save": 3,
+  "max_batches": {
+    "sep": {
+      "train": 10,
+      "val": 4
+    }
+  },
+  "data_config": {
+    "slice_width": 512,
+    "slice_height": 512,
+    "filter": true
+  },
+  "batch": 1,
+  "learning_rate": 0.0005,
+  "algo_config": {
+    "features_root": 16,
+    "batch_norm": false
+  }
+}

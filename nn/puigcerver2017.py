@@ -1,7 +1,7 @@
 import tensorflow as tf
 from nn.layer.algorithmBase import AlgorithmBase
 from nn.util import wrap_1d, wrap_4d, make_sparse, valueOr
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 """
 Puigcerver, Joan. "Are Multidimensional Recurrent Layers Really Necessary for Handwritten Text Recognition?."
@@ -100,7 +100,15 @@ class Puigcerver2017(AlgorithmBase):
     def _get(self, prop):
         return self.config.default(prop, self.defaults[prop])
 
-    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001):
+    def configure(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001, class_learning_rate=0.001):
+        self.image_width = image_width
+        self.image_height = image_height
+        self.channels = channels
+        self.vocab_length = vocab_length
+        self.learning_rate = learning_rate
+        self.class_learning_rate = class_learning_rate
+
+    def build_graph(self):
 
         # cpu does not support nchw, so nhwc forcing
         if(self._cpu):
@@ -108,10 +116,10 @@ class Puigcerver2017(AlgorithmBase):
 
         if self._transpose:
             x = wrap_1d(tf.placeholder(
-                tf.float32, [None, image_width, image_height, channels], name="x"))
+                tf.float32, [None, self.image_width, self.image_height, self.channels], name="x"))
         else:
             x = wrap_1d(tf.placeholder(
-                tf.float32, [None, image_height, image_width, channels], name="x"))
+                tf.float32, [None, self.image_height, self.image_width, self.channels], name="x"))
 
         y = tf.sparse_placeholder(
             tf.int32, shape=[None, sequence_length], name="y")
@@ -141,10 +149,11 @@ class Puigcerver2017(AlgorithmBase):
         net = wrap_1d(tf.layers.dropout(net, 0.5, training=is_train))
 
         if self._transpose:
-            net = wrap_1d(tf.contrib.layers.fully_connected(net, vocab_length))
+            net = wrap_1d(tf.contrib.layers.fully_connected(
+                net, self.vocab_length))
         else:
             net = wrap_1d(tf.layers.dense(
-                net, vocab_length, activation=tf.nn.relu if self._get('fc.use_activation') else None))
+                net, self.vocab_length, activation=tf.nn.relu if self._get('fc.use_activation') else None))
 
         logits = wrap_1d(tf.transpose(net, [1, 0, 2]))
         total_loss = tf.nn.ctc_loss(y, logits, l)
@@ -155,10 +164,10 @@ class Puigcerver2017(AlgorithmBase):
         with tf.control_dependencies(update_ops):
             if self._get('optimizer') == 'adam':
                 train_step = tf.train.AdamOptimizer(
-                    learning_rate).minimize(total_loss)
+                    self.learning_rate).minimize(total_loss)
             elif self._get('optimizer') == 'rmsprop':
                 train_step = tf.train.RMSPropOptimizer(
-                    learning_rate).minimize(total_loss)
+                    self.learning_rate).minimize(total_loss)
 
         return dict(
             x=x,

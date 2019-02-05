@@ -1,0 +1,35 @@
+{
+  "blocks": [
+    {
+      "type": "WordSegmentation",
+      "extractor": {
+        "cluster_y_eps": 0.06,
+	"cluster_x_eps": 0.54
+      }
+    }
+  ],
+  "gt": {
+    "type": "WordRegion",
+    "viz": true
+  },
+  "eval": [
+    {
+      "type": "IoU",
+      "filter_class": false
+    }
+  ],
+  "data": {
+    "path": "../paper-notes/data/final/dev/",
+    "ending": "-stripped.png",
+    "limit": 500
+  },
+  "ranger": {
+    "paths": [["blocks", 0, "extractor", "cluster_y_eps"]],
+    "values": {
+      "from": 0.03,
+      "to": 0.09,
+      "step": 0.01
+    },
+    "template": "y {}"
+  }
+}

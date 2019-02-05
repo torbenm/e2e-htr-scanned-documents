@@ -1,7 +1,7 @@
 import tensorflow as tf
 import os
 from data import util, Dataset, PreparedDataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 from nn import getAlgorithm
 import time
 import numpy as np
@@ -47,7 +47,7 @@ class Executor(object):
             self.dataset.info()
 
     def configure(self, device=-1, softplacement=True, logplacement=False, allow_growth=True):
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         if device != -1:
             if self.verbose:
                 print('Setting cuda visible devices to', device)
@@ -100,7 +100,6 @@ class Executor(object):
             graph = self._build_graph()
             self._sess = tf.Session(
                 config=config) if new_sess or self._sess is None else self._sess
-            s = tf.Session(config=config)
             sess = self._sess
             # Hot fix
             self._build_accuracy(graph)
@@ -434,12 +433,13 @@ class Executor(object):
 
     def _build_graph(self):
         if self._graph is None:
-            self._graph = self.algorithm.build_graph(
+            self.algorithm.configure(
                 batch_size=self.config['batch'], learning_rate=self.config[
                     'learning_rate'], sequence_length=self.dataset.max_length,
                 image_height=self.dataset.meta["height"], image_width=self.dataset.meta[
                     "width"], vocab_length=self.dataset.vocab_length, channels=self.dataset.channels,
                 class_learning_rate=self.config.default('class_learning_rate', self.config['learning_rate']))
+            self._graph = self.algorithm.build_graph()
         return self._graph
 
     def close(self):

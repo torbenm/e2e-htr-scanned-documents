@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from config.config import Configuration
+from lib.Configuration import Configuration
 from data.datasets import identifyDataset
 from data.steps.blender import PageHandwritingBlender
 from . import util

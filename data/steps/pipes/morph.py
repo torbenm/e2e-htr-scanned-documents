@@ -9,13 +9,20 @@ def morph(images, config, invert=False):
     return altered_images
 
 
-def _random_morph(image, config, invert=False):
+def _random_morph(image, config, invert=False, return_op=False):
     if np.random.uniform() < config['prob']:
         op = int(np.random.uniform(0, len(config['ops'])))
-        return _morph(image, config['ops'][op]['name'],
-                      config['ops'][op]['values'], invert)
+        morphed = _morph(image, config['ops'][op]['name'],
+                         config['ops'][op]['values'], invert)
+        if return_op:
+            return morphed, config['ops'][op]['name'], config['ops'][op]['values']
+        else:
+            return morphed
     else:
-        return image
+        if return_op:
+            return image, None, None
+        else:
+            return image
 
 
 def _morph(image, op_name, op_values, invert=False):

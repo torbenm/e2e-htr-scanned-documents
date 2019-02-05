@@ -1,0 +1,73 @@
+{
+  "name": "otf-iam-paper",
+  "dataset": "iam-both-small",
+  "algorithm": "htrnet",
+  "save": 3,
+  "batch": 50,
+  "epochs": 1000,
+  "max_batches": {
+    "rec": {
+      "train": 1700,
+      "dev": 215
+    },
+    "class": {
+      "train": 640,
+      "dev": 80
+    }
+  },
+  "learning_rate": 0.0003,
+  "class_learning_rate": 0.0001,
+  "ctc": "greedy",
+  "data_config": {
+    "dynamic_width": false,
+    "shuffle_epoch": true,
+    "sort_by_width": false,
+    "type_probs": {
+      "lines": 1,
+      "words": 0.12
+    },
+    "otf_augmentations": {
+      "affine": {},
+      "warp": {
+        "prob": 0.5,
+        "deviation": 1.35,
+        "gridsize": [15, 15]
+      }
+    },
+    "preprocess": {
+      "crop": true,
+      "invert": true,
+      "scale": 2.15,
+      "padding": 5
+    },
+    "postprocess": {
+      "binarize": true
+    }
+  },
+  "algo_config": {
+    "format": "nchw",
+    "dynamic_width": false,
+    "scale": true,
+    "encoder": {
+      "type": "cnn",
+      "cnn": {
+        "bias": true,
+        "dropout": {
+          "active": true
+        },
+        "bnorm": {
+          "active": true,
+          "train": true,
+          "before_activation": true
+        }
+      }
+    },
+    "classifier": {
+      "units": [512]
+    },
+    "fc": {
+      "use_activation": false
+    },
+    "optimizer": "adam"
+  }
+}

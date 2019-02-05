@@ -1,0 +1,15 @@
+{
+  "blocks": [
+    {
+      "type": "TextSeparation",
+      "model_path": "./models/separation-2018-10-10-17-58-01",
+      "model_epoch": 19,
+      "disabled": false
+    }
+  ],
+  "data": ["../paper-notes/data/final/test/10505-paper.png"],
+  "viz": {
+    "type": "ImageVisualizer",
+    "store": "./e2eoutputs/steps/step1"
+  }
+}

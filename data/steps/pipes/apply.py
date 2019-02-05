@@ -17,7 +17,7 @@ from .copy import copy
 from .affine import affine_but_first
 
 
-def applyPipeline(sourcepath, truth, context, train):
+def applyPipeline(sourcepath, truth, type, context, train):
 
     def isActive(prop, ctx=context,  default=False):
         if prop in ctx:
@@ -30,7 +30,7 @@ def applyPipeline(sourcepath, truth, context, train):
     images = [cv2.imread(sourcepath, cv2.IMREAD_GRAYSCALE)]
     if images[0] is None or images[0].shape[0] == 0 or images[0].shape[1] == 0:
         return [], (0, 0)
-        
+
     # Step 1: Invert Image
     if isActive('invert'):
         images = invert(images)
@@ -44,7 +44,7 @@ def applyPipeline(sourcepath, truth, context, train):
     if isActive('crop'):
         images = crop(images)
 
-    if images[0].shape[0] == 0 or images[0].shape[1] == 0:
+    if images[0] is None or images[0].shape[0] == 0 or images[0].shape[1] == 0:
         return [], (0, 0)
 
     # Step 7: Warp Image
@@ -80,7 +80,7 @@ def applyPipeline(sourcepath, truth, context, train):
     # Step 9: Save Images
     imagepaths = save(images, splitext(sourcepath), context['imagetarget'])
 
-    return [{"truth": truth, "path": imagepath} for imagepath in imagepaths], (w, h)
+    return [{"truth": truth, "path": imagepath, "type": type} for imagepath in imagepaths], (w, h)
 
 
 def splitext(path):

@@ -12,3 +12,6 @@ __pycache__/
 tensorboard/
 investigator/node_modules
 outputs/
+prediction/
+tfunet_ex/
+e2eoutputs/

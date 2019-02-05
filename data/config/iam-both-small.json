@@ -1,0 +1,57 @@
+{
+  "dataset": "iam",
+  "subset": "both",
+  "limit": -1,
+  "shuffle": true,
+  "test_frac": 0.1,
+  "dev_frac": 0.1,
+  "invert": true,
+  "threshold": false,
+  "crop": true,
+  "scale": {
+    "mode": "factor",
+    "size": [-1, 124]
+  },
+  "padding": 5,
+  "binarize": false,
+  "printed": {
+    "minlength": 2,
+    "count": [10000, 1000, 1000],
+    "padding": 5,
+    "printing_padding": 5,
+    "crop": true,
+    "height": {
+      "min": 10,
+      "max": 110,
+      "center": [20, 40, 60, 80, 100],
+      "scale": 5
+    },
+    "foreground": {
+      "low": 0,
+      "high": 0
+    },
+    "filters": [],
+    "fonts": [
+      "./data/fonts/AppleGaramond.ttf",
+      "./data/fonts/Cursif.ttf",
+      "./data/fonts/EnglishTowne.ttf",
+      "./data/fonts/LinLibertine.ttf",
+      "./data/fonts/OldNewspaperTypes.ttf",
+      "./data/fonts/Roboto-Light.ttf",
+      "./data/fonts/Asar-Regular.ttf",
+      "./data/fonts/Bellefair-Regular.ttf",
+      "./data/fonts/JosefinSlab-Thin.ttf",
+      "./data/fonts/JosefinSlab-Light.ttf",
+      "./data/fonts/Lato-LightItalic.ttf",
+      "./data/fonts/Lato-Hairline.ttf",
+      "./data/fonts/LibreBaskerville-Italic.ttf",
+      "./data/fonts/LibreBaskerville-Regular.ttf",
+      "./data/fonts/PlayfairDisplay-BoldItalic.ttf",
+      "./data/fonts/PlayfairDisplay-Regular.ttf",
+      "./data/fonts/Tangerine-Regular.ttf",
+      "./data/fonts/TulpenOne-Regular.ttf",
+      "./data/fonts/Ubuntu-MediumItalic.ttf",
+      "./data/fonts/IMFeENsc28P.ttf"
+    ]
+  }
+}

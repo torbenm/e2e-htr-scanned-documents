@@ -1,0 +1,26 @@
+{
+  "blocks": [
+    {
+      "type": "WordSegmentation",
+      "extractor": {
+        "cluster_y_eps": 0.06,
+        "cluster_x_eps": 0.54
+      }
+    }
+  ],
+  "gt": {
+    "type": "WordRegion",
+    "viz": false
+  },
+  "eval": [],
+  "data": {
+    "path": "../paper-notes/data/final/test/",
+    "ending": "-stripped.png",
+    "limit": 20
+  },
+  "viz": {
+    "type": "RegionVisualizer",
+    "store": "./e2eoutputs/word",
+    "text": false
+  }
+}

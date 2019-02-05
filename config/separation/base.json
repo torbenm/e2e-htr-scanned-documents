@@ -1,0 +1,25 @@
+{
+  "name": "separation",
+  "save": 2,
+  "binary": true,
+  "max_batches": {
+    "sep": {
+      "train": 1000,
+      "val": 1000
+    }
+  },
+  "data_config": {
+    "slice_width": 512,
+    "slice_height": 512,
+    "filter": true,
+    "otf_augmentations": {}
+  },
+  "batch": 4,
+  "learning_rate": 0.0000001,
+  "algo_config": {
+    "filter_size": 5,
+    "features_root": 32,
+    "batch_norm": false,
+    "group_norm": 32
+  }
+}

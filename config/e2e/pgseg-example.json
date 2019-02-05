@@ -1,0 +1,25 @@
+{
+  "blocks": [
+    {
+      "type": "ParagraphSegmentation",
+      "extractor": {
+        "sauvola_window": 19,
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        "scaling": 5,
+        "expand": 0
+      }
+    }
+  ],
+  "eval": [],
+  "data": {
+    "path": "../paper-notes/data/final/test/",
+    "ending": "-stripped.png",
+    "limit": 20
+  },
+  "viz": {
+    "type": "RegionVisualizer",
+    "store": "./e2eoutputs/pg",
+    "text": false
+  }
+}

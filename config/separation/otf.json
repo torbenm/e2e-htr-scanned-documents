@@ -1,0 +1,49 @@
+{
+  "name": "separation",
+  "save": 2,
+  "max_batches": {
+    "sep": {
+      "train": 2000,
+      "val": 500
+    }
+  },
+  "data_config": {
+    "slice_width": 512,
+    "slice_height": 512,
+    "filter": true,
+    "otf_augmentations": {
+      "warp": {
+        "prob": 0.2,
+        "deviation": 1.35,
+        "gridsize": [15, 15]
+      },
+      "affine": {},
+      "blur": {
+        "prob": 0.2,
+        "kernel": [3, 3],
+        "sigma": 1
+      },
+      "sharpen": {
+        "prob": 0.2,
+        "kernel": [3, 3],
+        "sigma": 1
+      },
+      "brighten": {
+        "prob": 0.1,
+        "center": 1.5,
+        "stdv": 0.2
+      },
+      "darken": {
+        "prob": 0.4,
+        "center": 1.5,
+        "stdv": 0.2
+      }
+    }
+  },
+  "batch": 8,
+  "learning_rate": 0.0001,
+  "algo_config": {
+    "features_root": 16,
+    "batch_norm": false
+  }
+}

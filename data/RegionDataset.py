@@ -1,6 +1,6 @@
 from . import util
 from .Dataset import Dataset
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 import math
 import numpy as np
@@ -10,6 +10,16 @@ from random import shuffle
 from data.steps.pipes import warp, morph, convert
 from .Dataset import Dataset
 from data.steps.pipes import crop, threshold, invert, padding
+from data.ImageAugmenter import ImageAugmenter
+
+DEFAULT_DATACONFIG = {
+    "preprocess": {
+        "crop": True,
+        "invert": True,
+        "scale": 1,
+        "padding": 5
+    }
+}
 
 
 class RegionDataset(Dataset):
@@ -22,12 +32,14 @@ class RegionDataset(Dataset):
         self._max_height = 10000
         self._max_width = 10000
         self.set_regions(regions)
+        self.data_config = Configuration(data_config, DEFAULT_DATACONFIG)
+        self.augmenter = ImageAugmenter(self.data_config)
 
     def info(self):
         self.meta('Dataset Configuration')
 
     def scaling(self, scaling, max_height, max_width):
-        self._scaling = scaling
+        self.augmenter.config['preprocess.scale'] = scaling
         self._max_height = max_height
         self._max_width = max_width
 
@@ -40,37 +52,27 @@ class RegionDataset(Dataset):
 
     def _load_sets(self):
         self.data = np.asarray(list(filter(lambda x: x is not None, [
-            self._preprocess(region) for region in self.regions])))
+            self._loadimage(region) for region in self.regions])))
 
-    def _scale(self, img, factor):
-        height = int(img.shape[0] / factor)
-        width = int(img.shape[1] / factor)
-        if width <= 0 or height <= 0:
-            return np.zeros((self._max_height, self._max_width))
-        return cv2.resize(img, (width, height))
-
-    def _scale_img(self, img):
-        if img.shape[0] == 0 or img.shape[1] == 0:
-            return np.zeros((self._max_height, self._max_width))
-        factor = max(img.shape[0] / self._max_height,
-                     img.shape[1] / self._max_width,
-                     self._scaling)
-        img = self._scale(img, factor)
-        return img
-
-    def _preprocess(self, region):
-        img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
-        img = invert._invert(img)
-        img = threshold._threshold(img, True)
-        img = crop._crop(img)
-        img = self._scale_img(img)
+    def _loadimage(self, region):
+        if region.img.shape[0] == 0 or region.img.shape[1] == 0:
+            img = np.zeros((self.meta["height"], self.meta["width"]))
+        elif len(region.img.shape) > 2:
+            img = cv2.cvtColor(region.img, cv2.COLOR_BGR2GRAY)
+        else:
+            img = region.img
+        target_size = (
+            int(self.meta["height"] -
+                (self.data_config.default('preprocess.padding', 0)*2)),
+            int(self.meta["width"] -
+                (self.data_config.default('preprocess.padding', 0)*2))
+        )
+        img = self.augmenter.preprocess(img, target_size)
+        if img is not None:
+            img = self.augmenter.postprocesss(img)
         if img is None:
-            return None
-        img = padding._pad_cv2(img, 5, 0)
-
-        img = pad(img, (self.meta["height"], self.meta["width"]))
-        img = np.reshape(img, [self.meta["height"], self.meta["width"], 1])
-        return img
+            img = np.zeros((self.meta["height"], self.meta["width"]))
+        return self.augmenter.add_graychannel(img)
 
     def set_regions(self, regions):
         self.regions = regions
@@ -109,21 +111,3 @@ class RegionDataset(Dataset):
 
     def getBatchCount(self, batch_size, max_batches=0, dataset=""):
         return int(np.ceil(len(self.data)/float(batch_size)))
-
-
-def pad(array, reference_shape, offsets=None):
-    """
-    array: Array to be padded
-    reference_shape: tuple of size of ndarray to create
-    offsets: list of offsets (number of elements must be equal to the dimension of the array)
-    will throw a ValueError if offsets is too big and the reference_shape cannot handle the offsets
-    """
-    offsets = offsets if offsets is not None else [0] * len(reference_shape)
-    # Create an array of zeros with the reference shape
-    result = np.zeros(reference_shape)
-    # Create a list of slices from offset to offset + shape in each dimension
-    insertHere = [slice(offsets[dim], offsets[dim] + array.shape[dim])
-                  for dim in range(array.ndim)]
-    # Insert the array in the result at the specified offsets
-    result[insertHere] = array
-    return result

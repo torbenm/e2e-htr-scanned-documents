@@ -15,7 +15,8 @@ DEFAULTS = {
         "features": 64
     },
     "conv_n": {
-        "kernel": [3, 3]
+        "kernel": [3, 3],
+        "activation": ""
     }
 }
 
@@ -32,15 +33,29 @@ class DnCNN(AlgorithmBaseV2):
             net = batch_normalization(net, training=train)
             return tf.nn.relu(net)
 
-    def build_graph(self, channels=1, learning_rate=0.001):
+    def _scale(self, val):
+        return (val / tf.constant(255.0)) * tf.constant(2.0) - tf.constant(1.0)
+
+    def _unscale(self, val):
+        return ((val + tf.constant(1.0)) / tf.constant(2.0)) * tf.constant(255.0)
+
+    def configure(self, **kwargs):
+        self.learning_rate = kwargs.get('learning_rate', 0.001)
+        self.channels = kwargs.get('channels', 1)
+        self.slice_width = kwargs.get('slice_width', 300)
+        self.slice_height = kwargs.get('slice_height', 300)
+
+    def build_graph(self):
 
         ###################
         # PLACEHOLDER
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, None, None, channels], name="x"))
+                tf.float32, [None, self.slice_height, self.slice_width, self.channels], name="x"))
+            x = self._scale(x)
             y = tf.placeholder(tf.float32, shape=x.shape, name="y")
+            y = self._scale(y)
             is_train = tf.placeholder_with_default(False, (), name='is_train')
 
             net = x
@@ -62,14 +77,18 @@ class DnCNN(AlgorithmBaseV2):
         # PHASE III: Last Conv Block
         ###############
         with tf.name_scope('conv_n'):
-            output = log_1d(conv2d(net, channels, self['conv_n.kernel']))
-
+            output = log_1d(conv2d(net, self.channels,
+                                   self['conv_n.kernel'], padding='same'))
+            if self['conv_n.activation'] == 'tanh':
+                print('tanh activation')
+                output = tf.tanh(output)
+            output = x - output
         ##################
         # PHASE IV: Loss & Optomizer
         #################
         loss = tf.nn.l2_loss(output - y)
-        train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-
+        train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        #output = self._unscale(output)
         return dict(
             x=x,
             y=y,

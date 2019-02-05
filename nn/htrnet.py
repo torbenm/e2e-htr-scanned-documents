@@ -19,7 +19,8 @@ DEFAULTS = {
         "units": [512]
     },
     "dynamic_width": False,
-    "format": "nhwc"
+    "format": "nhwc",
+    "scale": False
 }
 
 
@@ -65,8 +66,15 @@ class HtrNet(AlgorithmBaseV2):
                     learning_rate).minimize(total_loss)
         return train_step
 
-    def build_graph(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001, class_learning_rate=0.001):
+    def configure(self, image_width=200, image_height=100, batch_size=32, channels=1, vocab_length=62, sequence_length=100, learning_rate=0.001, class_learning_rate=0.001):
+        self.image_width = image_width
+        self.image_height = image_height
+        self.channels = channels
+        self.vocab_length = vocab_length
+        self.learning_rate = learning_rate
+        self.class_learning_rate = class_learning_rate
 
+    def build_graph(self):
         # cpu does not support nchw, so nhwc forcing
         if(self._cpu):
             self._config['format'] = DEFAULTS['format']
@@ -76,7 +84,9 @@ class HtrNet(AlgorithmBaseV2):
         ###################
         with tf.name_scope('placeholder'):
             x = log_1d(tf.placeholder(
-                tf.float32, [None, image_height, None if self['dynamic_width'] else image_width, channels], name="x"))
+                tf.float32, [None, self.image_height, None if self['dynamic_width'] else self.image_width, self.channels], name="x"))
+            if self["scale"]:
+                x = tf.truediv(x, tf.constant(255.0), name='scale')
             y = tf.sparse_placeholder(
                 tf.int32, shape=[None, None], name="y")
             class_y = tf.placeholder(
@@ -122,7 +132,7 @@ class HtrNet(AlgorithmBaseV2):
         # PHASE III: Fully Connected
         ###############
         with tf.name_scope('fc'):
-            fc = FullyConnected.FullyConnected(self['fc'], vocab_length)
+            fc = FullyConnected.FullyConnected(self['fc'], self.vocab_length)
             net = fc(net, is_train)
 
         ##################
@@ -135,7 +145,7 @@ class HtrNet(AlgorithmBaseV2):
             tf.summary.scalar('loss', tf.reduce_mean(total_loss))
 
         with tf.name_scope('train'):
-            train_step = self._train_step(total_loss, learning_rate)
+            train_step = self._train_step(total_loss, self.learning_rate)
 
         with tf.name_scope('logits'):
             logits = tf.nn.softmax(logits)
@@ -149,7 +159,8 @@ class HtrNet(AlgorithmBaseV2):
             class_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 logits=class_logits, labels=class_y)
             # tf.summary.scalar('class_loss', tf.reduce_mean(class_loss))
-            class_train = self._train_step(class_loss, class_learning_rate)
+            class_train = self._train_step(
+                class_loss, self.class_learning_rate)
 
         """
         new_dict = {

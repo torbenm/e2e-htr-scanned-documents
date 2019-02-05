@@ -61,7 +61,7 @@ class IamDataset(Dataset):
                             basepath, type, lsplit[0])
                         text = ' '.join(lsplit[8:])
                         parsed.append(
-                            {"path": path, "truth": text, "line": iam_line})
+                            {"path": path, "truth": text, "line": iam_line, "type": type})
                         fulltext = fulltext + text
             return parsed, fulltext
 

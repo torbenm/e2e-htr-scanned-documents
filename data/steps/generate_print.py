@@ -2,9 +2,11 @@ import re
 import numbers
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
-from config.config import Configuration
+from lib.Configuration import Configuration
 import os
 from data.steps.pipes.warp import _warp
+from data.steps.pipes.crop import _crop
+from data.steps.pipes.padding import _pad_pil
 from data.steps.pipes.affine import _affine
 from data.steps.pipes.convert import _pil2cv2, _cv2pil
 
@@ -21,6 +23,7 @@ DEFAULTS = {
         'high': 100
     },
     'background': 255,
+    'crop': False,
     'filters': [
         {
             'type': 'blur',
@@ -46,7 +49,8 @@ DEFAULTS = {
             'config': {}
         }
     ],
-    'padding': 0
+    'padding': 0,
+    'printing_padding': 0  # padding that is SOLELY applied when printing
 }
 
 
@@ -81,13 +85,15 @@ class PrintGenerator(object):
         return max(min(int(np.random.normal(self['height.center', True], self['height.scale', True])), self['height.max', True]), self['height.min', True])
 
     def _random_foreground(self):
+        if self['foreground.low'] == self['foreground.high']:
+            return self['foreground.low']
         return np.random.randint(self['foreground.low'], self['foreground.high'])
 
     def _iterate_height(self, text, fontname, height):
         font = ImageFont.truetype(fontname, size=height)
         size, offset = font.font.getsize(text)
-        image_size = (size[0]+offset[0]+self['padding']*2,
-                      size[1]+offset[1]+self['padding']*2)
+        image_size = (size[0]+offset[0]+self['printing_padding']*2,
+                      size[1]+offset[1]+self['printing_padding']*2)
         if self.max_height > -1 and image_size[1] > self.max_height:
             height = int(height*(self.max_height/float(image_size[1])))
             return self._iterate_height(text, fontname, height)
@@ -104,8 +110,8 @@ class PrintGenerator(object):
             "L", image_size, background)
         draw = ImageDraw.Draw(image)
 
-        draw.text((self['padding'], -(offset[1]/2) +
-                   self['padding']), text, font=font, fill=foreground)
+        draw.text((self['printing_padding'], -(offset[1]/2) +
+                   self['printing_padding']), text, font=font, fill=foreground)
         return image
 
     def _apply_filter(self, image, filter_config):
@@ -116,6 +122,24 @@ class PrintGenerator(object):
     def _apply_filters(self, image):
         for _filter in self['filters']:
             image = self._apply_filter(image, _filter)
+        return image
+
+    def _crop(self, image, invert):
+        if image is None:
+            return None
+        if self['crop']:
+            image = _pil2cv2(image)
+            if not invert:
+                image = 255 - image
+            image = _crop(image)
+            if not invert:
+                image = 255 - image
+            image = _cv2pil(image)
+        return image
+
+    def _pad(self, image, background):
+        if self['padding'] > 0:
+            image = _pad_pil(image, self['padding'], background)
         return image
 
     def __call__(self, text, invert=False):
@@ -129,6 +153,10 @@ class PrintGenerator(object):
         image = self._create_text_image(
             text, font, height, background, foreground)
         image = self._apply_filters(image)
+        image = self._crop(image, invert)
+        if image is None:
+            return None
+        image = self._pad(image, invert)
         return image
 
     @staticmethod
@@ -163,11 +191,25 @@ def _generate_printed_samples(ht_samples, count, config, invert, path, target_he
     generator.max_height = target_height
     generator.max_width = target_width
     full_samples = []
-    for idx, sample in enumerate(textsamples):
+    idx = 0
+    for sample in textsamples:
+        if idx >= length:
+            break
         text = PrintGenerator.clean_text(sample['truth'])
-        image = generator(text, invert)
+        if len(text.strip()) < config['minlength']:
+            continue
+        try:
+            image = generator(text, invert)
+            if image is None:
+                continue
+        except ValueError:
+            print("Skipping ValueError")
+            continue
         printedpath = os.path.join(path, 'printed-{}.png'.format(idx))
         image.save(printedpath)
-        full_samples.append({"path": printedpath, "truth": 0})
-        full_samples.append({"path": sample['path'], "truth": 1})
+        full_samples.append(
+            {"path": printedpath, "truth": 0, "type": sample['type']})
+        full_samples.append(
+            {"path": sample['path'], "truth": 1, "type": sample['type']})
+        idx += 1
     return full_samples, generator.max_size

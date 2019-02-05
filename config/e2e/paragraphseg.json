@@ -1,0 +1,43 @@
+{
+  "blocks": [
+    {
+      "type": "ParagraphSegmentation",
+      "extractor": {
+        "sauvola_window": 19,
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        "scaling": 5,
+        "expand": 0
+      }
+    }
+  ],
+  "gt": {
+    "type": "ParagraphRegion",
+    "viz": true
+  },
+  "eval": [
+    {
+      "type": "IoU",
+      "filter_class": false
+    }
+  ],
+  "data": {
+    "path": "../paper-notes/data/final/dev/",
+    "ending": "-stripped.png",
+    "limit": 500
+  },
+  "ranger": {
+    "paths": [
+      ["blocks", 0, "extractor", "erode_kernel", 0],
+      ["blocks", 0, "extractor", "erode_kernel", 1],
+      ["blocks", 0, "extractor", "dilate_kernel", 0],
+      ["blocks", 0, "extractor", "dilate_kernel", 1]
+    ],
+    "values": {
+      "from": 25,
+      "to": 36,
+      "step": 1
+    },
+    "template": "kernel {}"
+  }
+}

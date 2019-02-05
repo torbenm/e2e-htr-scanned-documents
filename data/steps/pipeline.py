@@ -9,9 +9,9 @@ def applyFullPipeline(images, context, hook=None, train=False):
     hookstep = hookstep if hookstep > 0 else 1
     max_w, max_h = 0, 0
     for image in images:
-
+        type = '' if 'type' not in image else image['type']
         prepared_image, size = (apply.applyPipeline(
-            image['path'], image['truth'], context, train))
+            image['path'], image['truth'], type, context, train))
         max_w = max(size[0], max_w)
         max_h = max(size[1], max_h)
         fullset.extend(prepared_image)

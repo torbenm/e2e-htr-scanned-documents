@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 
 def affine(images, config):
@@ -14,10 +14,16 @@ def affine_but_first(images, config):
     return images_all
 
 
-def _affine(image, config):
+def _affine(image, config=None, mat=None, background=0, return_mat=False):
     at = AffineTransformation(image)
-    at.configure(config)
-    return at()
+    if config is not None:
+        at.configure(config)
+    if mat is not None:
+        at.set(mat)
+    if return_mat:
+        return at(background=background), at.M
+    else:
+        return at(background=background)
 
 
 class AffineTransformation(object):
@@ -51,6 +57,9 @@ class AffineTransformation(object):
 
     def reset(self):
         self.M = np.eye(3, 3)
+
+    def set(self, M):
+        self.M = M
 
     def __call__(self, background=None):
         if background is None:

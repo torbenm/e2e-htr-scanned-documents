@@ -2,6 +2,7 @@ import tensorflow as tf
 from nn.layer.Layer import Layer
 from nn.util import log_1d
 from nn.layer.histogrammed import conv2d, batch_normalization
+from nn.layer.general.group_norm import group_norm
 
 DEFAULTS = {
     "layers": 5,
@@ -17,10 +18,9 @@ DEFAULTS = {
     },
     "bnorm": {
         "active": True,
-        "train": False,
-        "before_activation": False,
         "fused": True
-    }
+    },
+    "groupnorm": False
 }
 
 
@@ -42,14 +42,15 @@ class CNNEncoder(Layer):
         def conv_layer(x):
             with tf.name_scope('conv'):
                 num_filters = (index + 1) * self['size']
-                activation = _activation_fn if not self['bnorm.before_activation'] else None
                 return log_1d(conv2d(x, num_filters, self['kernel'], data_format=data_format,
-                                     strides=self['strides'], activation=activation, use_bias=self['bias']))
+                                     strides=self['strides'], activation=None, use_bias=self['bias']))
 
         def batch_norm(x):
-            is_training = is_train if self['bnorm.train'] else False
             axis = 1 if self._format == 'nchw' else 3
-            return log_1d(batch_normalization(x, training=is_training, fused=self['bnorm.fused'], axis=axis, name='batch_norm'))
+            return log_1d(batch_normalization(x, training=is_train, fused=self['bnorm.fused'], axis=axis, name='batch_norm'))
+
+        def groupnorm(x):
+            return group_norm(x, self['groupnorm']) if self['groupnorm'] else x
 
         def pooling(x):
             pooling_sizes = self['pooling']
@@ -65,10 +66,9 @@ class CNNEncoder(Layer):
             with tf.name_scope('bnorm'):
                 net = batch_norm(net)
 
-        if self['bnorm.before_activation']:
-            net = log_1d(_activation_fn(net))
-            tf.summary.histogram('final_activation', net)
-            self.viz.append(net)
+        net = log_1d(_activation_fn(net))
+        tf.summary.histogram('final_activation', net)
+        self.viz.append(net)
 
         net = pooling(net)
 

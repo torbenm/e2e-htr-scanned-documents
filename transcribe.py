@@ -1,16 +1,7 @@
 import sys
 import argparse
-from executor import Executor
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-
-def transcription_hook(step, max_steps):
-    percent = int((float(step) / max_steps) * 100)
-    msg = 'TRANSCRIBING... {:2} %'.format(percent)
-    sys.stdout.write('\r{:130}'.format(msg))
-    sys.stdout.flush()
-
+from lib.QuickExecutor import QuickExecutor
 
 if __name__ == "__main__":
 
@@ -32,13 +23,14 @@ if __name__ == "__main__":
         '--subset', help='Subset to transcribe', default='test')
     args = parser.parse_args()
 
-    exc = Executor(args.config, args.dataset, args.legacy_transpose)
-    exc.configure(args.gpu, not args.hardplacement, args.logplacement)
-    transcriptions = exc.transcribe(args.subset, args.model_date if args.model_date !=
-                                    "" else None, args.model_epoch, {
-                                        'trans_batch': transcription_hook
-                                    })
-    exc.close()
+    qe = QuickExecutor(args.dataset, args.config)
+    qe.configure(softplacement=not args.hardplacement,
+                 logplacement=args.logplacement, device=args.gpu)
+    transcriber = qe.add_transcriber(args.subset)
+    qe.restore(args.model_date, args.model_epoch)
+    qe()
+    transcriptions = transcriber.transcriptions
+
     print('\n')
     print('Transcriptions for {} lines'.format(len(transcriptions['files'])))
     max_trans_l = max(map(lambda t: len(t), transcriptions['trans']))
@@ -47,7 +39,7 @@ if __name__ == "__main__":
     print(heading)
     print("-"*len(heading))
     for i in range(len(transcriptions['files'])):
-        decompiled = exc.dataset.decompile(transcriptions['trans'][i])
+        decompiled = qe.dataset.decompile(transcriptions['trans'][i])
         filename = os.path.basename(transcriptions['files'][i])
         if len(transcriptions['class']) > i:
             is_ht = 'Handwritten' if transcriptions['class'][i][0] > 0.5 else 'Printed'

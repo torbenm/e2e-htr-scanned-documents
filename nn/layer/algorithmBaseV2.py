@@ -1,6 +1,6 @@
 
 import abc
-from config.config import Configuration
+from lib.Configuration import Configuration
 
 
 """
