@@ -4,7 +4,7 @@ from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib.executables.RecClassRunner import RecClassRunner
 from lib.executables.RecognitionRunner import RecognitionRunner
-from nn.htrnet import HtrNet
+from lib.nnhtrnet import HtrNet
 from data.RegionDataset import RegionDataset
 
 DEFAULTS = {

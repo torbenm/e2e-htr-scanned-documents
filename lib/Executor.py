@@ -3,7 +3,7 @@ from typing import Union, List
 import os
 from functools import reduce
 
-from nn.layer.algorithmBaseV2 import AlgorithmBaseV2
+from lib.nnlayer.algorithmBase import AlgorithmBase
 from nn import getAlgorithm
 
 from .executables import Executable
@@ -29,7 +29,7 @@ class Executor(object):
     restore_model = None
     g = None
 
-    def __init__(self, algorithm: AlgorithmBaseV2, verbose=False, config={}, logger=None):
+    def __init__(self, algorithm: AlgorithmBase, verbose=False, config={}, logger=None):
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         self.algorithm = algorithm
         self.config = Configuration(config, self.DEFAULT_CONFIG)

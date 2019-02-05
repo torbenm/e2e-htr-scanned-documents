@@ -8,7 +8,7 @@ from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
 from lib.executables import SeparationTrainer, Saver, SeparationValidator
-from nn.tfunet import TFUnet
+from lib.nntfunet import TFUnet
 from lib.Constants import CONFIG_PATH
 
 SEP_CONFIG_PATH = os.path.join(CONFIG_PATH, "separation")
