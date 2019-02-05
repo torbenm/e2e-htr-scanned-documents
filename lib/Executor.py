@@ -3,7 +3,7 @@ from typing import Union, List
 import os
 from functools import reduce
 
-from lib.nnlayer.algorithmBase import AlgorithmBase
+from lib.nn.layer.algorithmBase import AlgorithmBase
 from nn import getAlgorithm
 
 from .executables import Executable

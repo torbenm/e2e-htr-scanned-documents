@@ -1,7 +1,7 @@
 import tensorflow as tf
-from lib.nnlayer.Layer import Layer
-from lib.nnutil import log_1d
-from lib.nnlayer.histogrammed import dense
+from lib.nn.layer.Layer import Layer
+from lib.nn.util import log_1d
+from lib.nn.layer.histogrammed import dense
 
 DEFAULTS = {
     "dropout": 0.5,

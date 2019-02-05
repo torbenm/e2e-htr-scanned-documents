@@ -10,7 +10,7 @@ from lib.Configuration import Configuration
 from lib import Constants
 from lib.Logger import Logger
 from lib.executables import SeparationRunner, Saver, SeparationValidator
-from lib.nntfunet import TFUnet
+from lib.nn.tfunet import TFUnet
 
 MODEL_DATE = "2018-10-10-17-58-01"
 MODEL_EPOCH = 19

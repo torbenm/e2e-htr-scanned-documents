@@ -1,10 +1,10 @@
 import tensorflow as tf
 import numpy as np
-from lib.nnlayer.algorithmBase import AlgorithmBase
-from lib.nnutil import log_1d
-from lib.nnlayer.histogrammed import conv2d, batch_normalization
-from lib.nnlayer.unet import unet
-from lib.nnlayer.unet.layers import pixel_wise_softmax
+from lib.nn.layer.algorithmBase import AlgorithmBase
+from lib.nn.util import log_1d
+from lib.nn.layer.histogrammed import conv2d, batch_normalization
+from lib.nn.layer.unet import unet
+from lib.nn.layer.unet.layers import pixel_wise_softmax
 
 DEFAULTS = {
     "layers": 5,

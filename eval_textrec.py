@@ -12,7 +12,7 @@ from lib import Constants
 from lib.Logger import Logger
 from lib.executables import RecognitionValidator, ClassValidator
 from data.PaperNoteWords import PaperNoteWords
-from lib.nnhtrnet import HtrNet
+from lib.nn.htrnet import HtrNet
 
 
 MODEL_DATE = "2018-10-30-13-33-59"

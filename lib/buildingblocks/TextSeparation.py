@@ -5,7 +5,7 @@ import cv2
 from lib.Executor import Executor
 from lib.Configuration import Configuration
 from lib.executables.SeparationRunner import SeparationRunner
-from lib.nntfunet import TFUnet
+from lib.nn.tfunet import TFUnet
 from data.PaperNoteSlicesSingle import PaperNoteSlicesSingle
 
 DEFAULTS = {

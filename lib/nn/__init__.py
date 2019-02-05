@@ -1,4 +1,4 @@
-from lib.nnhtrnet import HtrNet
+from lib.nn.htrnet import HtrNet
 
 
 def getAlgorithm(name, algoConfig, transpose=False):

@@ -1,6 +1,6 @@
-from lib.nnlayer.Layer import Layer
-from lib.nnlayer import resnet
-from lib.nnutil import log_1d
+from lib.nn.layer.Layer import Layer
+from lib.nn.layer import resnet
+from lib.nn.util import log_1d
 
 DEFAULTS = {
     "size": 3,

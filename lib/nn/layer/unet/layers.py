@@ -24,7 +24,7 @@ from __future__ import print_function, division, absolute_import, unicode_litera
 
 import tensorflow as tf
 
-from lib.nnlayer.general.group_norm import group_norm
+from lib.nn.layer.general.group_norm import group_norm
 
 
 def weight_variable(shape, stddev=0.1, name="weight"):

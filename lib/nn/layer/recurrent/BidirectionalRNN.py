@@ -1,5 +1,5 @@
-from lib.nnlayer.Layer import Layer
-from lib.nnutil import log_1d
+from lib.nn.layer.Layer import Layer
+from lib.nn.util import log_1d
 import tensorflow as tf
 
 DEFAULTS = {

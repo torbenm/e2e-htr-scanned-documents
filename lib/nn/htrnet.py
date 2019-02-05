@@ -1,9 +1,9 @@
 import tensorflow as tf
-from lib.nnlayer.algorithmBase import AlgorithmBase
-from lib.nnutil import log_1d
-from lib.nnlayer.encoder import CNNEncoder, ResNetEncoder
-from lib.nnlayer.recurrent import BidirectionalRNN
-from lib.nnlayer.general import FullyConnected
+from lib.nn.layer.algorithmBase import AlgorithmBase
+from lib.nn.util import log_1d
+from lib.nn.layer.encoder import CNNEncoder, ResNetEncoder
+from lib.nn.layer.recurrent import BidirectionalRNN
+from lib.nn.layer.general import FullyConnected
 
 DEFAULTS = {
     "encoder": {

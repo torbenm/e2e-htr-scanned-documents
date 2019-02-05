@@ -1,8 +1,8 @@
 import tensorflow as tf
-from lib.nnlayer.Layer import Layer
-from lib.nnutil import log_1d
-from lib.nnlayer.histogrammed import conv2d, batch_normalization
-from lib.nnlayer.general.group_norm import group_norm
+from lib.nn.layer.Layer import Layer
+from lib.nn.util import log_1d
+from lib.nn.layer.histogrammed import conv2d, batch_normalization
+from lib.nn.layer.general.group_norm import group_norm
 
 DEFAULTS = {
     "layers": 5,
