@@ -132,7 +132,7 @@ Here are some of the options.
     }
   },
   "data_config": {
-    "paper_notes_path": "../paper-notes/data/final", // Path to the paper notes dataset
+    "paper_note_path": "../paper-notes/data/final", // Path to the paper notes dataset
     // How the page should be separated into tiles/slices
     "slice_width": 512,
     "slice_height": 512,
@@ -156,7 +156,7 @@ Here are some of the options.
 To start the actual training, execute
 
 ```sh
-python train_separation.py --config separation/base [--gpu GPU] [--model-date] [--model-epoch]
+python train_separation.py --config separation/base [--gpu GPU_INDEX] [--model-date] [--model-epoch]
 ```
 
 You should pass a GPU parameter with the index of the GPU to use. Default is `-1`, thus CPU execution.
@@ -169,6 +169,8 @@ Training the text classification and recognition network are very similar to the
 Since they are interleaved as multi-task learning networks,
 they are both trained at once.
 The configuration used in my thesis is `config/otf-iam-paper-fair.json`.
+
+The Text Recognition Network is based on [Joan Puigcerver's](http://www.jpuigcerver.net/pubs/jpuigcerver_icdar2017.pdf)
 
 The following options in the configuration are available:
 
@@ -254,7 +256,7 @@ The following options in the configuration are available:
 To start the actual training, execute
 
 ```sh
-python train.py --config otf-iam-paper-fair [--gpu GPU] [--model-date] [--model-epoch] [--no-trains] [--no-class] [--paper-notes] [--only-paper]
+python train.py --config otf-iam-paper-fair [--gpu GPU_INDEX] [--model-date] [--model-epoch] [--no-trains] [--no-class] [--paper-notes] [--only-paper]
 ```
 
 The config, gpu, model date and model epoch are similar to the text separation network. With `--no-trans` and `--no-class` you can skip training on either the recognizer or the classification part. With `--paper-notes`, you can add training on the extracted words of the Paper Notes dataset.
@@ -283,8 +285,323 @@ These models are currently trained by simply evaluation every parameter (see in 
 
 ### Single Building Blocks
 
-### A whole pipeline
+You can run the classifier, recognition network and separation network by themselve.
 
-## Evaluating
+To run the text recognition network, use the following command:
+
+```
+python transcribe.py --gpu GPU_INDEX --config THE_CONFIGURATION_THAT_YOU_USED --model-date DATE_OF_MODEL --model-epoch MODEL_EPOCH --dataset DATASET
+```
+
+For the classification network, run this:
+
+```
+python runclasss.py --gpu GPU_INDEX --config THE_CONFIGURATION_THAT_YOU_USED --model-date DATE_OF_MODEL --model-epoch MODEL_EPOCH --dataset DATASET
+```
+
+In all of these comands, you should replace the arguments accordingly:
+
+- `--gpu` either -1 for CPU or the gpu index
+- `--config` Which config you used to train the model
+- `--model-date` The date of the model (i.e. what it says in the folder name)
+- `--model-epch` The epoch you want to use
+- `--dataset` The dataset to use for running - e.g. `iam-both-small`
+
+For the separation network, the parameters have the same meaning but are a bit less. You should only add `--paper-note-path` if the path deviates from `../paper-notes/data/final`.
+
+```
+python run_separation.py --gpu GPU_INDEX --model-date MODEL_DATE --model-epoch MODEL_EPOCH [--paper-note-path PATH_TO_PAPER_NOTES_FOLDER]
+```
+
+### The whole pipeline
+
+Running the whole pipeline is based on configurations you can use for the end-to-end settting.
+This is the command to run a configuration:
+
+```
+python e2e.py --gpu GPU_INDEX --config CONFIGURATION
+```
+
+The `--config` parameter is relative to the `./config/e2e` folder.
+The best results yielded the `sep-line-class-lm` and the `sep-line-class` configuration.
+
+This is what a typical configuration for running looks like:
+
+```jsonc
+{
+  "blocks": [
+    // The building blocks in their order
+    {
+      "type": "..."
+      //...
+    },
+    {
+      // ...
+    }
+    // ...
+  ],
+  "data": [
+    // Either an array of file paths or a link to a Paper Notes dataset.
+    // The latter is described further below
+  ],
+  "viz": {
+    // You can add the "viz" option if you want to output the results
+    "type": "RegionVisualizer",
+    "store": "./e2eoutputs/wpi",
+    "large": true
+  }
+}
+```
+
+Further configuration options are listed in Evaluation and Ceiling Analysis.
+
+#### Blocks
+
+The blocks section is where the actual magic happens and you list the blocks that you want to use (and in which order).
+A block looks like this:
+
+```jsonc
+{
+    "type": "The Type of the Block",
+    "disabled": true | false,
+    // ... Block specific configuration...
+},
+```
+
+##### Text Separation Block
+
+```jsonc
+{
+    "type": "TextSeparation",
+    "disabled": false,
+    // Path to the model
+    "model_path": "./models/separation-2018-10-10-17-58-01",
+    // Epoch to the model
+    "model_epoch": 19,
+    //
+    "binarize_method": "mean_threshold" | "fast_threshold" | "sauvola"
+},
+```
+
+`fast_threshold` is setting the threshold to `254`. This is only working when your background is perfectly white.
+
+##### Word Detector
+
+```jsonc
+{
+    "type": "WordSegmentation",
+    // Configuration for the detector
+    "extractor": {
+        "cluster_y_eps": 0.06,
+        "cluster_x_eps": 0.54
+    }
+},
+```
+
+##### Paragraph Detector
+
+```jsonc
+{
+    "type": "ParagraphSegmentation",
+    // settings for the detector
+    "extractor": {
+        // Kernel of the sauvila filter
+        "sauvola_window": 19,
+        // Kernels for the erode and dilate operation
+        "erode_kernel": [35, 35],
+        "dilate_kernel": [35, 35],
+        // How much smaller you want to process the image
+        "scaling": 5,
+    }
+},
+```
+
+##### Line Segmentation Algorithm
+
+```jsonc
+{
+    "type": "LineSegmentation",
+    // Settings for the segmenting algorithm
+    "extractor": {
+        // How much smaller you want to process the image
+        "scale_factor": 5.0,
+        "erode_kernel": [1, 10],
+        "dilate_kernel": [1, 10],
+        // Distance between two local maxima
+        "relative_maxima_dist": 35,
+        // Settings for the A* Line Segmentation Algorithm
+        "astar": {
+            "c": {
+            "d": 60,
+            "d2": 0,
+            "m": 275,
+            "v": 3.5,
+            "n": 1
+            }
+        }
+    }
+},
+```
+
+The configuration A\* Line Segmentation Algorithm is described well in the [paper it is stemming from](https://ieeexplore.ieee.org/abstract/document/6981016/).
+
+##### Text Recogniton and Classification
+
+```jsonc
+{
+  "type": "TranscriptionAndClassification",
+  // PAth to the model
+  "model_path": "./models/otf-iam-paper-2018-10-30-13-33-59",
+  // Epoch of the model
+  "model_epoch": 74,
+  // Whether you want to activate classification or not
+  "classify": true
+}
+```
+
+##### Language Model
+
+This is the most simple:
+
+```jsonc
+{
+  "type": "OneGramLanguageModel",
+  "source": "Path to the corpus.json"
+}
+```
+
+#### Data
+
+Apart from as an array of files, you can also path an object of settings:
+
+```jsonc
+"data": {
+    // Folder to check out
+    "path": "../paper-notes/data/final/test/",
+    // Ending of the files to consider
+    "ending": "-paper.png",
+    // Whatever the file name should start with
+    "prefix": "...",
+    // 0 or smaller means unlimited
+    "limit": 100
+  }
+```
+
+## Evaluation
+
+### Single Building Blocks
+
+You can evaluate the Text Recognition, Classification, and Separation Network individually.
+
+For the Text Recognition and Text Classification:
+
+```
+python eval_textrec.py --gpu GPU_INDEX --model-date MODEL_DATE --model-epoch MODEL_EPOCH [--paper-note-path PATH_TO_PAPER_NOTES]
+```
+
+For Text Separation:
+
+```
+python eval_sep.py --gpu GPU_INDEX --model-date MODEL_DATE --model-epoch MODEL_EPOCH [--paper-note-path PATH_TO_PAPER_NOTES]
+```
+
+See the Training section to see what these arguments should contain.
+
+### End-to-End pipeline
+
+Evaluating the full pipeline is very similar to running it.
+To add a validation mode, you should add the following fields to the main object:
+
+```jsonc
+// This is the ground-truth you will rely on.
+// You can choose between LineRegion (i.e. Lines),
+// WordRegion and ParagraphRegion.
+// This is heavily biased towards the Paper Notes dataset,
+// i.e. the -paper.png or -stripped.png suffix is replaced by  -truth.json
+// to get the ground truth.
+  "gt": {
+    "type": "LineRegion",
+    // Whether the ground truth should be visualized as well (if you have a viz field in the main object)
+    "viz": false
+  },
+  "eval": [
+      // Which evaluation metrics you want to run.
+      // You can use IoU, IoUCER (mix of IoU and CER), IoUPixelSum
+      // (sum of pixel values of one region compared to the sum of pixel values from another)
+      // And the Bag of Words score
+    {
+      "type": "IoUCER",
+      // Filter class should be set to true if you perfrom the text classification. This is valid for all scores
+      "filter_class": true,
+      // Which treshold to use for IoU matching (standard is often 0.5 but here set to 0)
+      "threshold": 0,
+      // name for this score. This is IOUCER specific
+      "name": "ioucer_0"
+    },
+    {
+        "type": "IoU",
+        "threshold": 0.5,
+        "filter_class": false
+    },
+    {
+      "type": "IoUPixelSum",
+      "threshold": 0,
+      "filter_class": false,
+      // Whether to binarize the image first
+      "binary": false
+    },
+    {
+      "type": "BagOfWords",
+      "filter_class": true,
+      // Punctuations are disregarded
+      "punctuation": ",.;:!?",
+      // How words are separated
+      "split": "|"
+    }
+  ],
+```
+
+#### Evaluating several hyperparameters
+
+If you want to evaluate more than just one configuration without having to manually edit them, you can the following field to flexibly adjust the options:
+
+```jsonc
+// The "ranter" cares about evaluating multiple ranges
+"ranger": {
+    // The path to the field you want to alter
+    // You can also specifiy multiple paths, but they will all receive the same value
+    "paths": [["eval", 0, "binary"]],
+    // The range of values
+    "values": {
+      "from": 0,
+      "to": 2,
+      "step": 1
+    },
+    // This is for the logger, it will use the template to name the current execution accordingly. {} is replaced by the current value
+    "template": "binary {}"
+  }
+```
 
 ## Ceiling Analysis
+
+Performing the ceiling analysis is also done by altering the end-to-end configuration.
+This is now done in the `blocks` field.
+Simply pass the following as the first block and adjust it according to the building block you want to replace:
+
+```jsonc
+{
+    "type": "Ceiling",
+    // This accepts the same as the GtProvider
+    "provider": "LineRegion"
+},
+```
+
+## Available end-to-end configurations
+
+There are a couple of end-to-end configurations available by default.
+These are grouped into:
+
+- `/config/e2e/ceiling` - Configurations for Ceiling Analysis
+- `/config/e2e/final` - Different combinations of the building blocks
+- `/config/e2e/steps` - Step-by-step of one configuration
+- `/config/e2e/wpi.json` - Configuration to run on Examples of the WPI

@@ -25,6 +25,8 @@ if __name__ == "__main__":
     parser.add_argument('--logplacement', help='Log Device placement',
                         action='store_true', default=False)
     parser.add_argument(
+        '--paper-note-path', default='../paper-notes/data/words')
+    parser.add_argument(
         '--model-date', help='date to continue for', default=MODEL_DATE)
     parser.add_argument('--model-epoch', help='epoch to continue for',
                         default=MODEL_EPOCH, type=int)
@@ -43,6 +45,7 @@ if __name__ == "__main__":
         slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
     dataset = PaperNoteSlices(
+        paper_note_path=args.paper_note_path,
         slice_width=config['data_config.slice_width'],
         slice_height=config['data_config.slice_height'],
         binarize=config.default('binary', False),

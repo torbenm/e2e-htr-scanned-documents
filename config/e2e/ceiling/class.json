@@ -11,8 +11,7 @@
       "classify": false
     },
     {
-      "type": "OneGramLanguageModel",
-      "ceiling": false
+      "type": "OneGramLanguageModel"
     }
   ],
   "gt": {

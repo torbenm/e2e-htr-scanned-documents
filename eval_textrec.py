@@ -29,6 +29,8 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument(
         '--model-date', help='date to continue for', default=MODEL_DATE)
+    parser.add_argument(
+        '--paper-note-path', default='../paper-notes/data/words')
     parser.add_argument('--model-epoch', help='epoch to continue for',
                         default=MODEL_EPOCH, type=int)
     args = parser.parse_args()
@@ -52,6 +54,7 @@ if __name__ == "__main__":
     executor = Executor(algorithm, True, config, logger=logger)
 
     paper_note_dataset = PaperNoteWords(
+        paper_note_path=args.paper_note_path,
         meta=dataset.meta, vocab=dataset.vocab, data_config=dataset.data_config, max_length=dataset.max_length)
 
     executor.configure(softplacement=not args.hardplacement,

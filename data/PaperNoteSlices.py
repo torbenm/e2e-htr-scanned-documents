@@ -24,7 +24,7 @@ class PaperNoteSlices(Dataset):
 
     def __init__(self, **kwargs):
         self.paper_note_path = kwargs.get(
-            'paper_notes_path', '../paper-notes/data/final')
+            'paper_note_path', '../paper-notes/data/final')
         self.slice_width = kwargs.get('slice_width', 320)
         self.slice_height = kwargs.get('slice_height', 320)
         self.filter = kwargs.get('filter', True)
