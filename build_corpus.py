@@ -6,7 +6,7 @@ import json
 BROWN_CORPUS_FILE = "./data/raw/corpus/brown.txt"
 LOB_CORPUS_FILE = "./data/raw/corpus/lob.txt"
 
-OUTPUT = "./data/output/corpus_new.json"
+OUTPUT = "./data/output/corpus.json"
 
 DEV_TEXT_FILE = ""
 TEST_TEXT_FILE = ""

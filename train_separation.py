@@ -37,7 +37,8 @@ if __name__ == "__main__":
     algorithm.configure(learning_rate=config['learning_rate'],
                         slice_width=config['data_config.slice_width'], slice_height=config['data_config.slice_height'])
     executor = Executor(algorithm, True, config, logger=logger)
-    dataset = PaperNoteSlices(filter=config['data_config.filter'],
+    dataset = PaperNoteSlices(paper_notes_path=config.default('data_config.paper_notes_path', '../paper-notes/data/final'),
+                              filter=config['data_config.filter'],
                               slice_width=config['data_config.slice_width'],
                               slice_height=config['data_config.slice_height'],
                               binarize=config.default('binary', False),

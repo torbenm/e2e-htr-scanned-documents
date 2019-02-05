@@ -132,6 +132,7 @@ Here are some of the options.
     }
   },
   "data_config": {
+    "paper_notes_path": "../paper-notes/data/final", // Path to the paper notes dataset
     // How the page should be separated into tiles/slices
     "slice_width": 512,
     "slice_height": 512,
@@ -155,13 +156,128 @@ Here are some of the options.
 To start the actual training, execute
 
 ```sh
-python train_separation.py [--gpu GPU] [--model-date] [--model-epoch]
+python train_separation.py --config separation/base [--gpu GPU] [--model-date] [--model-epoch]
 ```
 
 You should pass a GPU parameter with the index of the GPU to use. Default is `-1`, thus CPU execution.
 The model snapshots are stored in `models/$NAME_OF_THE_CONFIG_$CURRENT_DATE/`. Therefore, if you want to continue training an existing model, you should pass `--model-date` set to the according date and `--model-epoch` to the epoch where you want to continue.
+Of course, you can replace `separation/base` with whatever configuration you want to use (in the same schema, without the `config` folder name and without `.json`).
 
 ### Text Classification & Recognition
+
+Training the text classification and recognition network are very similar to the text separation network.
+Since they are interleaved as multi-task learning networks,
+they are both trained at once.
+The configuration used in my thesis is `config/otf-iam-paper-fair.json`.
+
+The following options in the configuration are available:
+
+```jsonc
+{
+  "name": "otf-iam-paper", // name of the configuration
+  "dataset": "iam-both-small", // which dataset to use (go by filename)
+  "algorithm": "htrnet", // You should stick to this
+  "save": 3, // After which epoch to create a snapshot of the model
+  "batch": 50, // Batch size
+  "epochs": 1000, // number of epochs
+  "max_batches": {
+    "rec": {
+      "train": 400, // numberof batches for recognition training
+      "dev": 200 // number of batches for recognition validation
+    },
+    "class": {
+      "train": 300, // number of batches for classification training
+      "dev": 100 // number of batches for classificaiton development
+    }
+  },
+  "learning_rate": 0.0003, // Learning reate for recognition
+  "class_learning_rate": 0.0001, // Learning rate for classification
+  "ctc": "greedy", // Which decoder to use for ctc
+  "data_config": {
+    "shuffle_epoch": true,
+    "type_probs": {
+      // Probability to select a given subset
+      // This should be chosen according to the amount of words/lines
+      // In this case, it yields roughly 50-50 in the training
+      "lines": 1,
+      "words": 0.12
+    },
+    "otf_augmentations": {
+      // similar to text separation
+      "affine": {}, // empty object here means that the standard settings from data/steps/pipes/affine.py
+      "warp": {
+        "prob": 0.5,
+        "deviation": 1.35,
+        "gridsize": [15, 15]
+      }
+    },
+    "preprocess": {
+      // Which preprocessing steps to apply with
+      "crop": true,
+      "invert": true,
+      "scale": 2.15,
+      "padding": 5
+    },
+    "postprocess": {
+      // This is not applied after the training, but after preprocessing & augmentation
+      "binarize": true
+    }
+  },
+  "algo_config": {
+    // Settings for the algorithm itself
+    "format": "nchw",
+    "scale": false,
+    "encoder": {
+      "type": "cnn",
+      "cnn": {
+        "bias": true,
+        "dropout": {
+          "active": true
+        },
+        "bnorm": {
+          "active": true,
+          "train": true
+        }
+      }
+    },
+    "classifier": {
+      "units": [512] // which dense layers are added
+    },
+    "fc": {
+      "use_activation": false
+    },
+    "optimizer": "adam"
+  }
+}
+```
+
+To start the actual training, execute
+
+```sh
+python train.py --config otf-iam-paper-fair [--gpu GPU] [--model-date] [--model-epoch] [--no-trains] [--no-class] [--paper-notes] [--only-paper]
+```
+
+The config, gpu, model date and model epoch are similar to the text separation network. With `--no-trans` and `--no-class` you can skip training on either the recognizer or the classification part. With `--paper-notes`, you can add training on the extracted words of the Paper Notes dataset.
+With `--only-paper`, the models are _only_ trained on the Paper Notes dataset.
+With the Paper Note options, you should also set `--paper-note-path` to the acording path if it deviates from `../paper-notes/data/words`
+
+### Language Model
+
+To create the language model, you need to download and place the brown / lob corpus in the folder `data/raw/corpus`.
+If you want to train on other files, you should check out `build_corpus.py` to see what's necessary (also if you want to adjust the path to the paper notes, which causes some words to be removed that are appearing in the evaluation/testing data).
+
+Run the following to create the corpus then:
+
+```
+python build_corpus.py
+```
+
+The corpus is then created as `./data/output/corpus.json`.
+However, the corpus used in my thesis is also commited as `data/corpus.json` (this is the location where the Language Model will look for the corpus, so either replace that file or change the language model settings).
+
+### Word Detector, Paragraph Detector, Line Segmentation & Co
+
+These models are currently trained by simply evaluation every parameter (see in the evaluation section below).
 
 ## Running
 

@@ -22,6 +22,8 @@ if __name__ == "__main__":
                         action='store_true', default=False)
     parser.add_argument('--paper-notes', help='Add training on paper notes',
                         action='store_true', default=False)
+    parser.add_argument('--paper-note-path',
+                        default='../paper-notes/data/words')
     parser.add_argument('--timeline', default='')
     parser.add_argument('--legacy-transpose', help='Legacy: Perform transposing',
                         action='store_true', default=False)
@@ -36,8 +38,13 @@ if __name__ == "__main__":
                  logplacement=args.logplacement, device=args.gpu)
 
     if args.paper_notes or args.only_paper:
+
         paper_note_dataset = PaperNoteWords(
-            meta=qe.dataset.meta, vocab=qe.dataset.vocab, data_config=qe.dataset.data_config, max_length=qe.dataset.max_length)
+            paper_note_path=args.paper_note_path,
+            meta=qe.dataset.meta,
+            vocab=qe.dataset.vocab,
+            data_config=qe.dataset.data_config,
+            max_length=qe.dataset.max_length)
     if not args.no_trans:
         if not args.only_paper:
             qe.add_train_transcriber()

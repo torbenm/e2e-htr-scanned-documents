@@ -29,7 +29,7 @@ class Puigcerver2017(AlgorithmBase):
             'lstm.cell': 'lstm',
             'bnorm.active': True,
             'bnorm.train': False,
-            'bnorm.before_activation': False,
+            'bnorm.before_activation': True,
             'format': 'nhwc',
             'fc.use_activation': True,
             'optimizer': 'adam'
