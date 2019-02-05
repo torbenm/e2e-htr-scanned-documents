@@ -14,9 +14,13 @@ class RecognitionRunner(Executable, Extendable):
     def extend_graph(self, graph):
         self.build_decoded_dense(graph)
 
+    def max_batches(self):
+        return self.config.defaultchain(
+            'max_batches.rec.test', 'max_batches.rec', 'max_batches')
+
     def get_batches(self):
         return self.dataset.generateBatch(
-            self.config['batch'], self.config['max_batches'], self.subset, True)
+            self.config['batch'], self.max_batches(), self.subset, True)
 
     def get_feed_dict(self, batch, graph):
         X = batch[0]
