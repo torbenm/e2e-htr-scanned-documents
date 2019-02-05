@@ -4,7 +4,7 @@ import os
 from functools import reduce
 
 from lib.nn.layer.algorithmBase import AlgorithmBase
-from nn import getAlgorithm
+from lib.nn import getAlgorithm
 
 from .executables import Executable
 from .Configuration import Configuration

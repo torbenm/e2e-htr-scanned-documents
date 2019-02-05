@@ -2,7 +2,7 @@ import os
 import time
 
 from data import util, Dataset, PreparedDataset
-from nn import getAlgorithm
+from lib.nn import getAlgorithm
 
 from .Configuration import Configuration
 from .Constants import CONFIG_PATH, MODELS_PATH
