@@ -156,12 +156,12 @@ Here are some of the options.
 To start the actual training, execute
 
 ```sh
-python train_separation.py --config separation/base [--gpu GPU_INDEX] [--model-date] [--model-epoch]
+python train_separation.py --config base [--gpu GPU_INDEX] [--model-date] [--model-epoch]
 ```
 
 You should pass a GPU parameter with the index of the GPU to use. Default is `-1`, thus CPU execution.
 The model snapshots are stored in `models/$NAME_OF_THE_CONFIG_$CURRENT_DATE/`. Therefore, if you want to continue training an existing model, you should pass `--model-date` set to the according date and `--model-epoch` to the epoch where you want to continue.
-Of course, you can replace `separation/base` with whatever configuration you want to use (in the same schema, without the `config` folder name and without `.json`).
+Of course, you can replace `base` with whatever configuration you want to use (in the same schema, without the `config/separation` folder name and without `.json`).
 
 ### Text Classification & Recognition
 

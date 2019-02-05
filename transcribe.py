@@ -26,7 +26,7 @@ if __name__ == "__main__":
     qe = QuickExecutor(args.dataset, args.config)
     qe.configure(softplacement=not args.hardplacement,
                  logplacement=args.logplacement, device=args.gpu)
-    transcriber = qe.add_transcriber(args.subset)
+    transcriber = qe.add_transcriber(subset=args.subset)
     qe.restore(args.model_date, args.model_epoch)
     qe()
     transcriptions = transcriber.transcriptions
