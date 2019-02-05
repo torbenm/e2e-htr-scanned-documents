@@ -296,7 +296,7 @@ python transcribe.py --gpu GPU_INDEX --config THE_CONFIGURATION_THAT_YOU_USED --
 For the classification network, run this:
 
 ```
-python runclasss.py --gpu GPU_INDEX --config THE_CONFIGURATION_THAT_YOU_USED --model-date DATE_OF_MODEL --model-epoch MODEL_EPOCH --dataset DATASET
+python runclass.py --gpu GPU_INDEX --config THE_CONFIGURATION_THAT_YOU_USED --model-date DATE_OF_MODEL --model-epoch MODEL_EPOCH --dataset DATASET
 ```
 
 In all of these comands, you should replace the arguments accordingly:
@@ -312,6 +312,8 @@ For the separation network, the parameters have the same meaning but are a bit l
 ```
 python run_separation.py --gpu GPU_INDEX --model-date MODEL_DATE --model-epoch MODEL_EPOCH [--paper-note-path PATH_TO_PAPER_NOTES_FOLDER]
 ```
+
+You will find the ouput in the predictions folder.
 
 ### The whole pipeline
 

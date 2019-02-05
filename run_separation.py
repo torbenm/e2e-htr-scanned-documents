@@ -71,6 +71,7 @@ if __name__ == "__main__":
     runner = SeparationRunner(logger=logger, config=config,
                               dataset=dataset, subset="test")
     executables = [runner]
+    os.makedirs('prediction', exist_ok=True)
 
     for idx in range(100):
         dataset.next_file("test")
