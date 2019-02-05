@@ -1,7 +1,7 @@
 {
   "blocks": [
     {
-      "type": "ParagraphSegmentation",
+      "type": "ParagraphDetection",
       "extractor": {
         "sauvola_window": 19,
         "erode_kernel": [35, 35],
@@ -42,7 +42,7 @@
   ],
   "data": {
     "path": "../paper-notes/data/final/dev/",
-    "ending": "-stripped.png",
+    "suffix": "-stripped.png",
     "limit": 200
   },
   "viz": {

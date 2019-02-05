@@ -1,7 +1,7 @@
 import numpy as np
 
 from lib.Configuration import Configuration
-from lib.segmentation.WordRegionExtractor import WordRegionExtractor
+from lib.segmentation.WordDetector import WordDetector
 
 
 DEFAULTS = {
@@ -9,11 +9,11 @@ DEFAULTS = {
 }
 
 
-class WordSegmentation(object):
+class WordDetection(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULTS)
-        self.region_extractor = WordRegionExtractor(
+        self.region_extractor = WordDetector(
             self.config["extractor"])
 
     def __call__(self, img, file):
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     img = cv2.imread(
         "../paper-notes/data/final/train/00009-paper.png")
-    lineseg = WordSegmentation()
+    lineseg = WordDetection()
     lines = lineseg(img)
     for line in lines:
         cv2.rectangle(

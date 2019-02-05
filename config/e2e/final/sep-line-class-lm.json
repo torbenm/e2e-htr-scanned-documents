@@ -7,7 +7,7 @@
       "disabled": false
     },
     {
-      "type": "ParagraphSegmentation",
+      "type": "ParagraphDetection",
       "extractor": {
         "sauvola_window": 19,
         "erode_kernel": [35, 35],
@@ -41,7 +41,7 @@
       "classify": true
     },
     {
-      "type": "OneGramLanguageModel"
+      "type": "UnigramLanguageModel"
     }
   ],
   "gt": {
@@ -68,7 +68,7 @@
   ],
   "data": {
     "path": "../paper-notes/data/final/test/",
-    "ending": "-paper.png",
+    "suffix": "-paper.png",
     "limit": 100
   }
 }

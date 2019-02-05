@@ -389,7 +389,7 @@ A block looks like this:
 
 ```jsonc
 {
-    "type": "WordSegmentation",
+    "type": "WordDetection",
     // Configuration for the detector
     "extractor": {
         "cluster_y_eps": 0.06,
@@ -402,7 +402,7 @@ A block looks like this:
 
 ```jsonc
 {
-    "type": "ParagraphSegmentation",
+    "type": "ParagraphDetection",
     // settings for the detector
     "extractor": {
         // Kernel of the sauvila filter
@@ -465,7 +465,7 @@ This is the most simple:
 
 ```jsonc
 {
-  "type": "OneGramLanguageModel",
+  "type": "UnigramLanguageModel",
   "source": "Path to the corpus.json"
 }
 ```
@@ -479,7 +479,7 @@ Apart from as an array of files, you can also path an object of settings:
     // Folder to check out
     "path": "../paper-notes/data/final/test/",
     // Ending of the files to consider
-    "ending": "-paper.png",
+    "suffix": "-paper.png",
     // Whatever the file name should start with
     "prefix": "...",
     // 0 or smaller means unlimited

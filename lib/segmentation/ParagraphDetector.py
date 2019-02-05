@@ -14,7 +14,7 @@ DEFAULTS = {
 }
 
 
-class ParagraphRegionExtractor():
+class ParagraphDetector():
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULTS)

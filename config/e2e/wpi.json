@@ -8,7 +8,7 @@
       "binarize_method": "mean_threshold"
     },
     {
-      "type": "ParagraphSegmentation",
+      "type": "ParagraphDetection",
       "extractor": {
         "sauvola_window": 19,
         "erode_kernel": [35, 35],

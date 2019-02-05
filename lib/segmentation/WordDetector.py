@@ -19,7 +19,7 @@ DEFAULT_CONFIG = {
 }
 
 
-class WordRegionExtractor(object):
+class WordDetector(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULT_CONFIG)

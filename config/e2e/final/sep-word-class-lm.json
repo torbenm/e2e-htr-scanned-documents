@@ -7,7 +7,7 @@
       "disabled": false
     },
     {
-      "type": "WordSegmentation",
+      "type": "WordDetection",
       "extractor": {
         "cluster_y_eps": 0.06,
         "cluster_x_eps": 0.54
@@ -20,7 +20,7 @@
       "classify": true
     },
     {
-      "type": "OneGramLanguageModel"
+      "type": "UnigramLanguageModel"
     }
   ],
   "gt": {
@@ -47,7 +47,7 @@
   ],
   "data": {
     "path": "../paper-notes/data/final/test_examples/",
-    "ending": "-paper.png",
+    "suffix": "-paper.png",
     "limit": 100
   }
 }

@@ -9,7 +9,7 @@ DEFAULT_CONFIG = {
 }
 
 
-class OneGramLanguageModel(object):
+class UnigramLanguageModel(object):
 
     def __init__(self, config={}):
         self.config = Configuration(config, DEFAULT_CONFIG)
@@ -70,5 +70,5 @@ if __name__ == "__main__":
     class test(object):
         text = "An|apple|does|not|fahl|faar|flom|the|trea|!"
 
-    model = OneGramLanguageModel()
+    model = UnigramLanguageModel()
     print(model._process_region(test()))

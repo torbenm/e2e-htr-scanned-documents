@@ -2,7 +2,7 @@ import numpy as np
 
 from lib.Configuration import Configuration
 from lib.segmentation.AStarLineSegmentation import AStarLineSegmentation
-from lib.segmentation.ParagraphRegionExtractor import ParagraphRegionExtractor
+from lib.segmentation.ParagraphDetector import ParagraphDetector
 
 
 DEFAULTS = {

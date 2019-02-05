@@ -1,7 +1,7 @@
 {
   "blocks": [
     {
-      "type": "WordSegmentation"
+      "type": "WordDetection"
     },
     {
       "type": "TranscriptionAndClassification",
@@ -28,7 +28,7 @@
   },
   "data": {
     "path": "../paper-notes/data/final/dev/",
-    "ending": "-stripped.png",
+    "suffix": "-stripped.png",
     "limit": 10
   }
 }

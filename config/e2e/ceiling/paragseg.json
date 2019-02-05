@@ -29,7 +29,7 @@
       "classify": true
     },
     {
-      "type": "OneGramLanguageModel"
+      "type": "UnigramLanguageModel"
     }
   ],
   "gt": {
@@ -56,7 +56,7 @@
   ],
   "data": {
     "path": "../paper-notes/data/final/test/",
-    "ending": "-stripped.png",
+    "suffix": "-stripped.png",
     "limit": 0
   }
 }

@@ -4,8 +4,8 @@ import numpy as np
 
 from lib.Configuration import Configuration
 from lib.buildingblocks.TextSeparation import TextSeparation
-from lib.buildingblocks.WordSegmentation import WordSegmentation
-from lib.buildingblocks.ParagraphSegmentation import ParagraphSegmentation
+from lib.buildingblocks.WordDetection import WordDetection
+from lib.buildingblocks.ParagraphDetection import ParagraphDetection
 from lib.buildingblocks.LineSegmentation import LineSegmentation
 from lib.buildingblocks.Ceiling import Ceiling
 from lib.buildingblocks.TranscriptionAndClassification import TranscriptionAndClassification
@@ -15,7 +15,7 @@ from lib.buildingblocks.visualizer.SeparatedVisualizer import SeparatedVisualize
 from lib.buildingblocks.evaluate.gtprovider.WordRegionGTProvider import WordRegionGTProvider
 from lib.buildingblocks.evaluate.gtprovider.ParagraphRegionGTProvider import ParagraphRegionGTProvider
 from lib.buildingblocks.evaluate.gtprovider.LineRegionGTProvider import LineRegionGTProvider
-from lib.buildingblocks.OneGramLanguageModel import OneGramLanguageModel
+from lib.buildingblocks.UnigramLanguageModel import UnigramLanguageModel
 from lib.buildingblocks.evaluate.IoU import IoU
 from lib.buildingblocks.evaluate.IoUPixelSum import IoUPixelSum
 from lib.buildingblocks.evaluate.IoUCER import IoUCER
@@ -51,14 +51,14 @@ class E2ERunner(object):
     def _parse_block(self, block):
         if block["type"] == "TextSeparation":
             return TextSeparation(self.globalConfig, block)
-        elif block["type"] == "WordSegmentation":
-            return WordSegmentation(block)
+        elif block["type"] == "WordDetection":
+            return WordDetection(block)
         elif block["type"] == "LineSegmentation":
             return LineSegmentation(block)
-        elif block["type"] == "ParagraphSegmentation":
-            return ParagraphSegmentation(block)
-        elif block["type"] == "OneGramLanguageModel":
-            return OneGramLanguageModel(block)
+        elif block["type"] == "ParagraphDetection":
+            return ParagraphDetection(block)
+        elif block["type"] == "UnigramLanguageModel":
+            return UnigramLanguageModel(block)
         elif block["type"] == "Ceiling":
             return Ceiling(block)
         elif block["type"] == "TranscriptionAndClassification":
@@ -85,7 +85,7 @@ class E2ERunner(object):
         else:
             prefix = data_config["prefix"] if "prefix" in data_config else ""
             filenames = list(filter(lambda f: f.endswith(
-                data_config["ending"]) and f.startswith(prefix), os.listdir(data_config["path"])))
+                data_config["suffix"]) and f.startswith(prefix), os.listdir(data_config["path"])))
             if data_config["limit"] > 0:
                 filenames = filenames[:data_config["limit"]]
             return [os.path.join(data_config["path"], filename) for filename in filenames]
